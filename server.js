@@ -3,9 +3,9 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
-const sequelize = require('./config/database');
-const usuarioRoutes = require('./routes/usuario');
-const casosRoutes = require('./routes/casos');
+const sequelize = require('./src/config/database');
+const usuarioRoutes = require('./src/routes/usuario');
+const casosRoutes = require('./src/routes/casos');
 
 const app = express();
 
