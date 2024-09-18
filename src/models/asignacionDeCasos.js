@@ -33,7 +33,8 @@ const AsignacionDeCaso = sequelize.define('AsignacionDeCaso', {
         field: 'fecha_asignacion'
     },
 }, {
-    tableName: 'asignaciondecasos'
+    tableName: 'asignaciondecasos',
+    timestamps: false,
 });
 
 // Definir asociaciones

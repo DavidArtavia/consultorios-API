@@ -5,7 +5,7 @@ const Caso = require('../models/caso');
 const Persona = require('../models/persona');
 const Direccion = require('../models/direccion');
 
-exports.createCaso = async (req, res) => {
+exports.crearCaso = async (req, res) => {
     const {
         descripcion,
         cliente,

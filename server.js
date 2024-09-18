@@ -6,6 +6,7 @@ const session = require('express-session');
 const sequelize = require('./src/config/database');
 const usuarioRoutes = require('./src/routes/usuario');
 const casosRoutes = require('./src/routes/casos');
+const asignacionesRoutes = require('./src/routes/asignaciones');
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use(session({
 // Rutas
 app.use('/api/v1/usuarios', usuarioRoutes);
 app.use('/api/v1/casos', casosRoutes);
+app.use('/api/v1/asignaciones', asignacionesRoutes);
 
 
 
