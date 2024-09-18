@@ -101,7 +101,19 @@ exports.register = async (req, res) => {
                 [Sequelize.Op.or]: [{ email }, { username }]
             }
         });
-        validateIfExists(existingUser);
+      
+        if (existingUser) {
+            const errors = [];
+            if (existingUser.email === email) {
+                errors.push('El correo electrónico ya está en uso.');
+            }
+            if (existingUser.username === username) {
+                errors.push('El nombre de usuario ya está en uso.');
+            }
+            if (errors.length > 0) {
+                return res.status(400).json({ ok: false, message: errors.join(', ') });
+            }
+        }
 
         // Crear un nuevo registro en la tabla Persona
         const persona = await Persona.create({
