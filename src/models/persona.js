@@ -39,7 +39,8 @@ const Persona = sequelize.define('Persona', {
         allowNull: true,
     },
 }, {
-    tableName: 'persona'
+    tableName: 'persona',
+    timestamps: false,
 });
 
 module.exports = Persona;
