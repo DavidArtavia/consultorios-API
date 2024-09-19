@@ -1,13 +1,7 @@
-// controllers/usuarioController.js
-// const Usuario = require('../models/usuario');
-// const Persona = require('../models/persona');
-// const Direccion = require('../models/direccion');
-// const Estudiante = require('../models/estudiante'); // Asegúrate de definir este modelo
-// const Profesor = require('../models/profesor'); // Asegúrate de definir este modelo
+
 const { Usuario, Persona, Direccion, Estudiante, Profesor, Sequelize } = require('../models');
 const bcrypt = require('bcryptjs');
 const { validateLoginInput, validateRegisterInput, validateIfExists } = require('./validations/validations');
-// const { Sequelize } = require('sequelize');
 
 // Login a user and create a session
 exports.login = async (req, res) => {
