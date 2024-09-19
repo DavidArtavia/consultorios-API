@@ -10,7 +10,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "Esta API permite gestionar la información de consultorios juridicos, incluyendo la creación, actualización, eliminación y consulta de datos de consultorios.",
+  "description": "",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
