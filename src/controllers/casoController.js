@@ -1,9 +1,6 @@
 // controllers/casoController.js
-const Cliente = require('../models/cliente');
-const Contraparte = require('../models/contraparte');
-const Caso = require('../models/caso');
-const Persona = require('../models/persona');
-const Direccion = require('../models/direccion');
+const { Caso, Persona, Direccion, Contraparte, Cliente, Sequelize } = require('../models');
+
 
 exports.crearCaso = async (req, res) => {
     const {

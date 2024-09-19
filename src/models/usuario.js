@@ -3,6 +3,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const bcrypt = require('bcryptjs');
 
+module.exports = (sequelize, DataTypes) => {
 const Usuario = sequelize.define('Usuario', {
     id_usuario: {
         type: DataTypes.UUID,
@@ -53,5 +54,6 @@ Usuario.associate = models => {
     });
 };
 
-module.exports = Usuario;
+    return Usuario;
 
+}

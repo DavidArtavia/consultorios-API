@@ -1,6 +1,6 @@
-const AsignacionDeCaso = require("../models/asignacionDeCasos");
-const Caso = require("../models/caso");
-const Estudiante = require("../models/estudiante");
+
+const { AsignacionDeCaso, Caso,  Estudiante, Sequelize } = require('../models');
+
 
 exports.asignarCasoAEstudiante = async (req, res) => {
     const { idEstudiante, idCaso } = req.body;

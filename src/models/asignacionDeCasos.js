@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
+module.exports = (sequelize, DataTypes) => {
 const AsignacionDeCaso = sequelize.define('AsignacionDeCaso', {
     id_asignacion: {
         type: DataTypes.UUID,
@@ -38,15 +39,16 @@ const AsignacionDeCaso = sequelize.define('AsignacionDeCaso', {
 });
 
 // Definir asociaciones
-AsignacionDeCaso.associate = models => {
-    AsignacionDeCaso.belongsTo(models.Caso, {
-        foreignKey: 'id_caso',
-        onDelete: 'CASCADE',
-    });
-    AsignacionDeCaso.belongsTo(models.Estudiante, {
-        foreignKey: 'id_estudiante',
-        onDelete: 'CASCADE',
-    });
-};
+    AsignacionDeCaso.associate = models => {
+        AsignacionDeCaso.belongsTo(models.Estudiante, {
+            foreignKey: 'id_estudiante',
+            onDelete: 'CASCADE',
+        });
+        AsignacionDeCaso.belongsTo(models.Caso, {
+            foreignKey: 'id_caso',
+            onDelete: 'CASCADE',
+        });
+    };
 
-module.exports = AsignacionDeCaso;
+    return AsignacionDeCaso
+}

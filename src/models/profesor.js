@@ -2,6 +2,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
+module.exports = (sequelize, DataTypes) => {
 const Profesor = sequelize.define('Profesor', {
     id_profesor: {
         type: DataTypes.UUID,
@@ -32,4 +33,5 @@ Profesor.associate = models => {
     });
 };
 
-module.exports = Profesor;
+    return Profesor
+}

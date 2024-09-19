@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
+module.exports = (sequelize, DataTypes) => {
 const Contraparte = sequelize.define('Contraparte', {
     id_contraparte: {
         type: DataTypes.UUID,
@@ -24,4 +25,5 @@ Contraparte.associate = models => {
     });
 };
 
-module.exports = Contraparte;
+    return Contraparte
+}

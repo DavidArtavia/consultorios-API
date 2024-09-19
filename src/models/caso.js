@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
+module.exports = (sequelize, DataTypes) => {
 const Caso = sequelize.define('Caso', {
     id_caso: {
         type: DataTypes.UUID,
@@ -84,4 +85,5 @@ Caso.associate = models => {
     });
 };
 
-module.exports = Caso;
+    return Caso
+}

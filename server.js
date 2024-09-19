@@ -4,8 +4,11 @@ const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
 const sequelize = require('./src/config/database');
-const usuarioRoutes = require('./src/routes/usuario');
+
+// rutas 
 const casosRoutes = require('./src/routes/casos');
+const usuarioRoutes = require('./src/routes/usuario');
+const estudiantesRoutes = require('./src/routes/estudiantes');
 const asignacionesRoutes = require('./src/routes/asignaciones');
 
 const app = express();
@@ -37,6 +40,8 @@ app.use(session({
 app.use('/api/v1/usuarios', usuarioRoutes);
 app.use('/api/v1/casos', casosRoutes);
 app.use('/api/v1/asignaciones', asignacionesRoutes);
+app.use('/api/v1/estudiantes', estudiantesRoutes);
+
 
 
 
