@@ -34,9 +34,9 @@ Esta API permite gestionar la información de consultorios juridicos, incluyendo
 
 ## Recomendaciones
 
-1. Usa el .en.example para ver la definicion correcta de las credenciales de la base de datos
+1. Usa el `.en.example` para ver la definicion correcta de las credenciales de la base de datos
 
-2. se usa posgres como gestor de base de datos
+2. se usa `postgreSQL` como gestor de base de datos
 
 
 ## Contribuciones
