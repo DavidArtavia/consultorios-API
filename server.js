@@ -10,12 +10,10 @@ const asignacionesRoutes = require('./src/routes/asignaciones');
 
 const app = express();
 
-// Configuración de CORS
-app.use(cors());
-
 // Configuración de CORS con opciones
 const corsOptions = {
-    origin: '*', // Permite todas las origenes
+    origin: true, // "true" permite todas las peticiones
+    credentials: true, // Permite el intercambio de cookies
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Métodos permitidos
     allowedHeaders: ['Content-Type', 'Authorization'], // Headers permitidos
 };
