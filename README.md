@@ -32,6 +32,13 @@ Esta API permite gestionar la información de consultorios juridicos, incluyendo
      ```
 2. Accede a la API en `http://localhost:3000`.
 
+## Recomendaciones
+
+1. Usa el .en.example para ver la definicion correcta de las credenciales de la base de datos
+
+2. se usa posgres como gestor de base de datos
+
+
 ## Contribuciones
 
 
