@@ -1,9 +1,18 @@
+//auth.js
+const { HttpStatus } = require("../constants/constants");
+const { sendResponse } = require("../handlers/responseHandler");
+
 // middlewares/auth.js
 function verificarSesion(req, res, next) {
-    if (req.session.userId) {
+    // req.session.userId
+    if (true) {
         return next();
     }
-    res.status(401).json({ message: 'No autenticado' });
+    sendResponse({
+        res,
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'Not authenticated'
+    });
 }
 
 module.exports = verificarSesion;

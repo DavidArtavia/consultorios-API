@@ -12,6 +12,7 @@ const estudiantesRoutes = require('./src/routes/estudiantes');
 const asignacionesRoutes = require('./src/routes/asignaciones');
 
 const app = express();
+const router = express.Router();
 
 // Configuración de CORS con opciones
 const corsOptions = {
@@ -26,7 +27,7 @@ app.use(express.json());
 
 // Configurar la sesión con cookies de larga duración
 app.use(session({
-    secret: 'tu_secreto_de_sesion',
+    secret: process.env.SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -42,7 +43,9 @@ app.use('/api/v1/casos', casosRoutes);
 app.use('/api/v1/asignaciones', asignacionesRoutes);
 app.use('/api/v1/estudiantes', estudiantesRoutes);
 
-
+app.get('/api/v1/version', (req, res) => {
+    res.send('v0.0.1');
+  });
 
 
 const port = process.env.PORT || 3000;

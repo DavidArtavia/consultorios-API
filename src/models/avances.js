@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const { TABLE_FIELDS } = require('../constants/constants');
 
 module.exports = (sequelize, DataTypes) => {
     const Avance = sequelize.define('Avance', {
@@ -17,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
             allowNull: false,
             defaultValue: DataTypes.NOW,
-            field: 'fecha_avance'
+            field: TABLE_FIELDS.FECHA_AVANCE
         },
         gestion: {
             type: DataTypes.TEXT,
@@ -26,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
         resultadoConcreto: {
             type: DataTypes.TEXT,
             allowNull: true,
-            field: 'resultado_concreto'
+            field: TABLE_FIELDS.RESULTADO_CONCRETO
         },
         evidencia: {
             type: DataTypes.TEXT,
@@ -43,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
     // Definir asociaciones
     Avance.associate = models => {
         Avance.belongsTo(models.Caso, {
-            foreignKey: 'id_caso',
+            foreignKey: TABLE_FIELDS.UID_CASO,
         });
     };
 

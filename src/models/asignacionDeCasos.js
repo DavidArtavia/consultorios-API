@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const { TABLE_FIELDS } = require('../constants/constants');
 
 module.exports = (sequelize, DataTypes) => {
 const AsignacionDeCaso = sequelize.define('AsignacionDeCaso', {
@@ -14,7 +15,7 @@ const AsignacionDeCaso = sequelize.define('AsignacionDeCaso', {
         allowNull: false,
         references: {
             model: 'casos', // Nombre de la tabla referenciada
-            key: 'id_caso'  // Columna de la tabla referenciada
+            key: TABLE_FIELDS.UID_CASO  // Columna de la tabla referenciada
         },
         onDelete: 'CASCADE'
     },
@@ -23,7 +24,7 @@ const AsignacionDeCaso = sequelize.define('AsignacionDeCaso', {
         allowNull: false,
         references: {
             model: 'estudiantes', // Nombre de la tabla referenciada
-            key: 'id_estudiante' // Columna de la tabla referenciada
+            key: TABLE_FIELDS.UID_ESTUDIANTE // Columna de la tabla referenciada
         },
         onDelete: 'CASCADE'
     },
@@ -31,7 +32,7 @@ const AsignacionDeCaso = sequelize.define('AsignacionDeCaso', {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
-        field: 'fecha_asignacion'
+        field: TABLE_FIELDS.FECHA_ASIGNACION
     },
 }, {
     tableName: 'asignaciondecasos',
@@ -41,11 +42,11 @@ const AsignacionDeCaso = sequelize.define('AsignacionDeCaso', {
 // Definir asociaciones
     AsignacionDeCaso.associate = models => {
         AsignacionDeCaso.belongsTo(models.Estudiante, {
-            foreignKey: 'id_estudiante',
+            foreignKey: TABLE_FIELDS.UID_ESTUDIANTE,
             onDelete: 'CASCADE',
         });
         AsignacionDeCaso.belongsTo(models.Caso, {
-            foreignKey: 'id_caso',
+            foreignKey: TABLE_FIELDS.UID_CASO,
             onDelete: 'CASCADE',
         });
     };

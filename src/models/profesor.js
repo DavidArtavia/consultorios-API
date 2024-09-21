@@ -1,6 +1,7 @@
 // models/profesor.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const { TABLE_FIELDS } = require('../constants/constants');
 
 module.exports = (sequelize, DataTypes) => {
 const Profesor = sequelize.define('Profesor', {
@@ -13,11 +14,11 @@ const Profesor = sequelize.define('Profesor', {
         type: DataTypes.STRING(50),
         allowNull: true,
     },
-    fechaContratacion: {
+    fechaInscripcion: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
-        field: 'fecha_contratacion'
+        field: TABLE_FIELDS.FECHA_INSCRIPCION
     },
 }, {
     tableName: 'profesores',

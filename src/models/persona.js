@@ -1,6 +1,7 @@
 // models/persona.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const { TABLE_FIELDS } = require('../constants/constants');
 
 
 module.exports = (sequelize, DataTypes) => {
@@ -11,26 +12,21 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             allowNull: false,
         },
-        primerNombre: {
+        primer_nombre: {
             type: DataTypes.STRING(50),
             allowNull: false,
-            field: 'primernombre'
-        
         },
-        segundoNombre: {
+        segundo_nombre: {
             type: DataTypes.STRING(50),
             allowNull: true,
-            field: 'segundonombre'
         },
-        primerApellido: {
+        primer_apellido: {
             type: DataTypes.STRING(50),
             allowNull: false,
-            field: 'primerapellido'
         },
-        segundoApellido: {
+        segundo_apellido: {
             type: DataTypes.STRING(50),
             allowNull: false,
-            field: 'segundoapellido'
         },
         cedula: {
             type: DataTypes.STRING(20),

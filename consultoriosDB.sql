@@ -2,10 +2,10 @@
 CREATE TABLE
     Persona (
         id_persona VARCHAR(255) PRIMARY KEY,
-        primerNombre VARCHAR(50) NOT NULL,
-        segundoNombre VARCHAR(50),
-        primerApellido VARCHAR(50) NOT NULL,
-        segundoApellido VARCHAR(50) NOT NULL,
+        primer_nombre VARCHAR(50) NOT NULL,
+        segundo_nombre VARCHAR(50),
+        primer_apellido VARCHAR(50) NOT NULL,
+        segundo_apellido VARCHAR(50) NOT NULL,
         cedula VARCHAR(20) NOT NULL,
         telefono VARCHAR(20)
     );
@@ -39,7 +39,7 @@ CREATE TABLE
     Direcciones (
         id_direccion VARCHAR(255) PRIMARY KEY,
         id_persona VARCHAR(255) REFERENCES Persona (id_persona) ON DELETE CASCADE,
-        direccionExacta VARCHAR(200),
+        direccion_exacta VARCHAR(200),
         canton VARCHAR(55) NOT NULL,
         distrito VARCHAR(55) NOT NULL,
         localidad VARCHAR(55) NOT NULL,
@@ -68,7 +68,7 @@ CREATE TABLE
     Profesores (
         id_profesor VARCHAR(255) PRIMARY KEY REFERENCES Persona (id_persona) ON DELETE CASCADE,
         especialidad VARCHAR(50),
-        fecha_contratacion DATE NOT NULL DEFAULT CURRENT_DATE
+        fecha_inscripcion DATE NOT NULL DEFAULT CURRENT_DATE
     );
 
 -- Table for storing information about the counterparty

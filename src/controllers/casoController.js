@@ -1,4 +1,6 @@
 // controllers/casoController.js
+const { HttpStatus } = require('../constants/constants');
+const { sendResponse } = require('../handlers/responseHandler');
 const { Caso, Persona, Direccion, Contraparte, Cliente, Sequelize } = require('../models');
 
 
@@ -13,17 +15,17 @@ exports.crearCaso = async (req, res) => {
     try {
         // Crear el cliente
         const clientePersona = await Persona.create({
-            primerNombre: cliente.primerNombre,
-            segundoNombre: cliente.segundoNombre,
-            primerApellido: cliente.primerApellido,
-            segundoApellido: cliente.segundoApellido,
+            primer_nombre: cliente.primer_nombre,
+            segundo_nombre: cliente.segundo_nombre,
+            primer_apellido: cliente.primer_apellido,
+            segundo_apellido: cliente.segundo_apellido,
             cedula: cliente.cedula,
             telefono: cliente.telefono,
         });
 
         await Direccion.create({
             id_persona: clientePersona.id_persona,
-            direccionExacta: cliente.direccion.direccionExacta,
+            direccion_exacta: cliente.direccion.direccion_exacta,
             canton: cliente.direccion.canton,
             distrito: cliente.direccion.distrito,
             localidad: cliente.direccion.localidad,
@@ -33,22 +35,22 @@ exports.crearCaso = async (req, res) => {
         const nuevoCliente = await Cliente.create({
             id_cliente: clientePersona.id_persona,
             sexo: cliente.sexo,
-            ingresoEconomico: cliente.ingresoEconomico,
+            ingreso_economico: cliente.ingreso_economico,
         });
 
         // Crear la contraparte
         const contrapartePersona = await Persona.create({
-            primerNombre: contraparte.primerNombre,
-            segundoNombre: contraparte.segundoNombre,
-            primerApellido: contraparte.primerApellido,
-            segundoApellido: contraparte.segundoApellido,
+            primer_nombre: contraparte.primer_nombre,
+            segundo_nombre: contraparte.segundo_nombre,
+            primer_apellido: contraparte.primer_apellido,
+            segundo_apellido: contraparte.segundo_apellido,
             cedula: contraparte.cedula,
             telefono: contraparte.telefono,
         });
 
         await Direccion.create({
             id_persona: contrapartePersona.id_persona,
-            direccionExacta: contraparte.direccion.direccionExacta,
+            direccion_exacta: contraparte.direccion.direccionExacta,
             canton: contraparte.direccion.canton,
             distrito: contraparte.direccion.distrito,
             localidad: contraparte.direccion.localidad,
@@ -67,9 +69,16 @@ exports.crearCaso = async (req, res) => {
             id_contraparte: nuevaContraparte.id_contraparte,
         });
 
-        res.status(201).json({ message: 'Caso creado exitosamente', caso: nuevoCaso });
+        sendResponse({ res, statusCode: HttpStatus.OK, message: 'Case created successfully', data: nuevoCaso });
+       
     } catch (error) {
-        console.error('Error al crear caso:', error);
-        res.status(500).json({ message: 'Error al crear caso', error: error.message });
+
+        sendResponse({
+            res, statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            message:{
+                message: 'Error creating case',
+                error: error.message
+            }
+        });
     }
 };

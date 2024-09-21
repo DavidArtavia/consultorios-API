@@ -1,31 +1,35 @@
 
 const { Usuario, Persona, Direccion, Estudiante, Profesor, Sequelize } = require('../models');
 const bcrypt = require('bcryptjs');
-const { validateLoginInput, validateRegisterInput, validateIfExists } = require('./validations/validations');
+const { validateLoginInput} = require('./validations/validations');
+const { HttpStatus, ROL } = require('../constants/constants');
+const { sendResponse, CustomError } = require('../handlers/responseHandler');
 
 // Login a user and create a session
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        console.log();
-        
 
         // verifica que los campos no esten vacios
         const validationErrors = validateLoginInput(email, password);
         if (validationErrors.length > 0) {
-            return res.status(400).json({ ok: false, message: validationErrors.join(', '), data: [] });
+
+            throw new CustomError(HttpStatus.BAD_REQUEST, validationErrors.join(', '));
+            return;
         }
 
         // Buscar al usuario por email
         const user = await Usuario.findOne({ where: { email } });
         if (!user) {
-            return res.status(400).json({ ok: false, message: 'Email does not exist', data: [] })
+            throw new CustomError(HttpStatus.BAD_REQUEST, 'Email does not exist');
+            return;
         }
 
         // Verificar la contraseña
         const passwordMatch = await bcrypt.compare(password, user.password_hash);
         if (!passwordMatch) {
-            return res.status(400).json({ ok: false, message: 'Invalid password', data: [] });
+            throw new CustomError(HttpStatus.BAD_REQUEST, 'Invalid password');
+            return;
         }
 
         // Crear la sesión del usuario
@@ -33,8 +37,10 @@ exports.login = async (req, res) => {
         req.session.userRole = user.rol;
 
         // Responder al cliente
-        return res.status(200).json({
-            ok: true,
+
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
             message: 'Successful login',
             data: [
                 {
@@ -42,7 +48,6 @@ exports.login = async (req, res) => {
                         id_usuario: user.id_usuario,
                         id_persona: user.id_persona,
                         username: user.username,
-                        password_hash: user.password_hash,//eliminar luego 
                         email: user.email,
                         rol: user.rol
                     }
@@ -50,24 +55,44 @@ exports.login = async (req, res) => {
             ]
         });
 
-
     } catch (error) {
-        res.status(500).json({ ok: false, message: 'Error logging in.', error });
+        sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || 'Fatal error during login',
+        });
     }
 };
 
 // Logout
 exports.logout = (req, res) => {
-    // Destroy the user's session
-    console.log('Sesión destruida:', req.session);
-    
-    req.session.destroy((err) => {
-        if (err) {
-            return res.status(500).json({ message: 'Error logging out' });
+
+
+    try {
+        if (!req.session) {
+            throw new CustomError(HttpStatus.FORBIDDEN, 'No active session')
+
         }
-        res.clearCookie('connect.sid');
-        res.status(200).json({ message: 'Logout successful' });
-    });
+
+        req.session.destroy((err) => {
+            if (err) {
+                throw new CustomError(HttpStatus.BAD_REQUEST, 'Error destroying session')
+            }
+
+            // Clear the cookie
+            res.clearCookie('connect.sid', { path: '/' });
+
+            // Respond to the client
+            sendResponse({ res, statusCode: HttpStatus.OK, message: "Logout successful" });
+        });
+
+    } catch (error) {
+        sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || "Fatal error during logout"
+        });
+    }
 };
 
 
@@ -89,8 +114,6 @@ exports.register = async (req, res) => {
         carnet
     } = req.body;
 
-    console.log('Datos recibidos:', req.body);
-
     try {
         // Validar datos y verificar que el usuario o correo no existan
         const existingUser = await Usuario.findOne({
@@ -98,26 +121,22 @@ exports.register = async (req, res) => {
                 [Sequelize.Op.or]: [{ email }, { username }]
             }
         });
-      
+
         if (existingUser) {
-            const errors = [];
             if (existingUser.email === email) {
-                errors.push('El correo electrónico ya está en uso.');
+                throw new CustomError(HttpStatus.BAD_REQUEST, 'The email is already in use.');
             }
             if (existingUser.username === username) {
-                errors.push('El nombre de usuario ya está en uso.');
-            }
-            if (errors.length > 0) {
-                return res.status(400).json({ ok: false, message: errors.join(', ') });
+                throw new CustomError(HttpStatus.BAD_REQUEST, 'The username is already in use.');
             }
         }
 
         // Crear un nuevo registro en la tabla Persona
         const persona = await Persona.create({
-            primerNombre,
-            segundoNombre,
-            primerApellido,
-            segundoApellido,
+            primer_nombre,
+            segundo_nombre,
+            primer_apellido,
+            segundo_apellido,
             cedula,
             telefono,
         });
@@ -126,7 +145,7 @@ exports.register = async (req, res) => {
         if (direccion) {
             await Direccion.create({
                 id_persona: persona.id_persona,
-                direccionExacta: direccion.direccionExacta,
+                direccion_exacta: direccion.direccion_exacta,
                 canton: direccion.canton,
                 distrito: direccion.distrito,
                 localidad: direccion.localidad,
@@ -144,27 +163,48 @@ exports.register = async (req, res) => {
         });
 
         // Registrar en la tabla correspondiente según el rol
-        if (rol === 'estudiante') {
+        if (rol === ROL.ESTUDIANTE) {
             await Estudiante.create({
                 id_estudiante: persona.id_persona,
                 carnet: carnet
             });
-        } else if (rol === 'profesor') {
+        } else if (rol === ROL.PROFESOR || rol === ROL.ADMINISTRADOR) {
             await Profesor.create({
                 id_profesor: persona.id_persona,
-                especialidad: especialidad // Asigna especialidad u otros campos según el caso
+                especialidad // Asigna especialidad u otros campos según el caso
             });
         }
 
-        res.status(201).json({ message: 'User registered successfully', user: usuario });
+        sendResponse({
+            res,
+            statusCode: HttpStatus.CREATED,
+            message: 'User registered successfully',
+            data: { user: usuario }
+        });
+
     } catch (error) {
-        console.error('Error al registrar usuario:', error); // Registrar el error en la consola
         if (error.name === 'SequelizeValidationError') {
             // Obtener los mensajes de error de validación
             const validationErrors = error.errors.map(err => err.message);
-            return res.status(400).json({ message: 'Validation error', errors: validationErrors });
+
+            sendResponse({
+                res,
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: {
+                    'Validation error': validationErrors
+                }
+            });
+            return;
         }
-        res.status(500).json({ message: 'Error registering user', error: error.message, stack: error.stack });
+        sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: 'Error registering user',
+                error: error.message,
+                stack: error.stack
+            }
+        });
     }
 };
 
