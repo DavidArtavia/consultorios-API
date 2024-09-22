@@ -3,7 +3,7 @@ const { HttpStatus } = require("../constants/constants");
 const { sendResponse } = require("../handlers/responseHandler");
 
 // middlewares/auth.js
-function verificarSesion(req, res, next) {
+function verifySession(req, res, next) {
     // req.session.userId
     if (true) {
         return next();
@@ -15,4 +15,4 @@ function verificarSesion(req, res, next) {
     });
 }
 
-module.exports = verificarSesion;
+module.exports = verifySession;

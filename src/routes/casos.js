@@ -2,9 +2,16 @@
 const express = require('express');
 const router = express.Router();
 const casoController = require('../controllers/casoController');
-const verificarSesion = require('../middlewares/auth');
+const verifySession = require('../middlewares/auth');
+const { verifyRole } = require('../middlewares/verifyRole');
+const { ROL } = require('../constants/constants');
 
 // Ruta para crear un caso
-router.post('/crear', verificarSesion, casoController.crearCaso);
+router.post(
+    '/crear',
+    verifySession,
+    verifyRole([ROL.PROFESSOR, ROL.SUPERADMIN]),
+    casoController.crearCaso
+);
 
 module.exports = router;

@@ -99,10 +99,10 @@ exports.logout = (req, res) => {
 // Register a new user
 exports.register = async (req, res) => {
     const {
-        primerNombre,
-        segundoNombre,
-        primerApellido,
-        segundoApellido,
+        primer_nombre,
+        segundo_nombre,
+        primer_apellido,
+        segundo_apellido,
         cedula,
         telefono,
         direccion,
@@ -115,6 +115,14 @@ exports.register = async (req, res) => {
     } = req.body;
 
     try {
+
+
+        const userRole = req.session.userRole;
+        // Verificar que el usuario no tenga el mismo rol
+        if (userRole === rol) { 
+            throw new CustomError(HttpStatus.FORBIDDEN, 'You do not have the necessary permissions to create a user with the same role as yours');
+        }
+
         // Validar datos y verificar que el usuario o correo no existan
         const existingUser = await Usuario.findOne({
             where: {
@@ -130,6 +138,7 @@ exports.register = async (req, res) => {
                 throw new CustomError(HttpStatus.BAD_REQUEST, 'The username is already in use.');
             }
         }
+        
 
         // Crear un nuevo registro en la tabla Persona
         const persona = await Persona.create({
@@ -163,12 +172,12 @@ exports.register = async (req, res) => {
         });
 
         // Registrar en la tabla correspondiente según el rol
-        if (rol === ROL.ESTUDIANTE) {
+        if (rol === ROL.STUDENT) {
             await Estudiante.create({
                 id_estudiante: persona.id_persona,
                 carnet: carnet
             });
-        } else if (rol === ROL.PROFESOR || rol === ROL.ADMINISTRADOR) {
+        } else if (rol === ROL.PROFESSOR) {
             await Profesor.create({
                 id_profesor: persona.id_persona,
                 especialidad // Asigna especialidad u otros campos según el caso

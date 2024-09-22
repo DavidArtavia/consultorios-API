@@ -75,11 +75,10 @@ const TABLE_FIELDS = {
 }
 
 const ROL = {
-    ESTUDIANTE: 'estudiante',
-    PROFESOR: 'profesor',
-    ADMINISTRADOR: 'administrador'
-}
-
+    SUPERADMIN:'administrador',          
+    PROFESSOR: 'profesor',            
+    STUDENT: 'estudiante',           
+};
 
 
 module.exports = {
