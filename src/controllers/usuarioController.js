@@ -119,8 +119,11 @@ exports.register = async (req, res) => {
 
         const userRole = req.session.userRole;
         // Verificar que el usuario no tenga el mismo rol
-        if (userRole === rol) { 
-            throw new CustomError(HttpStatus.FORBIDDEN, 'You do not have the necessary permissions to create a user with the same role as yours');
+        if (userRole === rol) {
+            throw new CustomError(
+                HttpStatus.FORBIDDEN,
+                'You do not have the necessary permissions to create a user with the same role as yours'
+            );
         }
 
         // Validar datos y verificar que el usuario o correo no existan
@@ -131,25 +134,35 @@ exports.register = async (req, res) => {
         });
         const existingPerson = await Persona.findOne({
             where: {
-                [Sequelize.Op.or]: [{ cedula }]
+                cedula
             }
         });
-        console.log('existingPerson', existingPerson);
-        
-        
 
-        if (existingUser) {
-            // if (existingUser.email === email) {
-            //     throw new CustomError(HttpStatus.BAD_REQUEST, 'The email is already in use.');
-            // }
-            // if (existingUser.username === username) {
-            //     throw new CustomError(HttpStatus.BAD_REQUEST, 'The username is already in use.');
-            // }
-            if (existingPerson.cedula === cedula) {
-                console.log('la cedula ya existe', existingPerson.cedula);
-                throw new CustomError(HttpStatus.BAD_REQUEST, 'The cedula is already in use.');
-                
+        const existingCarnet = await Estudiante.findOne({
+            where: {
+                carnet
             }
+        });
+
+
+        // Verificar si ya existe el usuario
+        if (existingUser) {
+            if (existingUser.email === email) {
+                throw new CustomError(HttpStatus.BAD_REQUEST, 'The email is already in use.');
+            }
+            if (existingUser.username === username) {
+                throw new CustomError(HttpStatus.BAD_REQUEST, 'The username is already in use.');
+            }
+        }
+
+        // Verificar si ya existe la cédula registrada
+        if (existingPerson && existingPerson.cedula === cedula) {
+            throw new CustomError(HttpStatus.BAD_REQUEST, 'The cedula is already in use.');
+        }
+
+        // Verificar si ya existe el carnet registrado (solo para estudiantes)
+        if (existingCarnet && existingCarnet.carnet === carnet) {
+            throw new CustomError(HttpStatus.BAD_REQUEST, 'The carnet is already in use.');
         }
         
 
@@ -213,16 +226,11 @@ exports.register = async (req, res) => {
             statusCode: HttpStatus.CREATED,
             message: 'User registered successfully',
             data: { user: usuario }
-        });
-
-        console.log('User registered successfully');
-        
+        });        
 
     } catch (error) {
         if (error.name === 'SequelizeValidationError') {
             const validationErrors = error.errors.map(err => err.message);
-
-            console.error('Validation error:', validationErrors); // Agrega esto para ver los mensajes de error
 
             sendResponse({
                 res,
@@ -234,9 +242,6 @@ exports.register = async (req, res) => {
             });
             return;
         }
-
-        // Agregar un log más general para cualquier otro error
-        console.error('Error registering user:', error);
 
         sendResponse({
             res,

@@ -69,7 +69,12 @@ exports.crearCaso = async (req, res) => {
             id_contraparte: nuevaContraparte.id_contraparte,
         });
 
-        sendResponse({ res, statusCode: HttpStatus.OK, message: 'Case created successfully', data: nuevoCaso });
+        sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: 'Case created successfully',
+            data: nuevoCaso
+        });
        
     } catch (error) {
 

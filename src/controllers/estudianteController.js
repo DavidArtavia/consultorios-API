@@ -1,7 +1,7 @@
 // controllers/estudianteController.js
-const { Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte } = require('../models');
+const { Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Direccion } = require('../models');
 const { HttpStatus, TABLE_FIELDS } = require("../constants/constants");
-const { sendResponse } = require('../handlers/responseHandler');
+const { sendResponse, CustomError} = require('../handlers/responseHandler');
 const obtenerNombreCompleto = require('../utils/helpers');
 
 
@@ -75,7 +75,7 @@ exports.mostrarInformacionEstudiante = async (req, res) => {
         });
 
         if (!estudiante) {
-            sendResponse({ res, statusCode: HttpStatus.NOT_FOUND, message: 'Student not found' });
+            throw new CustomError(HttpStatus.NOT_FOUND,'Student not found');
             return
         }
 
@@ -87,24 +87,8 @@ exports.mostrarInformacionEstudiante = async (req, res) => {
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,
             casosAsignados: estudiante.AsignacionDeCasos.map(asignacion => ({
-                idCaso: asignacion.Caso.id_caso,
-                expediente: asignacion.Caso.expediente,
-                tipo_proceso: asignacion.Caso.tipo_proceso,
-                ley_7600: asignacion.Caso.ley_7600,
-                cuantia_proceso: asignacion.Caso.cuantia_proceso,
-                aporte_comunidad: asignacion.Caso.aporte_comunidad,
-                sintesis_hechos: asignacion.Caso.sintesis_hechos,
-                fecha_creacion: asignacion.Caso.fecha_creacion,
-                etapa_proceso: asignacion.Caso.etapa_proceso,
-                evidencia: asignacion.Caso.evidencia,
-                estado: asignacion.Caso.estado,
-                cuantia_proceso: asignacion.Caso.cuantia_proceso,
-                cliente: asignacion.Caso.Cliente ? {
-                    nombreCompleto: obtenerNombreCompleto(asignacion.Caso.Cliente.Persona)
-                } : null,
-                contraparte: asignacion.Caso.Contraparte ? {
-                    nombreCompleto: obtenerNombreCompleto(asignacion.Caso.Contraparte.Persona)
-                } : null
+
+                ...asignacion.Caso.toJSON(),
             }))
         };
         sendResponse({ res, statusCode: HttpStatus.OK, message: 'Student information', data: estudianteInfo });
@@ -121,3 +105,72 @@ exports.mostrarInformacionEstudiante = async (req, res) => {
 
     }
 };
+
+exports.actualizarEstudiante = async (req, res) => {
+
+    const { id_estudiante, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, cedula, telefono, carnet, direccion } = req.body;
+
+    try {
+        // Verificar si el estudiante existe
+        const estudiante = await Estudiante.findByPk(id_estudiante, {
+            include: Persona
+        });
+
+        if (!estudiante) {
+            throw new CustomError(HttpStatus.NOT_FOUND, 'Student not found');
+        }
+        
+        // Actualizar los datos de la persona asociada
+        await estudiante.Persona.update({
+            primer_nombre,
+            segundo_nombre,
+            primer_apellido,
+            segundo_apellido,
+            cedula,
+            telefono
+        });
+
+        // Actualizar los datos del estudiante (carnet)
+        await estudiante.update({
+            carnet
+        });
+
+        // Actualizar la dirección si se proporciona
+        if (direccion) {
+            await Direccion.update({
+                direccion_exacta: direccion.direccion_exacta,
+                canton: direccion.canton,
+                distrito: direccion.distrito,
+                localidad: direccion.localidad,
+                provincia: direccion.provincia,
+            }, {
+                where: { id_persona: estudiante.Persona.id_persona }
+            });
+        }
+      
+        // Obtener la información actualizada del estudiante
+        const estudianteInfo = {
+            ...estudiante.toJSON(),
+            direccion: direccion ? {
+             ...direccion
+            } : {}
+        };
+
+        sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: 'Student updated successfully',
+            data: { estudianteInfo }
+        });
+    } catch (error) {
+        console.error('Error al actualizar el estudiante:', error);
+
+        sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || 'Error updating student',
+            error: error.stack
+        });
+    }
+};
+

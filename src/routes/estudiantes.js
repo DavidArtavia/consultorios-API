@@ -16,4 +16,14 @@ router.post(
     estudianteController.mostrarInformacionEstudiante
 );
 
+router.put(
+    '/actualizar',
+    verifySession,
+    verifyRole([
+        ROL.SUPERADMIN,
+        ROL.PROFESSOR
+    ]),
+    estudianteController.actualizarEstudiante
+);
+
 module.exports = router;

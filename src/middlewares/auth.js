@@ -4,8 +4,8 @@ const { sendResponse } = require("../handlers/responseHandler");
 
 // middlewares/auth.js
 function verifySession(req, res, next) {
-    // req.session.userId
-    if (true) {
+    userId = req.session.userId
+    if (userId) {
         return next();
     }
     sendResponse({

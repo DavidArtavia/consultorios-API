@@ -1,4 +1,6 @@
 
+const { HttpStatus } = require('../constants/constants');
+const { CustomError, sendResponse } = require('../handlers/responseHandler');
 const { AsignacionDeCaso, Caso,  Estudiante, Sequelize } = require('../models');
 
 
@@ -10,8 +12,13 @@ exports.asignarCasoAEstudiante = async (req, res) => {
         const estudiante = await Estudiante.findByPk(idEstudiante);
         const caso = await Caso.findByPk(idCaso);
 
-        if (!estudiante || !caso) {
-            return res.status(404).json({ message: 'Estudiante o caso no encontrado' });
+        if (!estudiante) {
+
+            throw new CustomError(HttpStatus.NOT_FOUND, 'Student not found');
+        }
+        if (!caso) {
+
+            throw new CustomError(HttpStatus.NOT_FOUND, 'Case not found');
         }
 
         // Verificar si el caso ya está asignado a algún estudiante
@@ -20,7 +27,8 @@ exports.asignarCasoAEstudiante = async (req, res) => {
         });
 
         if (asignacionExistente) {
-            return res.status(400).json({ message: 'El caso ya está asignado a otro estudiante' });
+            
+            throw new CustomError(HttpStatus.BAD_REQUEST, 'The case is already assigned to another student');
         }
 
         // Crear la asignación
@@ -30,10 +38,20 @@ exports.asignarCasoAEstudiante = async (req, res) => {
         });
 
 
-
-        res.status(201).json({ message: 'Caso asignado al estudiante exitosamente', asignacion: nuevaAsignacion });
+        sendResponse({
+            res,
+            statusCode: HttpStatus.CREATED,
+            message: 'Case assigned to student successfully',
+            data: nuevaAsignacion
+        });
     } catch (error) {
         console.error('Error al asignar caso al estudiante:', error);
-        res.status(500).json({ message: 'Error al asignar caso al estudiante', error: error.message });
+
+        sendResponse({
+            res,
+            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            message: 'Error assigning case to student',
+            error: error.message
+        });
     }
 };
