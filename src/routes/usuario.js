@@ -8,6 +8,6 @@ const { verifyRole } = require('../middlewares/verifyRole');
 
 router.post('/login', usuarioController.login);
 router.post('/logout', verifySession, usuarioController.logout);
-router.post('/register', verifySession, verifyRole([ROL.PROFESSOR, ROL.SUPERADMIN]) , usuarioController.register);
+router.post('/register', verifySession,  usuarioController.register);
 
 module.exports = router;

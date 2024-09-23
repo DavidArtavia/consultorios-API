@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             unique: true,
         },
-        fechaInscripcion: {
+        fecha_inscripcion: {
             type: DataTypes.DATE,
             allowNull: false,
             defaultValue: DataTypes.NOW,

@@ -129,18 +129,31 @@ exports.register = async (req, res) => {
                 [Sequelize.Op.or]: [{ email }, { username }]
             }
         });
+        const existingPerson = await Persona.findOne({
+            where: {
+                [Sequelize.Op.or]: [{ cedula }]
+            }
+        });
+        console.log('existingPerson', existingPerson);
+        
+        
 
         if (existingUser) {
-            if (existingUser.email === email) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, 'The email is already in use.');
-            }
-            if (existingUser.username === username) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, 'The username is already in use.');
+            // if (existingUser.email === email) {
+            //     throw new CustomError(HttpStatus.BAD_REQUEST, 'The email is already in use.');
+            // }
+            // if (existingUser.username === username) {
+            //     throw new CustomError(HttpStatus.BAD_REQUEST, 'The username is already in use.');
+            // }
+            if (existingPerson.cedula === cedula) {
+                console.log('la cedula ya existe', existingPerson.cedula);
+                throw new CustomError(HttpStatus.BAD_REQUEST, 'The cedula is already in use.');
+                
             }
         }
         
 
-        // Crear un nuevo registro en la tabla Persona
+        // // Crear un nuevo registro en la tabla Persona
         const persona = await Persona.create({
             primer_nombre,
             segundo_nombre,
@@ -173,16 +186,27 @@ exports.register = async (req, res) => {
 
         // Registrar en la tabla correspondiente según el rol
         if (rol === ROL.STUDENT) {
-            await Estudiante.create({
-                id_estudiante: persona.id_persona,
-                carnet: carnet
-            });
+            try {
+                await Estudiante.create({
+                    id_estudiante: persona.id_persona,
+                    carnet: carnet
+                });
+            } catch (error) {
+                console.error('Error creating student record:', error); // Agregar log para ver si falla aquí
+                throw new CustomError(HttpStatus.INTERNAL_SERVER_ERROR, 'Error creating student record');
+            }
         } else if (rol === ROL.PROFESSOR) {
-            await Profesor.create({
-                id_profesor: persona.id_persona,
-                especialidad // Asigna especialidad u otros campos según el caso
-            });
+            try {
+                await Profesor.create({
+                    id_profesor: persona.id_persona,
+                    especialidad
+                });
+            } catch (error) {
+                console.error('Error creating professor record:', error); // Agregar log para ver si falla aquí
+                throw new CustomError(HttpStatus.INTERNAL_SERVER_ERROR, 'Error creating professor record');
+            }
         }
+
 
         sendResponse({
             res,
@@ -191,20 +215,29 @@ exports.register = async (req, res) => {
             data: { user: usuario }
         });
 
+        console.log('User registered successfully');
+        
+
     } catch (error) {
         if (error.name === 'SequelizeValidationError') {
-            // Obtener los mensajes de error de validación
             const validationErrors = error.errors.map(err => err.message);
+
+            console.error('Validation error:', validationErrors); // Agrega esto para ver los mensajes de error
 
             sendResponse({
                 res,
                 statusCode: HttpStatus.BAD_REQUEST,
                 message: {
-                    'Validation error': validationErrors
+                    'Validation error': validationErrors,
+                    error: error.stack,
                 }
             });
             return;
         }
+
+        // Agregar un log más general para cualquier otro error
+        console.error('Error registering user:', error);
+
         sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
