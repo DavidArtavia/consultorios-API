@@ -40,5 +40,12 @@ module.exports = (sequelize, DataTypes) => {
         tableName: 'persona'
     });
 
+    Persona.associate = (models) => {
+        Persona.hasOne(models.Direccion, {
+            foreignKey: 'id_persona', // La clave foránea en la tabla Direcciones
+            onDelete: 'CASCADE',
+        });
+    };
+
     return Persona
 };

@@ -33,7 +33,7 @@ app.use(session({
     cookie: {
         httpOnly: true, // Protege la cookie contra accesos desde JavaScript del lado del cliente
         secure: process.env.NODE_ENV === 'production', // Usar solo HTTPS en producción
-        maxAge: 1000 * 60 * 60 * 24 * 30 // 30 días de duración
+        maxAge: 1000 * 60 * 60 * 24 // 24 horas de duración
     }
 }));
 

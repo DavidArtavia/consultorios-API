@@ -1,5 +1,5 @@
 // controllers/casoController.js
-const { HttpStatus } = require('../constants/constants');
+const { HttpStatus, MESSAGE_SUCCESS, MESSAGE_ERROR } = require('../constants/constants');
 const { sendResponse } = require('../handlers/responseHandler');
 const { Caso, Persona, Direccion, Contraparte, Cliente, Sequelize } = require('../models');
 
@@ -72,7 +72,7 @@ exports.crearCaso = async (req, res) => {
         sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: 'Case created successfully',
+            message: MESSAGE_SUCCESS.CASE_CREATED,
             data: nuevoCaso
         });
        
@@ -81,7 +81,7 @@ exports.crearCaso = async (req, res) => {
         sendResponse({
             res, statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
             message:{
-                message: 'Error creating case',
+                message: MESSAGE_ERROR.CREATING_CASE,
                 error: error.message
             }
         });

@@ -73,17 +73,63 @@ const TABLE_FIELDS = {
     USERNAME: 'username',
 
 }
+const MESSAGE_ERROR = {
+    INVALID_EMAIL: 'Email does not exist',
+    INVALID_PASSWORD: 'Invalid password',
+    EMAIL_IS_REQUIRED: 'Email is required',
+    PASSWORD_IS_REQUIRED: 'Password is required',
+    USER_NOT_FOUND: 'User not found',
+    FATAL_ERROR_LOGIN: 'Fatal error during login',
+    FATAL_ERROR_LOGOUT: 'Fatal error during logout',
+    NO_ACTIVATE: 'No active session',
+    DESTROY_SESSION: 'Error destroying session',
+    WHIOUT_PERMISSION: 'You do not have the necessary permissions to create a user with the same role as yours',
+    EMAIL_ALREADY_USED: 'Email is already used',
+    USERNAME_ALREADY_USED: 'Username is already used',
+    ID_ALREADY_USED: 'Cedula is already used',
+    CARNE_ALREADY_USED: 'Carnet is already used',
+    CREATE_STUDENT: 'Error creating student record ',
+    CREATE_PROFESSOR: 'Error creating professor record',
+    CREATE_USER: 'Error creating user',
+    STUDENT_NOT_FOUND: 'Student not found',
+    NOT_STUDENTS_FOUND: 'No students found',
+    UPDATE_STUDENT: 'Error updating student',
+    DELETE_STUDENT: 'Error deleting student',
+    CREATING_CASE: 'Error creating case',
+    CASE_NOT_FOUND: 'Case not found',
+    CASE_ALREADY_ASSIGNED: 'The case is already assigned to another student',
+    ASSIGN_CASE: 'Error assigning case to student',
+    RECOVERED_STUDENTS: 'Error retrieving list of students',
+
+
+}
+
+
+const MESSAGE_SUCCESS = {
+    LOGIN: 'Succesfully login',
+    LOGOUT: 'Logout success',
+    USER_REGISTERED: 'User registered successfully',
+    STUDENT_INFO: 'Student information',
+    STUDENT_UPDATED: 'Student updated successfully',
+    CASE_CREATED: 'Case created successfully',
+    CASE_ASSIGNED: 'Case assigned to student successfully',
+    RECOVERED_STUDENTS: 'List of students retrieved successfully',
+
+}
+
 
 const ROL = {
-    SUPERADMIN:'administrador',          
-    PROFESSOR: 'profesor',            
-    STUDENT: 'estudiante',           
+    SUPERADMIN: 'administrador',
+    PROFESSOR: 'profesor',
+    STUDENT: 'estudiante',
 };
 
 
 module.exports = {
     HttpStatus,
     TABLE_FIELDS,
-    ROL
+    ROL,
+    MESSAGE_ERROR,
+    MESSAGE_SUCCESS
 }
 

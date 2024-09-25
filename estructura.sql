@@ -407,8 +407,6 @@ ALTER TABLE ONLY public.asignaciondecasos
 
 --
 -- Name: avances avances_id_caso_fkey; Type: FK CONSTRAINT; Schema: public; Owner: david
---
-
 ALTER TABLE ONLY public.avances
     ADD CONSTRAINT avances_id_caso_fkey FOREIGN KEY (id_caso) REFERENCES public.casos(id_caso);
 

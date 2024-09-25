@@ -13,7 +13,7 @@ router.post(
         ROL.SUPERADMIN,
         ROL.PROFESSOR,
         ROL.STUDENT]),
-    estudianteController.mostrarInformacionEstudiante
+    estudianteController.mostrarInformacionEstudianteConCasos
 );
 
 router.put(
@@ -24,6 +24,17 @@ router.put(
         ROL.PROFESSOR
     ]),
     estudianteController.actualizarEstudiante
+);
+
+
+router.get(
+    '/mostrar',
+    verifySession,
+    verifyRole([
+        ROL.SUPERADMIN,
+        ROL.PROFESSOR
+    ]),
+    estudianteController.mostrarEstudiantes
 );
 
 module.exports = router;

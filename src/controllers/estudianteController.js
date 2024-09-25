@@ -1,11 +1,87 @@
 // controllers/estudianteController.js
 const { Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Direccion } = require('../models');
-const { HttpStatus, TABLE_FIELDS } = require("../constants/constants");
-const { sendResponse, CustomError} = require('../handlers/responseHandler');
+const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL } = require("../constants/constants");
+const { sendResponse, CustomError } = require('../handlers/responseHandler');
 const obtenerNombreCompleto = require('../utils/helpers');
 
+exports.mostrarEstudiantes = async (req, res) => {
+    try {
+        // Buscar todos los estudiantes y la información relacionada
+        const estudiantes = await Estudiante.findAll({
+            include: [
+                {
+                    model: Persona, // Relación con Persona
+                    attributes: [
+                        TABLE_FIELDS.PRIMER_NOMBRE,
+                        TABLE_FIELDS.SEGUNDO_NOMBRE,
+                        TABLE_FIELDS.PRIMER_APELLIDO,
+                        TABLE_FIELDS.SEGUNDO_APELLIDO,
+                        TABLE_FIELDS.CEDULA,
+                        TABLE_FIELDS.TELEFONO
+                    ],
+                    include: [
+                        {
+                            model: Direccion, // Relación con Dirección
+                            attributes: [
+                                TABLE_FIELDS.DIRECCION_EXACTA,
+                                TABLE_FIELDS.CANTON,
+                                TABLE_FIELDS.DISTRITO,
+                                TABLE_FIELDS.LOCALIDAD,
+                                TABLE_FIELDS.PROVINCIA
+                            ]
+                        }
+                    ]
+                },
+                {
+                    model: AsignacionDeCaso // Relación con AsignacionDeCaso para contar los casos asignados
+                }
+            ]
+        });
 
-exports.mostrarInformacionEstudiante = async (req, res) => {
+        // Si no hay estudiantes registrados
+        if (estudiantes.length === 0) {
+            return sendResponse({
+                res,
+                statusCode: HttpStatus.NOT_FOUND,
+                message: MESSAGE_ERROR.NOT_STUDENTS_FOUND,
+                data: []
+            });
+        }
+
+        // Crear la estructura de respuesta
+        const estudiantesInfo = estudiantes.map(estudiante => ({
+            id: estudiante.id_estudiante,
+            nombreCompleto: obtenerNombreCompleto(estudiante.Persona),
+            carnet: estudiante.carnet,
+            cedula: estudiante.Persona.cedula,
+            telefono: estudiante.Persona.telefono,
+            rol: ROL.STUDENT,// preguntar para borraR
+            direccion: estudiante.Persona.Direccion ? {
+
+                ...estudiante.Persona.Direccion.toJSON()
+           
+            } : null, // Mostrar null si no hay dirección
+            casosAsignados: estudiante.AsignacionDeCasos.length || 0 // Contar el número de casos asignados o mostrar 0 si no tiene
+        }));
+
+        sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: MESSAGE_SUCCESS.RECOVERED_STUDENTS,
+            data: estudiantesInfo
+        });
+    } catch (error) {
+        console.error(MESSAGE_ERROR.RE, error);
+        sendResponse({
+            res,
+            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            message: MESSAGE_ERROR.RECOVERED_STUDENTS,
+            error: error.message
+        });
+    }
+};
+
+exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
     const { idEstudiante } = req.body;
 
     try {
@@ -74,9 +150,10 @@ exports.mostrarInformacionEstudiante = async (req, res) => {
             ]
         });
 
+
         if (!estudiante) {
-            throw new CustomError(HttpStatus.NOT_FOUND,'Student not found');
-            return
+            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
+
         }
 
         // Formatear la respuesta con la información del estudiante, casos y clientes
@@ -91,7 +168,7 @@ exports.mostrarInformacionEstudiante = async (req, res) => {
                 ...asignacion.Caso.toJSON(),
             }))
         };
-        sendResponse({ res, statusCode: HttpStatus.OK, message: 'Student information', data: estudianteInfo });
+        sendResponse({ res, statusCode: HttpStatus.OK, message: MESSAGE_SUCCESS.STUDENT_INFO, data: estudianteInfo });
     } catch (error) {
         sendResponse({
             res,
@@ -117,9 +194,9 @@ exports.actualizarEstudiante = async (req, res) => {
         });
 
         if (!estudiante) {
-            throw new CustomError(HttpStatus.NOT_FOUND, 'Student not found');
+            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
         }
-        
+
         // Actualizar los datos de la persona asociada
         await estudiante.Persona.update({
             primer_nombre,
@@ -147,19 +224,19 @@ exports.actualizarEstudiante = async (req, res) => {
                 where: { id_persona: estudiante.Persona.id_persona }
             });
         }
-      
+
         // Obtener la información actualizada del estudiante
         const estudianteInfo = {
             ...estudiante.toJSON(),
             direccion: direccion ? {
-             ...direccion
+                ...direccion
             } : {}
         };
 
         sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: 'Student updated successfully',
+            message: MESSAGE_SUCCESS.STUDENT_UPDATED,
             data: { estudianteInfo }
         });
     } catch (error) {
@@ -168,7 +245,7 @@ exports.actualizarEstudiante = async (req, res) => {
         sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-            message: error?.message || 'Error updating student',
+            message: error?.message || MESSAGE_ERROR.UPDATE_STUDENT,
             error: error.stack
         });
     }
