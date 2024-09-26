@@ -41,8 +41,16 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Persona.associate = (models) => {
+        Persona.hasOne(models.Estudiante, {
+            foreignKey: 'id_estudiante',
+            onDelete: 'CASCADE',
+        });
+        Persona.hasOne(models.Usuario, {
+            foreignKey: 'id_persona',
+            onDelete: 'CASCADE',
+        });
         Persona.hasOne(models.Direccion, {
-            foreignKey: 'id_persona', // La clave foránea en la tabla Direcciones
+            foreignKey: 'id_persona',
             onDelete: 'CASCADE',
         });
     };

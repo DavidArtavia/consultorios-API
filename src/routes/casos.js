@@ -14,4 +14,11 @@ router.post(
     casoController.crearCaso
 );
 
+router.post(
+    '/asignar',
+    verifySession,
+    verifyRole([ROL.SUPERADMIN, ROL.PROFESSOR]),
+    casoController.asignarCasoAEstudiante
+);
+
 module.exports = router;

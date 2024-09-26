@@ -1,16 +1,15 @@
-// controllers/estudianteController.js
-const { Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Direccion } = require('../models');
+const { Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Direccion, Usuario } = require('../models');
 const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL } = require("../constants/constants");
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
 const obtenerNombreCompleto = require('../utils/helpers');
+const { validateUpdatesInputs } = require('./validations/validations');
 
 exports.mostrarEstudiantes = async (req, res) => {
     try {
-        // Buscar todos los estudiantes y la información relacionada
         const estudiantes = await Estudiante.findAll({
             include: [
                 {
-                    model: Persona, // Relación con Persona
+                    model: Persona,
                     attributes: [
                         TABLE_FIELDS.PRIMER_NOMBRE,
                         TABLE_FIELDS.SEGUNDO_NOMBRE,
@@ -21,7 +20,7 @@ exports.mostrarEstudiantes = async (req, res) => {
                     ],
                     include: [
                         {
-                            model: Direccion, // Relación con Dirección
+                            model: Direccion,
                             attributes: [
                                 TABLE_FIELDS.DIRECCION_EXACTA,
                                 TABLE_FIELDS.CANTON,
@@ -33,12 +32,11 @@ exports.mostrarEstudiantes = async (req, res) => {
                     ]
                 },
                 {
-                    model: AsignacionDeCaso // Relación con AsignacionDeCaso para contar los casos asignados
+                    model: AsignacionDeCaso
                 }
             ]
         });
 
-        // Si no hay estudiantes registrados
         if (estudiantes.length === 0) {
             return sendResponse({
                 res,
@@ -48,20 +46,16 @@ exports.mostrarEstudiantes = async (req, res) => {
             });
         }
 
-        // Crear la estructura de respuesta
         const estudiantesInfo = estudiantes.map(estudiante => ({
             id: estudiante.id_estudiante,
             nombreCompleto: obtenerNombreCompleto(estudiante.Persona),
             carnet: estudiante.carnet,
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,
-            rol: ROL.STUDENT,// preguntar para borraR
             direccion: estudiante.Persona.Direccion ? {
-
                 ...estudiante.Persona.Direccion.toJSON()
-           
-            } : null, // Mostrar null si no hay dirección
-            casosAsignados: estudiante.AsignacionDeCasos.length || 0 // Contar el número de casos asignados o mostrar 0 si no tiene
+            } : null,
+            casosAsignados: estudiante.AsignacionDeCasos.length || 0
         }));
 
         sendResponse({
@@ -85,11 +79,10 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
     const { idEstudiante } = req.body;
 
     try {
-        // Buscar el estudiante e incluir la información de Persona y los casos asignados
         const estudiante = await Estudiante.findByPk(idEstudiante, {
             include: [
                 {
-                    model: Persona, // Incluir la relación con Persona
+                    model: Persona,
                     attributes: [
                         TABLE_FIELDS.PRIMER_NOMBRE,
                         TABLE_FIELDS.SEGUNDO_NOMBRE,
@@ -107,7 +100,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                             {
                                 model: Cliente,
                                 include: {
-                                    model: Persona, // Detalles del Cliente
+                                    model: Persona,
                                     attributes: [
                                         TABLE_FIELDS.PRIMER_NOMBRE,
                                         TABLE_FIELDS.SEGUNDO_NOMBRE,
@@ -119,18 +112,16 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                             {
                                 model: Contraparte,
                                 include: {
-                                    model: Persona, // Detalles de la Contraparte
+                                    model: Persona,
                                     attributes: [
                                         TABLE_FIELDS.PRIMER_NOMBRE,
                                         TABLE_FIELDS.SEGUNDO_NOMBRE,
                                         TABLE_FIELDS.PRIMER_APELLIDO,
                                         TABLE_FIELDS.SEGUNDO_APELLIDO
                                     ]
-
                                 }
                             }
                         ],
-
                         attributes: [
                             TABLE_FIELDS.UID_CASO,
                             TABLE_FIELDS.EXPEDIENTE,
@@ -143,20 +134,16 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                             TABLE_FIELDS.ETAPA_PROCESO,
                             TABLE_FIELDS.EVIDENCIA,
                             TABLE_FIELDS.ESTADO
-                        ] // Detalles del caso
-
+                        ]
                     }
                 }
             ]
         });
 
-
         if (!estudiante) {
             throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
-
         }
 
-        // Formatear la respuesta con la información del estudiante, casos y clientes
         const estudianteInfo = {
             id: estudiante.id_estudiante,
             nombreCompleto: obtenerNombreCompleto(estudiante.Persona),
@@ -164,7 +151,6 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,
             casosAsignados: estudiante.AsignacionDeCasos.map(asignacion => ({
-
                 ...asignacion.Caso.toJSON(),
             }))
         };
@@ -179,16 +165,13 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                 stack: error.stack
             }
         });
-
     }
 };
 
 exports.actualizarEstudiante = async (req, res) => {
-
     const { id_estudiante, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, cedula, telefono, carnet, direccion } = req.body;
 
     try {
-        // Verificar si el estudiante existe
         const estudiante = await Estudiante.findByPk(id_estudiante, {
             include: Persona
         });
@@ -197,7 +180,26 @@ exports.actualizarEstudiante = async (req, res) => {
             throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
         }
 
-        // Actualizar los datos de la persona asociada
+        // Verificar si la cédula ha cambiado
+        const currentCedula = estudiante.Persona.cedula;
+        await validateUpdatesInputs({
+            currentValue: currentCedula,
+            newValue: cedula,
+            model: Persona,
+            field: 'cedula',
+            message: MESSAGE_ERROR.ID_ALREADY_USED
+        });
+
+        // Verificar si el carnet ha cambiado
+        const currentCarnet = estudiante.carnet;
+        await validateUpdatesInputs({
+            currentValue: currentCarnet,
+            newValue: carnet,
+            model: Estudiante,
+            field: 'carnet',
+            message: MESSAGE_ERROR.CARNE_ALREADY_USED
+        });
+        
         await estudiante.Persona.update({
             primer_nombre,
             segundo_nombre,
@@ -207,12 +209,10 @@ exports.actualizarEstudiante = async (req, res) => {
             telefono
         });
 
-        // Actualizar los datos del estudiante (carnet)
         await estudiante.update({
             carnet
         });
 
-        // Actualizar la dirección si se proporciona
         if (direccion) {
             await Direccion.update({
                 direccion_exacta: direccion.direccion_exacta,
@@ -225,7 +225,6 @@ exports.actualizarEstudiante = async (req, res) => {
             });
         }
 
-        // Obtener la información actualizada del estudiante
         const estudianteInfo = {
             ...estudiante.toJSON(),
             direccion: direccion ? {
@@ -247,6 +246,49 @@ exports.actualizarEstudiante = async (req, res) => {
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || MESSAGE_ERROR.UPDATE_STUDENT,
             error: error.stack
+        });
+    }
+};
+
+exports.eliminarEstudiante = async (req, res) => {
+    const { id_estudiante } = req.body;
+
+    try {
+        // Buscar el estudiante y la persona asociada
+        const estudiante = await Estudiante.findByPk(id_estudiante, {
+            include: [
+                {
+                    model: Persona,
+                    include: [Direccion, Usuario]
+                },
+                {
+                    model: AsignacionDeCaso
+                }
+            ]
+        });
+
+        if (!estudiante) {
+            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
+        }
+        // Buscar la persona asociada al estudiante
+        const persona = estudiante.Persona;
+
+        // Eliminar la persona (esto eliminará en cascada el estudiante, dirección, usuario, etc.)
+        await persona.destroy();
+
+        sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: MESSAGE_SUCCESS.STUDENT_DELETED,
+            data: { estudiante }
+        });
+    } catch (error) {
+        console.error(MESSAGE_ERROR.DELETE_STUDENT, error);
+        sendResponse({
+            res,
+            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            message: MESSAGE_ERROR.DELETE_STUDENT,
+            error: error.message
         });
     }
 };

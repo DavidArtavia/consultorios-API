@@ -100,6 +100,7 @@ const MESSAGE_ERROR = {
     CASE_ALREADY_ASSIGNED: 'The case is already assigned to another student',
     ASSIGN_CASE: 'Error assigning case to student',
     RECOVERED_STUDENTS: 'Error retrieving list of students',
+    DELETE_STUDENT: 'Error deleting student',
 
 
 }
@@ -114,6 +115,7 @@ const MESSAGE_SUCCESS = {
     CASE_CREATED: 'Case created successfully',
     CASE_ASSIGNED: 'Case assigned to student successfully',
     RECOVERED_STUDENTS: 'List of students retrieved successfully',
+    STUDENT_DELETED: 'Student deleted successfully',
 
 }
 

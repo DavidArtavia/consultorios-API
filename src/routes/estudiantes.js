@@ -37,4 +37,15 @@ router.get(
     estudianteController.mostrarEstudiantes
 );
 
+
+router.delete(
+    '/eliminar',
+    verifySession,
+    verifyRole([
+        ROL.SUPERADMIN,
+        ROL.PROFESSOR
+    ]),
+    estudianteController.eliminarEstudiante
+);
+
 module.exports = router;
