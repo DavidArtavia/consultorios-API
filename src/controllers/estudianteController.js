@@ -1,7 +1,7 @@
 const { Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Direccion, Usuario } = require('../models');
 const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL } = require("../constants/constants");
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
-const obtenerNombreCompleto = require('../utils/helpers');
+const getFullName = require('../utils/helpers');
 const { validateUpdatesInputs } = require('./validations/validations');
 
 exports.mostrarEstudiantes = async (req, res) => {
@@ -48,7 +48,7 @@ exports.mostrarEstudiantes = async (req, res) => {
 
         const estudiantesInfo = estudiantes.map(estudiante => ({
             id: estudiante.id_estudiante,
-            nombreCompleto: obtenerNombreCompleto(estudiante.Persona),
+            nombreCompleto: getFullName(estudiante.Persona),
             carnet: estudiante.carnet,
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,
@@ -146,7 +146,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
 
         const estudianteInfo = {
             id: estudiante.id_estudiante,
-            nombreCompleto: obtenerNombreCompleto(estudiante.Persona),
+            nombreCompleto: getFullName(estudiante.Persona),
             carnet: estudiante.carnet,
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,
@@ -160,7 +160,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
-                message: 'Error retrieving student information',
+                message: MESSAGE_ERROR.RETRIEVING,
                 error: error.message,
                 stack: error.stack
             }
@@ -169,7 +169,17 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
 };
 
 exports.actualizarEstudiante = async (req, res) => {
-    const { id_estudiante, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, cedula, telefono, carnet, direccion } = req.body;
+    const {
+        id_estudiante,
+        primer_nombre,
+        segundo_nombre,
+        primer_apellido,
+        segundo_apellido,
+        cedula,
+        telefono,
+        carnet,
+        direccion
+    } = req.body;
 
     try {
         const estudiante = await Estudiante.findByPk(id_estudiante, {
@@ -186,7 +196,7 @@ exports.actualizarEstudiante = async (req, res) => {
             currentValue: currentCedula,
             newValue: cedula,
             model: Persona,
-            field: 'cedula',
+            field: TABLE_FIELDS.CEDULA,
             message: MESSAGE_ERROR.ID_ALREADY_USED
         });
 
@@ -196,7 +206,7 @@ exports.actualizarEstudiante = async (req, res) => {
             currentValue: currentCarnet,
             newValue: carnet,
             model: Estudiante,
-            field: 'carnet',
+            field: TABLE_FIELDS.CARNET,
             message: MESSAGE_ERROR.CARNE_ALREADY_USED
         });
         
@@ -239,8 +249,6 @@ exports.actualizarEstudiante = async (req, res) => {
             data: { estudianteInfo }
         });
     } catch (error) {
-        console.error('Error al actualizar el estudiante:', error);
-
         sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,

@@ -6,6 +6,6 @@ const verifySession = require('../middlewares/auth');
 
 
 router.post('/login', authController.login);
-router.post('/logout', verifySession, authController.logout);
+router.post('/logout',  authController.logout);
 
 module.exports = router;

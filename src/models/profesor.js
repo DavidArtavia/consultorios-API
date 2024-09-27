@@ -14,7 +14,7 @@ const Profesor = sequelize.define('Profesor', {
         type: DataTypes.STRING(50),
         allowNull: true,
     },
-    fechaInscripcion: {
+    fecha_inscripcion: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,

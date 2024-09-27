@@ -13,6 +13,33 @@ exports.crearCaso = async (req, res) => {
     } = req.body;
 
     try {
+        // Validar si la cédula del cliente ya está registrada
+        const clienteExistente = await Persona.findOne({
+            where: { cedula: cliente.cedula }
+        });
+
+        if (clienteExistente) {
+            throw new CustomError(HttpStatus.BAD_REQUEST, `Client with ID ${cliente.cedula} is already registered.`);
+        }
+
+        // Validar si la cédula de la contraparte ya está registrada
+        const contraparteExistente = await Persona.findOne({
+            where: { cedula: contraparte.cedula }
+        });
+
+        if (contraparteExistente) {
+            throw new CustomError(HttpStatus.BAD_REQUEST, `Contraparte with ID ${contraparte.cedula} is already registered.`);
+        }
+
+        // Validar si el expediente ya está registrado
+        const expedienteExistente = await Caso.findOne({
+            where: { expediente: casoData.expediente }
+        });
+
+        if (expedienteExistente) {
+            throw new CustomError(HttpStatus.BAD_REQUEST, `The case file ${casoData.expediente} is already registered.`);
+        }
+
         // Crear el cliente
         const clientePersona = await Persona.create({
             primer_nombre: cliente.primer_nombre,
@@ -75,18 +102,17 @@ exports.crearCaso = async (req, res) => {
             message: MESSAGE_SUCCESS.CASE_CREATED,
             data: nuevoCaso
         });
-       
-    } catch (error) {
 
+    } catch (error) {
         sendResponse({
-            res, statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-            message:{
-                message: MESSAGE_ERROR.CREATING_CASE,
-                error: error.message
-            }
+            res,
+            statusCode: error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error.message || MESSAGE_ERROR.CREATING_CASE,
+            error: error.stack
         });
     }
 };
+
 
 exports.asignarCasoAEstudiante = async (req, res) => {
     const { idEstudiante, idCaso } = req.body;

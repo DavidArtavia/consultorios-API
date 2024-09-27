@@ -1,4 +1,4 @@
-const { HttpStatus } = require("../constants/constants");
+const { HttpStatus, MESSAGE_ERROR } = require("../constants/constants");
 const { sendResponse } = require("../handlers/responseHandler");
 
 // Middleware para verificar el rol del usuario
@@ -7,13 +7,12 @@ exports.verifyRole = (roles) => {
         const userRole = req.session.userRole;  // Obtener el rol del usuario desde la sesión
         
         if (!userRole || !roles.includes(userRole)) {
-            console.log('userRole', userRole);
 
             if (userRole == null) {
                 sendResponse({
                     res,
                     statusCode: HttpStatus.UNAUTHORIZED,
-                    message: 'You must log in'
+                    message: MESSAGE_ERROR.MUST_LOGIN
                 });
             } else {
                 sendResponse({
@@ -25,6 +24,6 @@ exports.verifyRole = (roles) => {
             return;
         }
 
-        next();  // Si tiene el rol permitido, continúa con la siguiente función
+        next();  
     };
 };

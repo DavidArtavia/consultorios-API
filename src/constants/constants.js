@@ -93,6 +93,7 @@ const MESSAGE_ERROR = {
     CREATE_USER: 'Error creating user',
     STUDENT_NOT_FOUND: 'Student not found',
     NOT_STUDENTS_FOUND: 'No students found',
+    NOT_PROFESORS_FOUND: 'No profesors found',
     UPDATE_STUDENT: 'Error updating student',
     DELETE_STUDENT: 'Error deleting student',
     CREATING_CASE: 'Error creating case',
@@ -100,7 +101,10 @@ const MESSAGE_ERROR = {
     CASE_ALREADY_ASSIGNED: 'The case is already assigned to another student',
     ASSIGN_CASE: 'Error assigning case to student',
     RECOVERED_STUDENTS: 'Error retrieving list of students',
+    RECOVERED_PROFESORS: 'Error retrieving list of profesors',
     DELETE_STUDENT: 'Error deleting student',
+    MUST_LOGIN: 'You must login to access this resource',
+    RETRIEVING : 'Error retrieving student information'
 
 
 }
@@ -115,6 +119,7 @@ const MESSAGE_SUCCESS = {
     CASE_CREATED: 'Case created successfully',
     CASE_ASSIGNED: 'Case assigned to student successfully',
     RECOVERED_STUDENTS: 'List of students retrieved successfully',
+    RECOVERED_PROFESORS: 'List of profesors retrieved successfully',
     STUDENT_DELETED: 'Student deleted successfully',
 
 }

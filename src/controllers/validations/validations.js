@@ -9,6 +9,7 @@ const validateLoginInput = (email, password) => {
     if (!password) errors.push(MESSAGE_ERROR.PASSWORD_IS_REQUIRED);
     return errors;
 };
+
 const validateUpdatesInputs = async ({ currentValue, newValue, model, field, message }) => {
     // Si el valor ha cambiado, realiza la validación
     if (currentValue !== newValue) {
