@@ -48,6 +48,10 @@ exports.mostrarEstudiantes = async (req, res) => {
 
         const estudiantesInfo = estudiantes.map(estudiante => ({
             id: estudiante.id_estudiante,
+            primer_nombre: estudiante.Persona.primer_nombre,
+            segundo_nombre: estudiante.Persona.segundo_nombre,
+            primer_apellido: estudiante.Persona.primer_apellido,
+            segundo_apellido: estudiante.Persona.segundo_apellido,
             nombreCompleto: getFullName(estudiante.Persona),
             carnet: estudiante.carnet,
             cedula: estudiante.Persona.cedula,
@@ -209,7 +213,7 @@ exports.actualizarEstudiante = async (req, res) => {
             field: TABLE_FIELDS.CARNET,
             message: MESSAGE_ERROR.CARNE_ALREADY_USED
         });
-        
+
         await estudiante.Persona.update({
             primer_nombre,
             segundo_nombre,
