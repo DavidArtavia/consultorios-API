@@ -38,12 +38,8 @@ exports.mostrarEstudiantes = async (req, res) => {
         });
 
         if (estudiantes.length === 0) {
-            return sendResponse({
-                res,
-                statusCode: HttpStatus.NOT_FOUND,
-                message: MESSAGE_ERROR.NOT_STUDENTS_FOUND,
-                data: []
-            });
+            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
+          
         }
 
         const estudiantesInfo = estudiantes.map(estudiante => ({
@@ -70,11 +66,15 @@ exports.mostrarEstudiantes = async (req, res) => {
         });
     } catch (error) {
         console.error(MESSAGE_ERROR.RE, error);
+
         sendResponse({
             res,
-            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-            message: MESSAGE_ERROR.RECOVERED_STUDENTS,
-            error: error.message
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: MESSAGE_ERROR.RECOVERED_STUDENTS,
+                error: error.message,
+                stack: error.stack
+            }
         });
     }
 };

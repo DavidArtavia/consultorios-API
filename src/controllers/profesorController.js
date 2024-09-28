@@ -1,5 +1,5 @@
 const { MESSAGE_ERROR, HttpStatus, TABLE_FIELDS, MESSAGE_SUCCESS } = require("../constants/constants");
-const { sendResponse } = require("../handlers/responseHandler");
+const { sendResponse, CustomError } = require("../handlers/responseHandler");
 const { Profesor, Persona, Direccion } = require("../models");
 const getFullName = require("../utils/helpers");
 
@@ -35,12 +35,8 @@ exports.mostrarProfesor = async (req, res) => {
         });
 
         if (profesor.length === 0) {
-            return sendResponse({
-                res,
-                statusCode: HttpStatus.NOT_FOUND,
-                message: MESSAGE_ERROR.NOT_PROFESORS_FOUND,
-                data: []
-            });
+ 
+            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.NOT_PROFESORS_FOUND);
         }
 
         const profesoresInfo = profesor.map(profesor => ({
@@ -67,11 +63,15 @@ exports.mostrarProfesor = async (req, res) => {
         });
     } catch (error) {
         console.error(MESSAGE_ERROR.RECOVERED_PROFESORS, error);
+
         sendResponse({
             res,
-            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-            message: MESSAGE_ERROR.RECOVERED_PROFESORS,
-            error: error.message
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: MESSAGE_ERROR.RECOVERED_PROFESORS,
+                error: error.message,
+                stack: error.stack
+            }
         });
     }
 };

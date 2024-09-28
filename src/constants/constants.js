@@ -6,7 +6,6 @@ const HttpStatus = {
     CREATED: 201,
     NO_CONTENT: 204,
     BAD_REQUEST: 400,
-    
     UNAUTHORIZED: 401,
     FORBIDDEN: 403, // No permitido
     NOT_FOUND: 404,
@@ -106,7 +105,8 @@ const MESSAGE_ERROR = {
     RECOVERED_PROFESORS: 'Error retrieving list of profesors',
     DELETE_STUDENT: 'Error deleting student',
     MUST_LOGIN: 'You must login to access this resource',
-    RETRIEVING : 'Error retrieving student information'
+    RETRIEVING: 'Error retrieving the information',
+    NOT_PERSONS_FOUND: 'No persons found',
 
 
 }
@@ -123,6 +123,7 @@ const MESSAGE_SUCCESS = {
     RECOVERED_STUDENTS: 'List of students retrieved successfully',
     RECOVERED_PROFESORS: 'List of profesors retrieved successfully',
     STUDENT_DELETED: 'Student deleted successfully',
+    PERSONS_FOUND: 'Persons found',
 
 }
 

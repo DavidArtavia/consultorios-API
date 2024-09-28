@@ -11,6 +11,7 @@ const usuarioRoutes = require('./src/routes/usuario');
 const estudiantesRoutes = require('./src/routes/estudiantes');
 const profesoresRoutes = require('./src/routes/profesores');
 const authRoutes = require('./src/routes/auth');
+const personasRoutes = require('./src/routes/persona');
 
 const app = express();
 const router = express.Router();
@@ -44,6 +45,7 @@ app.use('/api/v1/casos', casosRoutes);
 app.use('/api/v1/estudiantes', estudiantesRoutes);
 app.use('/api/v1/profesores', profesoresRoutes);
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/personas', personasRoutes);
 
 app.get('/api/v1/version', (req, res) => {
     res.send('v0.0.1');

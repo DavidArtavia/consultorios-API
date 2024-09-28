@@ -56,21 +56,21 @@ exports.register = async (req, res) => {
         // Verificar si ya existe el usuario
         if (existingUser) {
             if (existingUser.email === email) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.EMAIL_ALREADY_USED);
+                throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.EMAIL_ALREADY_USED);
             }
             if (existingUser.username === username) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.USERNAME_ALREADY_USED);
+                throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.USERNAME_ALREADY_USED);
             }
         }
 
         // Verificar si ya existe la cédula registrada
         if (existingPerson && existingPerson.cedula === cedula) {
-            throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.ID_ALREADY_USED);
+            throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.ID_ALREADY_USED);
         }
 
         // Verificar si ya existe el carnet registrado (solo para estudiantes)
         if (existingCarnet && existingCarnet.carnet === carnet) {
-            throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.CARNE_ALREADY_USED);
+            throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.CARNE_ALREADY_USED);
         }
 
 
@@ -162,6 +162,9 @@ exports.register = async (req, res) => {
         });
     }
 };
+
+
+
 
 
 
