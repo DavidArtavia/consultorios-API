@@ -83,6 +83,11 @@ module.exports = (sequelize, DataTypes) => {
         Caso.belongsTo(models.Contraparte, {
             foreignKey: TABLE_FIELDS.UID_CONTRAPARTE,
         });
+        Caso.hasMany(models.AsignacionDeCaso, {
+            foreignKey: 'id_caso',
+            as: 'Asignaciones',
+            onDelete: 'CASCADE'
+        });
     };
 
     return Caso;

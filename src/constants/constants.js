@@ -107,6 +107,8 @@ const MESSAGE_ERROR = {
     MUST_LOGIN: 'You must login to access this resource',
     RETRIEVING: 'Error retrieving the information',
     NOT_PERSONS_FOUND: 'No persons found',
+    NO_UNASSIGNED_CASES: 'No unassigned cases found',
+    UNASSIGNED_CASES: 'Error retrieving unassigned cases',
 
 
 }
@@ -124,6 +126,7 @@ const MESSAGE_SUCCESS = {
     RECOVERED_PROFESORS: 'List of profesors retrieved successfully',
     STUDENT_DELETED: 'Student deleted successfully',
     PERSONS_FOUND: 'Persons found',
+    UNASSIGNED_CASES: 'Unassigned cases found',
 
 }
 

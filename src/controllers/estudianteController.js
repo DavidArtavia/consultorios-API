@@ -287,7 +287,6 @@ exports.eliminarEstudiante = async (req, res) => {
         // Buscar la persona asociada al estudiante
         const persona = estudiante.Persona;
 
-        // Eliminar la persona (esto eliminará en cascada el estudiante, dirección, usuario, etc.)
         await persona.destroy();
 
         sendResponse({

@@ -2,6 +2,7 @@
 const { HttpStatus, MESSAGE_SUCCESS, MESSAGE_ERROR } = require('../constants/constants');
 const { CustomError, sendResponse } = require('../handlers/responseHandler');
 const { AsignacionDeCaso, Estudiante, Caso, Persona, Direccion, Contraparte, Cliente, Sequelize } = require('../models');
+const getFullName = require('../utils/helpers');
 
 
 exports.crearCaso = async (req, res) => {
@@ -162,6 +163,67 @@ exports.asignarCasoAEstudiante = async (req, res) => {
             statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
             message: MESSAGE_ERROR.ASSIGN_CASE,
             error: error.message
+        });
+    }
+};
+
+
+
+exports.mostrarCasosNoAsignados = async (req, res) => {
+    try {
+        // Consultar todos los casos que no estén asignados a ningún estudiante
+        const casosNoAsignados = await Caso.findAll({
+            include: [
+                {
+                    model: AsignacionDeCaso,
+                    as: 'Asignaciones',
+                    required: false, // Esto incluye los casos sin asignación
+                    attributes: [], // No necesitamos los atributos de AsignacionDeCaso
+                },
+                {
+                    model: Cliente, // Incluir la información del cliente
+                    include: [
+                        {
+                            model: Persona, // Incluir la información de la persona relacionada al cliente
+                            attributes: { exclude: ['id_persona'] }
+                        }
+                    ]
+                }
+            ],
+            where: {
+                '$Asignaciones.id_asignacion$': null // Filtrar los casos que no tienen asignación
+            }
+        });
+
+        if (!casosNoAsignados || casosNoAsignados.length === 0) {
+            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.NO_UNASSIGNED_CASES);
+
+        }
+
+        // Formatear la respuesta
+        const resultado = casosNoAsignados.map(caso => ({
+            ...caso.get({ plain: true }),            
+        }));
+
+        // Retornar la respuesta con los casos no asignados
+        sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: MESSAGE_SUCCESS.UNASSIGNED_CASES,
+            data: resultado
+        });
+
+
+    } catch (error) {
+        console.error("Error al obtener casos no asignados:", error);
+        sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: MESSAGE_ERROR.UNASSIGNED_CASES,
+                error: error.message,
+                stack: error.stack
+            }
         });
     }
 };

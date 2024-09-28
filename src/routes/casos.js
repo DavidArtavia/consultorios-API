@@ -21,4 +21,11 @@ router.post(
     casoController.asignarCasoAEstudiante
 );
 
+router.get(
+    '/noAsignados',
+    verifySession,
+    verifyRole([ROL.SUPERADMIN, ROL.PROFESSOR]),
+    casoController.mostrarCasosNoAsignados
+);
+
 module.exports = router;
