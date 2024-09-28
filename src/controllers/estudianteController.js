@@ -278,8 +278,10 @@ exports.eliminarEstudiante = async (req, res) => {
                 }
             ]
         });
+        console.log(estudiante);
+        
 
-        if (!estudiante) {
+        if (!estudiante) {            
             throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
         }
         // Buscar la persona asociada al estudiante
@@ -298,9 +300,12 @@ exports.eliminarEstudiante = async (req, res) => {
         console.error(MESSAGE_ERROR.DELETE_STUDENT, error);
         sendResponse({
             res,
-            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-            message: MESSAGE_ERROR.DELETE_STUDENT,
-            error: error.message
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: MESSAGE_ERROR.RECOVERED_PROFESORS,
+                error: error.message,
+                stack: error.stack
+            }
         });
     }
 };
