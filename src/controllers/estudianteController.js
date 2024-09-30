@@ -278,7 +278,6 @@ exports.eliminarEstudiante = async (req, res) => {
                 }
             ]
         });
-        console.log(estudiante);
         
 
         if (!estudiante) {            
