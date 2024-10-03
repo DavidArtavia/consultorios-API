@@ -9,9 +9,12 @@ const sequelize = require('./src/config/database');
 const casosRoutes = require('./src/routes/casos');
 const usuarioRoutes = require('./src/routes/usuario');
 const estudiantesRoutes = require('./src/routes/estudiantes');
-const asignacionesRoutes = require('./src/routes/asignaciones');
+const profesoresRoutes = require('./src/routes/profesores');
+const authRoutes = require('./src/routes/auth');
+const personasRoutes = require('./src/routes/persona');
 
 const app = express();
+const router = express.Router();
 
 // Configuración de CORS con opciones
 const corsOptions = {
@@ -26,23 +29,28 @@ app.use(express.json());
 
 // Configurar la sesión con cookies de larga duración
 app.use(session({
-    secret: 'tu_secreto_de_sesion',
+    secret: process.env.SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
         httpOnly: true, // Protege la cookie contra accesos desde JavaScript del lado del cliente
         secure: process.env.NODE_ENV === 'production', // Usar solo HTTPS en producción
-        maxAge: 1000 * 60 * 60 * 24 * 30 // 30 días de duración
+       // maxAge: 1000 * 60 * 60 * 24 // 24 horas de duración
     }
 }));
 
 // Rutas
 app.use('/api/v1/usuarios', usuarioRoutes);
 app.use('/api/v1/casos', casosRoutes);
-app.use('/api/v1/asignaciones', asignacionesRoutes);
 app.use('/api/v1/estudiantes', estudiantesRoutes);
+app.use('/api/v1/profesores', profesoresRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/personas', personasRoutes);
 
 
+app.get('/api/v1/version', (req, res) => {
+    res.send('v0.0.1');
+  });
 
 
 const port = process.env.PORT || 3000;

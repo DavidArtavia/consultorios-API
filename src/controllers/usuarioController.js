@@ -1,83 +1,16 @@
 
 const { Usuario, Persona, Direccion, Estudiante, Profesor, Sequelize } = require('../models');
-const bcrypt = require('bcryptjs');
-const { validateLoginInput, validateRegisterInput, validateIfExists } = require('./validations/validations');
-
-// Login a user and create a session
-exports.login = async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        console.log();
-        
-
-        // verifica que los campos no esten vacios
-        const validationErrors = validateLoginInput(email, password);
-        if (validationErrors.length > 0) {
-            return res.status(400).json({ ok: false, message: validationErrors.join(', '), data: [] });
-        }
-
-        // Buscar al usuario por email
-        const user = await Usuario.findOne({ where: { email } });
-        if (!user) {
-            return res.status(400).json({ ok: false, message: 'Email does not exist', data: [] })
-        }
-
-        // Verificar la contraseña
-        const passwordMatch = await bcrypt.compare(password, user.password_hash);
-        if (!passwordMatch) {
-            return res.status(400).json({ ok: false, message: 'Invalid password', data: [] });
-        }
-
-        // Crear la sesión del usuario
-        req.session.userId = user.id_usuario;
-        req.session.userRole = user.rol;
-
-        // Responder al cliente
-        return res.status(200).json({
-            ok: true,
-            message: 'Successful login',
-            data: [
-                {
-                    user: {
-                        id_usuario: user.id_usuario,
-                        id_persona: user.id_persona,
-                        username: user.username,
-                        password_hash: user.password_hash,//eliminar luego 
-                        email: user.email,
-                        rol: user.rol
-                    }
-                }
-            ]
-        });
-
-
-    } catch (error) {
-        res.status(500).json({ ok: false, message: 'Error logging in.', error });
-    }
-};
-
-// Logout
-exports.logout = (req, res) => {
-    // Destroy the user's session
-    console.log('Sesión destruida:', req.session);
-    
-    req.session.destroy((err) => {
-        if (err) {
-            return res.status(500).json({ message: 'Error logging out' });
-        }
-        res.clearCookie('connect.sid');
-        res.status(200).json({ message: 'Logout successful' });
-    });
-};
+const { HttpStatus, ROL, MESSAGE_ERROR, MESSAGE_SUCCESS } = require('../constants/constants');
+const { sendResponse, CustomError } = require('../handlers/responseHandler');
 
 
 // Register a new user
 exports.register = async (req, res) => {
     const {
-        primerNombre,
-        segundoNombre,
-        primerApellido,
-        segundoApellido,
+        primer_nombre,
+        segundo_nombre,
+        primer_apellido,
+        segundo_apellido,
         cedula,
         telefono,
         direccion,
@@ -89,35 +22,64 @@ exports.register = async (req, res) => {
         carnet
     } = req.body;
 
-    console.log('Datos recibidos:', req.body);
-
     try {
+
+
+        const userRole = req.session.userRole;
+        // Verificar que el usuario no tenga el mismo rol
+        if (userRole === rol) {
+            throw new CustomError(
+                HttpStatus.FORBIDDEN,
+                MESSAGE_ERROR.WHIOUT_PERMISSION
+            );
+        }
+
         // Validar datos y verificar que el usuario o correo no existan
         const existingUser = await Usuario.findOne({
             where: {
                 [Sequelize.Op.or]: [{ email }, { username }]
             }
         });
-      
+        const existingPerson = await Persona.findOne({
+            where: {
+                cedula
+            }
+        });
+
+        const existingCarnet = await Estudiante.findOne({
+            where: {
+                carnet
+            }
+        });
+
+
+        // Verificar si ya existe el usuario
         if (existingUser) {
-            const errors = [];
             if (existingUser.email === email) {
-                errors.push('El correo electrónico ya está en uso.');
+                throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.EMAIL_ALREADY_USED);
             }
             if (existingUser.username === username) {
-                errors.push('El nombre de usuario ya está en uso.');
-            }
-            if (errors.length > 0) {
-                return res.status(400).json({ ok: false, message: errors.join(', ') });
+                throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.USERNAME_ALREADY_USED);
             }
         }
 
-        // Crear un nuevo registro en la tabla Persona
+        // Verificar si ya existe la cédula registrada
+        if (existingPerson && existingPerson.cedula === cedula) {
+            throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.ID_ALREADY_USED);
+        }
+
+        // Verificar si ya existe el carnet registrado (solo para estudiantes)
+        if (existingCarnet && existingCarnet.carnet === carnet) {
+            throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.CARNE_ALREADY_USED);
+        }
+
+
+        // // Crear un nuevo registro en la tabla Persona
         const persona = await Persona.create({
-            primerNombre,
-            segundoNombre,
-            primerApellido,
-            segundoApellido,
+            primer_nombre,
+            segundo_nombre,
+            primer_apellido,
+            segundo_apellido,
             cedula,
             telefono,
         });
@@ -126,7 +88,7 @@ exports.register = async (req, res) => {
         if (direccion) {
             await Direccion.create({
                 id_persona: persona.id_persona,
-                direccionExacta: direccion.direccionExacta,
+                direccion_exacta: direccion.direccion_exacta,
                 canton: direccion.canton,
                 distrito: direccion.distrito,
                 localidad: direccion.localidad,
@@ -144,29 +106,65 @@ exports.register = async (req, res) => {
         });
 
         // Registrar en la tabla correspondiente según el rol
-        if (rol === 'estudiante') {
-            await Estudiante.create({
-                id_estudiante: persona.id_persona,
-                carnet: carnet
-            });
-        } else if (rol === 'profesor') {
-            await Profesor.create({
-                id_profesor: persona.id_persona,
-                especialidad: especialidad // Asigna especialidad u otros campos según el caso
-            });
+        if (rol === ROL.STUDENT) {
+            try {
+                await Estudiante.create({
+                    id_estudiante: persona.id_persona,
+                    carnet: carnet
+                });
+            } catch (error) {
+                console.error(MESSAGE_ERROR.CREATE_STUDENT, error); // Agregar log para ver si falla aquí
+                throw new CustomError(HttpStatus.INTERNAL_SERVER_ERROR, MESSAGE_ERROR.CREATE_STUDENT);
+            }
+        } else if (rol === ROL.PROFESSOR) {
+            try {
+                await Profesor.create({
+                    id_profesor: persona.id_persona,
+                    especialidad
+                });
+            } catch (error) {
+                console.error(MESSAGE_ERROR.CREATE_PROFESSOR, error); // Agregar log para ver si falla aquí
+                throw new CustomError(HttpStatus.INTERNAL_SERVER_ERROR, MESSAGE_ERROR.CREATE_PROFESSOR);
+            }
         }
 
-        res.status(201).json({ message: 'User registered successfully', user: usuario });
+
+        sendResponse({
+            res,
+            statusCode: HttpStatus.CREATED,
+            message: MESSAGE_SUCCESS.USER_REGISTERED,
+            data: { user: usuario }
+        });
+
     } catch (error) {
-        console.error('Error al registrar usuario:', error); // Registrar el error en la consola
         if (error.name === 'SequelizeValidationError') {
-            // Obtener los mensajes de error de validación
             const validationErrors = error.errors.map(err => err.message);
-            return res.status(400).json({ message: 'Validation error', errors: validationErrors });
+
+            sendResponse({
+                res,
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: {
+                    'Validation error': validationErrors,
+                    error: error.stack,
+                }
+            });
+            return;
         }
-        res.status(500).json({ message: 'Error registering user', error: error.message, stack: error.stack });
+
+        sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: MESSAGE_ERROR.CREATE_USER,
+                error: error.message,
+                stack: error.stack
+            }
+        });
     }
 };
+
+
+
 
 
 

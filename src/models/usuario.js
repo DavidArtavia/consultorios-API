@@ -2,6 +2,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const bcrypt = require('bcryptjs');
+const { TABLE_FIELDS, ROL } = require('../constants/constants');
 
 module.exports = (sequelize, DataTypes) => {
 const Usuario = sequelize.define('Usuario', {
@@ -33,7 +34,7 @@ const Usuario = sequelize.define('Usuario', {
         allowNull: false,
     },
     rol: {
-        type: DataTypes.ENUM('administrador', 'profesor', 'estudiante'),
+        type: DataTypes.ENUM(ROL.SUPERADMIN, ROL.PROFESSOR, ROL.STUDENT),
         allowNull: false,
     },
 }, {
@@ -49,7 +50,7 @@ const Usuario = sequelize.define('Usuario', {
 // Asociación uno a uno
 Usuario.associate = models => {
     Usuario.belongsTo(models.Persona, {
-        foreignKey: 'id_persona',
+        foreignKey: TABLE_FIELDS.UID_PERSONA,
         onDelete: 'CASCADE',
     });
 };

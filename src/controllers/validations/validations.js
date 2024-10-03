@@ -1,34 +1,46 @@
 // Función de validación
-const validateRegisterInput = (email, password, username) => {
-    const errors = [];
-    if (!email) errors.push('Email is required');
-    if (!password) errors.push('Password is required');
-    if (!username) errors.push('Username is required');
-    return errors;
-};
+
+const { MESSAGE_ERROR, HttpStatus } = require("../../constants/constants");
+const { CustomError } = require("../../handlers/responseHandler");
+
 const validateLoginInput = (email, password) => {
     const errors = [];
-    if (!email) errors.push('Email is required');
-    if (!password) errors.push('Password is required');
+    if (!email) errors.push(MESSAGE_ERROR.EMAIL_IS_REQUIRED);
+    if (!password) errors.push(MESSAGE_ERROR.PASSWORD_IS_REQUIRED);
     return errors;
 };
 
-function validateIfExists(existingUser) {
+const validateUpdatesInputs = async ({ currentValue, newValue, model, field, message }) => {
+    // Si el valor ha cambiado, realiza la validación
+    if (currentValue !== newValue) {
+        const whereClause = {};
+        whereClause[field] = newValue; // Asigna dinámicamente el campo a validar
 
-    if (existingUser) {
-        const errors = [];
-        if (existingUser.email === email) {
-            errors.push('El correo electrónico ya está en uso.');
-        }
-        if (existingUser.username === username) {
-            errors.push('El nombre de usuario ya está en uso.');
-        }
-        if (errors.length > 0) {
-            return res.status(400).json({ ok: false, message: errors.join(', ') });
+        // Verifica si el nuevo valor ya existe en la base de datos
+        const existing = await model.findOne({
+            where: whereClause
+        });
+
+        if (existing) {
+            throw new CustomError(HttpStatus.BAD_REQUEST, message);
         }
     }
 }
 
+const validateIfExists = async ({ model, field, value, errorMessage }) => {
+    const existingRecord = await model.findOne({
+        where: { [field]: value }  // Usamos una clave dinámica para el campo
+    });
+
+    if (existingRecord) {
+        throw new CustomError(HttpStatus.BAD_REQUEST, errorMessage || `Record with ${field} ${value} already exists.`);
+    }
+};
 
 
-module.exports = { validateRegisterInput, validateLoginInput, validateIfExists };
+
+
+
+
+
+module.exports = { validateLoginInput, validateUpdatesInputs, validateIfExists };

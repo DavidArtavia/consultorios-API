@@ -1,6 +1,7 @@
 // models/direccion.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const { TABLE_FIELDS } = require('../constants/constants');
 
 module.exports = (sequelize, DataTypes) => {
 const Direccion = sequelize.define('Direccion', {
@@ -14,10 +15,10 @@ const Direccion = sequelize.define('Direccion', {
         type: DataTypes.UUID,
         allowNull: false,
     },
-    direccionExacta: {
+    direccion_exacta: {
         type: DataTypes.STRING(200),
         allowNull: true,
-        field: 'direccionexacta'
+        field: TABLE_FIELDS.DIRECCION_EXACTA
     },
     canton: {
         type: DataTypes.STRING(55),
@@ -37,13 +38,12 @@ const Direccion = sequelize.define('Direccion', {
     },
 }, {
     tableName: 'direcciones',
-    timestamps: false, // Desactiva la creación automática de createdAt y updatedAt
 });
 
 // Definir asociaciones
 Direccion.associate = models => {
     Direccion.belongsTo(models.Persona, {
-        foreignKey: 'id_persona',
+        foreignKey: TABLE_FIELDS.UID_PERSONA,
         onDelete: 'CASCADE',
     });
 };
