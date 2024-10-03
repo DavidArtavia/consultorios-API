@@ -14,16 +14,8 @@ const Profesor = sequelize.define('Profesor', {
         type: DataTypes.STRING(50),
         allowNull: true,
     },
-    fecha_inscripcion: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW,
-        field: TABLE_FIELDS.FECHA_INSCRIPCION
-    },
 }, {
     tableName: 'profesores',
-    timestamps: false, // Desactiva la creación automática de createdAt y updatedAt
-
 });
 
 // Definir asociaciones

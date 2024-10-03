@@ -14,6 +14,7 @@ const HttpStatus = {
 };
 
 const TABLE_FIELDS = {
+    UID_SUBSIDIARIO: 'id_subsidiario',
     UID_ASIGNACION: 'id_asignacion',
     UID_CASO: 'id_caso',
     UID_ESTUDIANTE: 'id_estudiante',

@@ -52,11 +52,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true,
         },
-        fecha_creacion: {
-            type: DataTypes.DATE,
-            allowNull: false,
-            defaultValue: DataTypes.NOW,
-        },
         etapa_proceso: {
             type: DataTypes.TEXT,
             allowNull: true,
@@ -72,7 +67,6 @@ module.exports = (sequelize, DataTypes) => {
         },
     }, {
         tableName: 'casos',
-        timestamps: false,
     });
 
     // Definir asociaciones

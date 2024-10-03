@@ -10,6 +10,11 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             allowNull: false,
         },
+        id_subsidiario: {
+            type: DataTypes.UUID,
+            primaryKey: true,
+            allowNull: true,
+        },
         sexo: {
             type: DataTypes.ENUM('M', 'F'),
             allowNull: false,
@@ -19,21 +24,19 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             field: TABLE_FIELDS.INGRESO_ECONOMICO
         },
-        fechaRegistro: {
-            type: DataTypes.DATE,
-            allowNull: false,
-            defaultValue: DataTypes.NOW,
-            field: TABLE_FIELDS.FECHA_REGISTRO
-        },
     }, {
         tableName: 'clientes',
-        timestamps: false,
     });
 
     // Definir asociaciones
     Cliente.associate = models => {
         Cliente.belongsTo(models.Persona, {
             foreignKey: TABLE_FIELDS.UID_CLIENTE,
+            onDelete: 'CASCADE',
+        });
+        // Relación con Subsidiario (un cliente puede tener muchos subsidiarios)
+        Cliente.hasMany(models.Subsidiario, { // Nota el uso correcto del nombre del modelo con mayúscula
+            foreignKey: 'id_subsidiario', // Revisa que este campo exista en la tabla subsidiarios
             onDelete: 'CASCADE',
         });
     };

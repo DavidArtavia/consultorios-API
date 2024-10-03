@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.UUID,
             allowNull: false,
         },
-        fechaAvance: {
+        fecha_avance: {
             type: DataTypes.DATE,
             allowNull: false,
             defaultValue: DataTypes.NOW,
@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true,
         },
-        resultadoConcreto: {
+        resultado_concreto: {
             type: DataTypes.TEXT,
             allowNull: true,
             field: TABLE_FIELDS.RESULTADO_CONCRETO

@@ -3,11 +3,12 @@ const { HttpStatus, MESSAGE_SUCCESS, MESSAGE_ERROR } = require('../constants/con
 const { CustomError, sendResponse } = require('../handlers/responseHandler');
 const { AsignacionDeCaso, Estudiante, Caso, Persona, Direccion, Contraparte, Cliente, Sequelize } = require('../models');
 const getFullName = require('../utils/helpers');
+const { validateIfExists } = require('./validations/validations');
 
 
 exports.crearCaso = async (req, res) => {
     const {
-        descripcion,
+        subsidiario,
         cliente,
         contraparte,
         casoData
@@ -15,31 +16,26 @@ exports.crearCaso = async (req, res) => {
 
     try {
         // Validar si la cédula del cliente ya está registrada
-        const clienteExistente = await Persona.findOne({
-            where: { cedula: cliente.cedula }
+
+        await validateIfExists({
+            model: Persona,
+            field: 'cedula',
+            value: cliente.cedula,
+            errorMessage: `Client with ID ${cliente.cedula} is already registered.`
+        });
+        await validateIfExists({
+            model: Persona,
+            field: 'cedula',
+            value: contraparte.cedula,
+            errorMessage: `Contraparte with ID ${contraparte.cedula} is already registered.`
+        });
+        await validateIfExists({
+            model: Caso,
+            field: 'expediente',
+            value: casoData.expediente,
+            errorMessage: `The case file ${casoData.expediente} is already registered.`
         });
 
-        if (clienteExistente) {
-            throw new CustomError(HttpStatus.BAD_REQUEST, `Client with ID ${cliente.cedula} is already registered.`);
-        }
-
-        // Validar si la cédula de la contraparte ya está registrada
-        const contraparteExistente = await Persona.findOne({
-            where: { cedula: contraparte.cedula }
-        });
-
-        if (contraparteExistente) {
-            throw new CustomError(HttpStatus.BAD_REQUEST, `Contraparte with ID ${contraparte.cedula} is already registered.`);
-        }
-
-        // Validar si el expediente ya está registrado
-        const expedienteExistente = await Caso.findOne({
-            where: { expediente: casoData.expediente }
-        });
-
-        if (expedienteExistente) {
-            throw new CustomError(HttpStatus.BAD_REQUEST, `The case file ${casoData.expediente} is already registered.`);
-        }
 
         // Crear el cliente
         const clientePersona = await Persona.create({
@@ -87,6 +83,7 @@ exports.crearCaso = async (req, res) => {
 
         const nuevaContraparte = await Contraparte.create({
             id_contraparte: contrapartePersona.id_persona,
+            sexo: contraparte.sexo,
             detalles: contraparte.detalles
         });
 

@@ -27,9 +27,20 @@ const validateUpdatesInputs = async ({ currentValue, newValue, model, field, mes
     }
 }
 
+const validateIfExists = async ({ model, field, value, errorMessage }) => {
+    const existingRecord = await model.findOne({
+        where: { [field]: value }  // Usamos una clave dinámica para el campo
+    });
+
+    if (existingRecord) {
+        throw new CustomError(HttpStatus.BAD_REQUEST, errorMessage || `Record with ${field} ${value} already exists.`);
+    }
+};
 
 
 
 
 
-module.exports = { validateLoginInput, validateUpdatesInputs };
+
+
+module.exports = { validateLoginInput, validateUpdatesInputs, validateIfExists };

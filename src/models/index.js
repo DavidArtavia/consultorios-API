@@ -13,6 +13,7 @@ const Avance = require('./avances')(sequelize, Sequelize.DataTypes);
 const Direccion = require('./direccion')(sequelize, Sequelize.DataTypes);
 const Informe = require('./informes')(sequelize, Sequelize.DataTypes);
 const Profesor = require('./profesor')(sequelize, Sequelize.DataTypes);
+const Subsidiario = require('./subsidiario')(sequelize, Sequelize.DataTypes);
 
 const models = {
     Persona,
@@ -26,6 +27,7 @@ const models = {
     Direccion,
     Informe,
     Profesor,
+    Subsidiario,
     sequelize, // connection instance (RAW queries)
     Sequelize, // library
 };

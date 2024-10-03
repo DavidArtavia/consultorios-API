@@ -47,6 +47,7 @@ app.use('/api/v1/profesores', profesoresRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/personas', personasRoutes);
 
+
 app.get('/api/v1/version', (req, res) => {
     res.send('v0.0.1');
   });

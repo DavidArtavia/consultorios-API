@@ -38,7 +38,6 @@ const Direccion = sequelize.define('Direccion', {
     },
 }, {
     tableName: 'direcciones',
-    timestamps: false, // Desactiva la creación automática de createdAt y updatedAt
 });
 
 // Definir asociaciones

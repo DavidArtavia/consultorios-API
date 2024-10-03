@@ -15,12 +15,6 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             unique: true,
         },
-        fecha_inscripcion: {
-            type: DataTypes.DATE,
-            allowNull: false,
-            defaultValue: DataTypes.NOW,
-            field: TABLE_FIELDS.FECHA_INSCRIPCION
-        },
     }, {
         tableName: 'estudiantes',
         timestamps: false, // Desactiva la creación automática de createdAt y updatedAt

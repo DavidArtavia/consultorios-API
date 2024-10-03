@@ -28,15 +28,9 @@ const AsignacionDeCaso = sequelize.define('AsignacionDeCaso', {
         },
         onDelete: 'CASCADE'
     },
-    fechaAsignacion: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW,
-        field: TABLE_FIELDS.FECHA_ASIGNACION
-    },
+   
 }, {
     tableName: 'asignaciondecasos',
-    timestamps: false,
 });
 
 // Definir asociaciones

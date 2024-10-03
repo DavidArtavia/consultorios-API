@@ -9,13 +9,16 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             allowNull: false,
         },
+        sexo: {
+            type: DataTypes.ENUM('M', 'F'),
+            allowNull: false,
+        },
         detalles: {
             type: DataTypes.TEXT,
             allowNull: true,
         },
     }, {
         tableName: 'contraparte',
-        timestamps: false,
     });
 
     // Definir asociaciones

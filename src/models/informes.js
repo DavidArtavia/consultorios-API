@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true,
         },
-        fechaEntrega: {
+        fecha_entrega: {
             type: DataTypes.DATE,
             allowNull: false,
             defaultValue: DataTypes.NOW,

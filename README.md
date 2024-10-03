@@ -13,7 +13,7 @@ Esta API permite gestionar la información de consultorios juridicos, incluyendo
 
 1. Clona el repositorio:
      ```sh
-     git clone https://github.com/usuario/consultorios-API.git
+     git clone https://github.com/DavidArtavia/consultorios-API.git
      ```
 2. Navega al directorio del proyecto:
      ```sh
