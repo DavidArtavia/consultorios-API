@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const { TABLE_FIELDS } = require('../constants/constants');
+const { TABLE_FIELDS, TABLE_NAME } = require('../constants/constants');
 
 module.exports = (sequelize, DataTypes) => {
     const Avance = sequelize.define('Avance', {
@@ -38,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
         },
     }, {
-        tableName: 'avances'
+        tableName: TABLE_NAME.AVANCES,
     });
 
     // Definir asociaciones

@@ -13,6 +13,22 @@ const HttpStatus = {
     SERVICE_UNAVAILABLE: 503
 };
 
+const TABLE_NAME = {
+    PERSONAS: 'personas',
+    CLIENTES: 'clientes',
+    ESTUDIANTES: 'estudiantes',
+    PROFESORES: 'profesores',
+    USUARIOS: 'usuarios',
+    CONTRAPARTES: 'contrapartes',
+    DIRECCIONES: 'direcciones',
+    ASIGNACION_DE_CASOS: 'asignaciondecasos',
+    CASOS: 'casos',
+    INFORMES: 'informes',
+    AVANCES: 'avances',
+    SUBSIDIARIOS: 'subsidiarios',
+
+};
+
 const TABLE_FIELDS = {
     UID_SUBSIDIARIO: 'id_subsidiario',
     UID_ASIGNACION: 'id_asignacion',
@@ -142,6 +158,7 @@ const ROL = {
 module.exports = {
     HttpStatus,
     TABLE_FIELDS,
+    TABLE_NAME,
     ROL,
     MESSAGE_ERROR,
     MESSAGE_SUCCESS

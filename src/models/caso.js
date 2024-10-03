@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const { TABLE_FIELDS } = require('../constants/constants');
+const { TABLE_FIELDS, TABLE_NAME } = require('../constants/constants');
 
 module.exports = (sequelize, DataTypes) => {
     const Caso = sequelize.define('Caso', {
@@ -13,16 +13,24 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.UUID,
             allowNull: false,
             references: {
-                model: 'clientes', // Nombre de la tabla referenciada
+                model: TABLE_NAME.CLIENTES, // Nombre de la tabla referenciada
                 key: TABLE_FIELDS.UID_CLIENTE  // Columna de la tabla referenciada
             },
             onDelete: 'CASCADE'
+        },
+        id_subsidiario: {
+            type: DataTypes.UUID,
+            allowNull: true,
+            references: {
+                model: TABLE_NAME.SUBSIDIARIOS, // Nombre de la tabla referenciada
+                key: TABLE_FIELDS.UID_SUBSIDIARIO  // Columna de la tabla referenciada
+            },
         },
         id_contraparte: { // Definición de la clave foránea
             type: DataTypes.UUID,
             allowNull: true,
             references: {
-                model: 'contraparte', // Nombre de la tabla referenciada
+                model: TABLE_NAME.CONTRAPARTES, // Nombre de la tabla referenciada
                 key: TABLE_FIELDS.UID_CONTRAPARTE // Columna de la tabla referenciada
             },
             onDelete: 'SET NULL'
@@ -66,7 +74,7 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: 'asesoria',
         },
     }, {
-        tableName: 'casos',
+        tableName: TABLE_NAME.CASOS,
     });
 
     // Definir asociaciones
@@ -77,8 +85,12 @@ module.exports = (sequelize, DataTypes) => {
         Caso.belongsTo(models.Contraparte, {
             foreignKey: TABLE_FIELDS.UID_CONTRAPARTE,
         });
+        // Relación con Subsidiario (un cliente puede tener muchos subsidiarios)
+        Cliente.hasMany(models.Subsidiario, { // Nota el uso correcto del nombre del modelo con mayúscula
+            foreignKey: TABLE_FIELDS.UID_SUBSIDIARIO, // Revisa que este campo exista en la tabla subsidiarios
+        });
         Caso.hasMany(models.AsignacionDeCaso, {
-            foreignKey: 'id_caso',
+            foreignKey: TABLE_FIELDS.UID_CASO,
             as: 'Asignaciones',
             onDelete: 'CASCADE'
         });

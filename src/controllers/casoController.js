@@ -1,5 +1,5 @@
 // controllers/casoController.js
-const { HttpStatus, MESSAGE_SUCCESS, MESSAGE_ERROR } = require('../constants/constants');
+const { HttpStatus, MESSAGE_SUCCESS, MESSAGE_ERROR, TABLE_FIELDS } = require('../constants/constants');
 const { CustomError, sendResponse } = require('../handlers/responseHandler');
 const { AsignacionDeCaso, Estudiante, Caso, Persona, Direccion, Contraparte, Cliente, Sequelize } = require('../models');
 const getFullName = require('../utils/helpers');
@@ -19,21 +19,27 @@ exports.crearCaso = async (req, res) => {
 
         await validateIfExists({
             model: Persona,
-            field: 'cedula',
+            field: TABLE_FIELDS.CEDULA,
             value: cliente.cedula,
-            errorMessage: `Client with ID ${cliente.cedula} is already registered.`
+            table_name: `Client with ID ${cliente.cedula} is already registered.`
         });
         await validateIfExists({
             model: Persona,
-            field: 'cedula',
+            field: TABLE_FIELDS.CEDULA,
             value: contraparte.cedula,
-            errorMessage: `Contraparte with ID ${contraparte.cedula} is already registered.`
+            table_name: `Contraparte with ID ${contraparte.cedula} is already registered.`
+        });
+        await validateIfExists({
+            model: Persona,
+            field: TABLE_FIELDS.CEDULA,
+            value: subsidiario.cedula,
+            table_name: `Subsidiario with ID ${subsidiario.cedula} is already registered.`
         });
         await validateIfExists({
             model: Caso,
-            field: 'expediente',
+            field: TABLE_FIELDS.EXPEDIENTE,
             value: casoData.expediente,
-            errorMessage: `The case file ${casoData.expediente} is already registered.`
+            table_name: `The case file ${casoData.expediente} is already registered.`
         });
 
 

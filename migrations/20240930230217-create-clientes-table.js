@@ -1,7 +1,10 @@
 'use strict';
+
+const { TABLE_NAME } = require("../src/constants/constants");
+
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('clientes', {
+    await queryInterface.createTable(TABLE_NAME.CLIENTES, {
       id_cliente: {
         type: Sequelize.UUID, // Tipo UUID correcto
         allowNull: false,
@@ -9,16 +12,6 @@ module.exports = {
         references: {
           model: 'persona',  // Referencia a la tabla persona
           key: 'id_persona',  // Columna referenciada en persona
-        },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-      },
-      id_subsidiario: {
-        type: Sequelize.UUID,
-        allowNull: true,
-        references: {
-          model: 'subsidarios',  // Referencia a la tabla subsidarios
-          key: 'id_subsidiario',  // Columna referenciada en subsidarios
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
@@ -45,6 +38,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('clientes');
+    await queryInterface.dropTable(TABLE_NAME.CLIENTES);
   },
 };

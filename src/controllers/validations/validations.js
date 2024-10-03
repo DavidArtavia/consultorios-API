@@ -27,7 +27,7 @@ const validateUpdatesInputs = async ({ currentValue, newValue, model, field, mes
     }
 }
 
-const validateIfExists = async ({ model, field, value, errorMessage }) => {
+const validateIfExists = async ({ model, field, value, table_name }) => {
     const existingRecord = await model.findOne({
         where: { [field]: value }  // Usamos una clave dinámica para el campo
     });

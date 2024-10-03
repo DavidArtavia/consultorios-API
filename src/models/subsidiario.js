@@ -1,4 +1,4 @@
-const { TABLE_FIELDS } = require("../constants/constants");
+const { TABLE_FIELDS, TABLE_NAME } = require("../constants/constants");
 
 module.exports = (sequelize, DataTypes) => { 
 
@@ -18,12 +18,12 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
         },
     }, {
-        tableName: 'subsidiarios',
+        tableName: TABLE_NAME.SUBSIDIARIOS,
     });
 
     Subsidiario.associate = models => {
-        Subsidiario.belongsTo(models.Persona, { // Un estudiante pertenece a una persona
-            foreignKey: TABLE_FIELDS.UID_PERSONA,  //tenia -> TABLE_FIELDS.UID_ESTUDIANTE
+        Subsidiario.belongsTo(models.Persona, { // Un Subsidiario pertenece a una persona
+            foreignKey: TABLE_FIELDS.UID_PERSONA,  //tenia -> TABLE_FIELDS.UID_SUBSIDIARIO
             targetKey: TABLE_FIELDS.UID_PERSONA,//
             onDelete: 'CASCADE',
         });

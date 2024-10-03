@@ -1,11 +1,11 @@
 'use strict';
 
-const { TABLE_FIELDS } = require('../src/constants/constants');
+const { TABLE_NAME } = require('../src/constants/constants');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('estudiantes', {
+    await queryInterface.createTable(TABLE_NAME.ESTUDIANTES, {
       id_estudiante: {
         type: Sequelize.UUID,
         primaryKey: true,
@@ -33,11 +33,11 @@ module.exports = {
         defaultValue: Sequelize.fn('NOW')
       }
     });
-    
+
   },
 
-  async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('estudiantes');
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable(TABLE_NAME.ESTUDIANTES);
 
   }
 };

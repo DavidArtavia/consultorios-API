@@ -2,7 +2,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const bcrypt = require('bcryptjs');
-const { TABLE_FIELDS, ROL } = require('../constants/constants');
+const { TABLE_FIELDS, ROL, TABLE_NAME } = require('../constants/constants');
 
 module.exports = (sequelize, DataTypes) => {
 const Usuario = sequelize.define('Usuario', {
@@ -43,7 +43,7 @@ const Usuario = sequelize.define('Usuario', {
             usuario.password_hash = await bcrypt.hash(usuario.password_hash, 10);
         },
     },
-    tableName: 'usuarios',
+    tableName: TABLE_NAME.USUARIOS, 
 });
 
 

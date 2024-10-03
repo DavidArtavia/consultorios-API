@@ -1,9 +1,11 @@
 'use strict';
 
+const { TABLE_NAME } = require('../src/constants/constants');
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('profesores', {
+    await queryInterface.createTable(TABLE_NAME.PROFESORES, {
    
       id_profesor: {
         type: Sequelize.UUID,
@@ -34,7 +36,7 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('profesores');
+    await queryInterface.dropTable(TABLE_NAME.PROFESORES);
 
   }
 };

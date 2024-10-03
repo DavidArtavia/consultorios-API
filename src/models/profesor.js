@@ -1,7 +1,7 @@
 // models/profesor.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const { TABLE_FIELDS } = require('../constants/constants');
+const { TABLE_FIELDS, TABLE_NAME } = require('../constants/constants');
 
 module.exports = (sequelize, DataTypes) => {
 const Profesor = sequelize.define('Profesor', {
@@ -15,13 +15,13 @@ const Profesor = sequelize.define('Profesor', {
         allowNull: true,
     },
 }, {
-    tableName: 'profesores',
+    tableName: TABLE_NAME.PROFESORES,
 });
 
 // Definir asociaciones
 Profesor.associate = models => {
     Profesor.belongsTo(models.Persona, {
-        foreignKey: 'id_profesor',
+        foreignKey: TABLE_FIELDS.UID_PROFESOR,
         onDelete: 'CASCADE',
     });
 };
