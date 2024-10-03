@@ -1,6 +1,6 @@
 'use strict';
 
-const { TABLE_NAME } = require("../src/constants/constants");
+const { TABLE_NAME, TABLE_FIELDS } = require("../src/constants/constants");
 
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -15,18 +15,17 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'clientes',  // Nombre de la tabla referenciada
-          key: 'id_cliente',  // Columna de referencia
+          model: TABLE_NAME.CLIENTES,  // Nombre de la tabla referenciada
+          key: TABLE_FIELDS.UID_CLIENTE,  // Columna de referencia
         },
         onDelete: 'CASCADE',
       },
-
       id_subsidiario: {
         type: Sequelize.UUID,
         allowNull: true,
         references: {
-          model: 'subsidarios',  // Referencia a la tabla subsidarios
-          key: 'id_subsidiario',  // Columna referenciada en subsidarios
+          model: TABLE_NAME.SUBSIDIARIOS,  // Referencia a la tabla subsidarios
+          key: TABLE_FIELDS.UID_SUBSIDIARIO,  // Columna referenciada en subsidarios
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
@@ -35,8 +34,8 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: true,
         references: {
-          model: 'contraparte',  // Nombre de la tabla referenciada
-          key: 'id_contraparte',  // Columna de referencia
+          model: TABLE_NAME.CONTRAPARTES,  // Nombre de la tabla referenciada
+          key: TABLE_FIELDS.UID_CONTRAPARTE,  // Columna de referencia
         },
         onDelete: 'SET NULL',
       },

@@ -1,6 +1,6 @@
 'use strict';
 
-const { TABLE_NAME } = require("../src/constants/constants");
+const { TABLE_NAME, TABLE_FIELDS } = require("../src/constants/constants");
 
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -10,8 +10,8 @@ module.exports = {
         allowNull: false,
         primaryKey: true, // Clave primaria
         references: {
-          model: 'persona',  // Referencia a la tabla persona
-          key: 'id_persona',  // Columna referenciada en persona
+          model: TABLE_NAME.PERSONAS,  // Referencia a la tabla persona
+          key: TABLE_FIELDS.UID_PERSONA,  // Columna referenciada en persona
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',

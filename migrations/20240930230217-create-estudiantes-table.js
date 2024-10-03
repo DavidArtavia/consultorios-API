@@ -1,6 +1,6 @@
 'use strict';
 
-const { TABLE_NAME } = require('../src/constants/constants');
+const { TABLE_NAME, TABLE_FIELDS } = require('../src/constants/constants');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -11,9 +11,9 @@ module.exports = {
         primaryKey: true,
         allowNull: false,
         references: {
-          model: 'persona',  // Nombre de la tabla a la que se hace referencia
-          key: 'id_persona',  // Nombre de la columna de referencia
-        },
+          model: TABLE_NAME.PERSONAS,  // Referencia a la tabla persona
+          key: TABLE_FIELDS.UID_PERSONA,  // Columna referenciada en persona
+        }, 
         onDelete: 'CASCADE',  // Elimina el subsidario si se elimina la persona
         onUpdate: 'CASCADE',
       },

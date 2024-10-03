@@ -1,7 +1,7 @@
 'use strict';
 
 const { DataTypes } = require('sequelize');
-const { TABLE_NAME } = require('../src/constants/constants');
+const { TABLE_NAME, TABLE_FIELDS } = require('../src/constants/constants');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -13,8 +13,8 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
         references: {
-          model: 'persona',  // Nombre de la tabla a la que se hace referencia
-          key: 'id_persona',  // Nombre de la columna de referencia
+          model: TABLE_NAME.PERSONAS,  // Nombre de la tabla a la que se hace referencia
+          key: TABLE_FIELDS.UID_PERSONA,  // Nombre de la columna de referencia
         },
         onDelete: 'CASCADE',  // Elimina el subsidario si se elimina la persona
         onUpdate: 'CASCADE',  // Actualiza el subsidario si se actualiza la persona

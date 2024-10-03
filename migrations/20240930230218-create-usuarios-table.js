@@ -1,7 +1,7 @@
 'use strict';
 
 const { DataTypes } = require('sequelize');
-const { ROL, TABLE_NAME } = require('../src/constants/constants');
+const { ROL, TABLE_NAME, TABLE_FIELDS } = require('../src/constants/constants');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -17,8 +17,8 @@ module.exports = {
        type: Sequelize.UUID,
        allowNull: false,
        references: {
-         model: 'persona',
-         key: 'id_persona',
+         model: TABLE_NAME.PERSONAS,  // Referencia a la tabla persona
+         key: TABLE_FIELDS.UID_PERSONA,  // Columna referenciada en persona
        },
        onDelete: 'CASCADE',
        onUpdate: 'CASCADE', 
