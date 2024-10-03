@@ -1,47 +1,47 @@
 # Consultorios API
 
-## Descripción
-Esta API permite gestionar la información de consultorios juridicos, incluyendo la creación, actualización, eliminación y consulta de datos de consultorios.
+## Description
+This API allows managing the information of legal consultancies, including the creation, updating, deletion, and querying of consultancy data.
 
-## Estructura de la API
+## API Structure
 
 ### Endpoints
+1. The implemented API endpoints are available.
+     ```sh
+     https://gold-spaceship-124028.postman.co/workspace/David~634df219-77d1-47fc-9b34-42c00ade5c01/collection/19333935-2eff82c0-3fcc-4490-bd32-11cd07d33e5c?action=share&creator=19333935
+     ```
+2. It is recommended to use `Postman` to visualize the endpoints.
 
-#### Consultorios       ```
+## Installation
 
-## Instalación
-
-1. Clona el repositorio:
+1. Clone the repository:
      ```sh
      git clone https://github.com/DavidArtavia/consultorios-API.git
      ```
-2. Navega al directorio del proyecto:
+2. Navigate to the project directory:
      ```sh
      cd consultorios-API
      ```
-3. Instala las dependencias:
+3. Install the dependencies:
      ```sh
      npm install
      ```
 
-## Uso
+## Usage
 
-1. Inicia el servidor:
+1. Start the server:
      ```sh
      npm run dev
      ```
-2. Accede a la API en `http://localhost:3000`.
+2. Access the API at `http://localhost:3000`.
 
-## Recomendaciones
+## Recommendations
 
-1. Usa el `.en.example` para ver la definicion correcta de las credenciales de la base de datos
+1. Use the `.en.example` to see the correct definition of the database credentials.
 
-2. se usa `postgreSQL` como gestor de base de datos
+2. `postgreSQL` is used as the database manager.
 
+## Contributions
 
-## Contribuciones
-
-
-
-## Licencia
+## License
 
