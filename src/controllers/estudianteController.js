@@ -1,7 +1,7 @@
 const { Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Direccion, Usuario } = require('../models');
 const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL, FIELDS } = require("../constants/constants");
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
-const { validateUpdatesInputs, validateInput } = require('../utils/helpers');
+const { validateUpdatesInputs, validateInput, getFullName } = require('../utils/helpers');
 
 exports.mostrarEstudiantes = async (req, res) => {
     try {
@@ -42,7 +42,7 @@ exports.mostrarEstudiantes = async (req, res) => {
         }
 
         const estudiantesInfo = estudiantes.map(estudiante => ({
-            id: estudiante.id_estudiante,
+            id_estudiante: estudiante.id_estudiante,
             primer_nombre: estudiante.Persona.primer_nombre,
             segundo_nombre: estudiante.Persona.segundo_nombre,
             primer_apellido: estudiante.Persona.primer_apellido,
@@ -196,8 +196,6 @@ exports.actualizarEstudiante = async (req, res) => {
         validateInput(primer_apellido, FIELDS.NAME);
         validateInput(segundo_apellido, FIELDS.NAME);
         validateInput(cedula, FIELDS.ID);
-        validateInput(email, FIELDS.EMAIL);
-        validateInput(expediente, FIELDS.EXPEDIENTE);
         validateInput(telefono, FIELDS.PHONE_NUMBER);
         validateInput(carnet, FIELDS.CARNET);
 
@@ -205,7 +203,7 @@ exports.actualizarEstudiante = async (req, res) => {
 
         // Verificar si la cédula ha cambiado
         const currentCedula = estudiante.Persona.cedula;
-        await getFullName.validateUpdatesInputs({
+        await validateUpdatesInputs({
             currentValue: currentCedula,
             newValue: cedula,
             model: Persona,

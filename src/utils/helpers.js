@@ -119,37 +119,37 @@ const validateInput = (input, field) => {
     switch (field) {
         case FIELDS.NAME:
             if (!validateName(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} Invalid name format. Only letters are allowed.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <--  Invalid name format. Only letters are allowed.`);
             }
             break;
         case FIELDS.ID:
             if (!validateID(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} Invalid ID format.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid ID format.`);
             }
             break;
         case FIELDS.EMAIL:
             if (!validateEmail(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} Invalid email format.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid email format.`);
             }
             break;
         case FIELDS.NUMERIC:
             if (!validateNumericInput(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} Invalid numeric value.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid numeric value.`);
             }
             break;
         case FIELDS.EXPEDIENTE:
             if (!validateExpediente(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} Invalid case number format.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid case number format.`);
             }
             break;
         case FIELDS.PHONE_NUMBER:
             if (!validatePhoneNumberCR(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} Invalid phone number format. The number must be 8 digits and start with 2, 5, 6, 7, or 8.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid phone number format. The number must be 8 digits and start with 2, 5, 6, 7, or 8.`);
             }
             break;
         case FIELDS.CARNET:
             if (!validateCarnet(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} Invalid carnet format.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid carnet format.`);
             }
             break;
     }

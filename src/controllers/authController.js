@@ -14,7 +14,7 @@ exports.login = async (req, res) => {
         if (validationErrors.length > 0) {
 
             throw new CustomError(HttpStatus.BAD_REQUEST, validationErrors.join(', '));
-            return;
+        
         }
 
         // Buscar al usuario por email
