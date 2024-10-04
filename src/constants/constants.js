@@ -13,6 +13,17 @@ const HttpStatus = {
     SERVICE_UNAVAILABLE: 503
 };
 
+const FIELDS = {
+    NAME: 'name',
+    ID: 'id',
+    EMAIL: 'email',
+    NUMERIC: 'numeric',
+    EXPEDIENTE: 'expediente',
+    PHONE_NUMBER: 'phone_number',
+    CARNET: 'carnet'
+};
+
+
 const TABLE_NAME = {
     PERSONAS: 'personas',
     CLIENTES: 'clientes',
@@ -161,6 +172,7 @@ module.exports = {
     TABLE_NAME,
     ROL,
     MESSAGE_ERROR,
-    MESSAGE_SUCCESS
+    MESSAGE_SUCCESS,
+    FIELDS
 }
 

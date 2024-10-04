@@ -1,9 +1,8 @@
 // controllers/casoController.js
-const { HttpStatus, MESSAGE_SUCCESS, MESSAGE_ERROR, TABLE_FIELDS } = require('../constants/constants');
+const { HttpStatus, MESSAGE_SUCCESS, MESSAGE_ERROR, TABLE_FIELDS, FIELDS } = require('../constants/constants');
 const { CustomError, sendResponse } = require('../handlers/responseHandler');
-const { AsignacionDeCaso, Estudiante, Caso, Persona, Direccion, Contraparte, Cliente, Sequelize } = require('../models');
-const getFullName = require('../utils/helpers');
-const { validateIfExists } = require('./validations/validations');
+const { AsignacionDeCaso, Estudiante, Caso, Persona, Direccion, Contraparte, Cliente, Sequelize, Subsidiario } = require('../models');
+const { validateIfExists, validateInput } = require('../utils/helpers');
 
 
 exports.crearCaso = async (req, res) => {
@@ -30,17 +29,29 @@ exports.crearCaso = async (req, res) => {
             table_name: `Contraparte with ID ${contraparte.cedula} is already registered.`
         });
         await validateIfExists({
-            model: Persona,
-            field: TABLE_FIELDS.CEDULA,
-            value: subsidiario.cedula,
-            table_name: `Subsidiario with ID ${subsidiario.cedula} is already registered.`
-        });
-        await validateIfExists({
             model: Caso,
             field: TABLE_FIELDS.EXPEDIENTE,
             value: casoData.expediente,
             table_name: `The case file ${casoData.expediente} is already registered.`
         });
+
+        let nuevoSubsidiario = null;
+        validateInput(cliente.primer_nombre, FIELDS.NAME);
+        validateInput(cliente.segundo_nombre, FIELDS.NAME);
+        validateInput(cliente.primer_apellido, FIELDS.NAME);
+        validateInput(cliente.segundo_apellido, FIELDS.NAME);
+        validateInput(contraparte.primer_nombre, FIELDS.NAME);
+        validateInput(contraparte.segundo_nombre, FIELDS.NAME);
+        validateInput(contraparte.primer_apellido, FIELDS.NAME);
+        validateInput(contraparte.segundo_apellido, FIELDS.NAME);
+        validateInput(cliente.cedula, FIELDS.ID);
+        validateInput(contraparte.cedula, FIELDS.ID);
+        validateInput(cliente.telefono, FIELDS.PHONE_NUMBER);
+        validateInput(contraparte.telefono, FIELDS.PHONE_NUMBER);
+        validateInput(casoData.cuantia_proceso, FIELDS.NUMERIC);
+        validateInput(casoData.aporte_comunidad, FIELDS.NUMERIC);
+        validateInput(cliente.ingreso_economico, FIELDS.NUMERIC);
+        validateInput(casoData.expediente, FIELDS.EXPEDIENTE);
 
 
         // Crear el cliente
@@ -92,12 +103,53 @@ exports.crearCaso = async (req, res) => {
             sexo: contraparte.sexo,
             detalles: contraparte.detalles
         });
+       
+        if (subsidiario) {
+            await validateIfExists({
+                model: Persona,
+                field: TABLE_FIELDS.CEDULA,
+                value: subsidiario.cedula,
+                table_name: `Subsidiario with ID ${subsidiario.cedula} is already registered.`
+            });
 
-        // Crear el caso y asociar cliente y contraparte
+            validateInput(subsidiario.primer_nombre, FIELDS.NAME);
+            validateInput(subsidiario.segundo_nombre, FIELDS.NAME);
+            validateInput(subsidiario.primer_apellido, FIELDS.NAME);
+            validateInput(subsidiario.segundo_apellido, FIELDS.NAME);
+            validateInput(subsidiario.cedula, FIELDS.ID);
+            validateInput(subsidiario.telefono, FIELDS.PHONE_NUMBER);
+
+            // Crear el subsidiario si está presente
+            const subsidiarioPersona = await Persona.create({
+                primer_nombre: subsidiario.primer_nombre,
+                segundo_nombre: subsidiario.segundo_nombre,
+                primer_apellido: subsidiario.primer_apellido,
+                segundo_apellido: subsidiario.segundo_apellido,
+                cedula: subsidiario.cedula,
+                telefono: subsidiario.telefono,
+            });
+
+            await Direccion.create({
+                id_persona: subsidiarioPersona.id_persona,
+                direccion_exacta: subsidiario.direccion.direccionExacta,
+                canton: subsidiario.direccion.canton,
+                distrito: subsidiario.direccion.distrito,
+                localidad: subsidiario.direccion.localidad,
+                provincia: subsidiario.direccion.provincia,
+            });
+
+            nuevoSubsidiario = await Subsidiario.create({
+                id_subsidiario: subsidiarioPersona.id_persona,
+                sexo: subsidiario.sexo,
+                detalles: subsidiario.detalles
+            });
+        }
+
         const nuevoCaso = await Caso.create({
             ...casoData,
             id_cliente: nuevoCliente.id_cliente,
             id_contraparte: nuevaContraparte.id_contraparte,
+            id_subsidiario: nuevoSubsidiario ? nuevoSubsidiario.id_subsidiario : null,
         });
 
         sendResponse({
@@ -108,11 +160,16 @@ exports.crearCaso = async (req, res) => {
         });
 
     } catch (error) {
+        console.log( error);
+        
         sendResponse({
             res,
-            statusCode: error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-            message: error.message || MESSAGE_ERROR.CREATING_CASE,
-            error: error.stack
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: MESSAGE_ERROR.CREATING_CASE,
+                error: error.message,
+                stack: error.stack
+            }
         });
     }
 };
@@ -163,10 +220,14 @@ exports.asignarCasoAEstudiante = async (req, res) => {
 
         sendResponse({
             res,
-            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-            message: MESSAGE_ERROR.ASSIGN_CASE,
-            error: error.message
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: MESSAGE_ERROR.ASSIGN_CASE,
+                error: error.message,
+                stack: error.stack
+            }
         });
+
     }
 };
 

@@ -1,8 +1,7 @@
 const { Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Direccion, Usuario } = require('../models');
-const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL } = require("../constants/constants");
+const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL, FIELDS } = require("../constants/constants");
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
-const getFullName = require('../utils/helpers');
-const { validateUpdatesInputs } = require('./validations/validations');
+const { validateUpdatesInputs, validateInput } = require('../utils/helpers');
 
 exports.mostrarEstudiantes = async (req, res) => {
     try {
@@ -39,7 +38,7 @@ exports.mostrarEstudiantes = async (req, res) => {
 
         if (estudiantes.length === 0) {
             throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
-          
+
         }
 
         const estudiantesInfo = estudiantes.map(estudiante => ({
@@ -192,10 +191,21 @@ exports.actualizarEstudiante = async (req, res) => {
         if (!estudiante) {
             throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
         }
+        validateInput(primer_nombre, FIELDS.NAME);
+        validateInput(segundo_nombre, FIELDS.NAME);
+        validateInput(primer_apellido, FIELDS.NAME);
+        validateInput(segundo_apellido, FIELDS.NAME);
+        validateInput(cedula, FIELDS.ID);
+        validateInput(email, FIELDS.EMAIL);
+        validateInput(expediente, FIELDS.EXPEDIENTE);
+        validateInput(telefono, FIELDS.PHONE_NUMBER);
+        validateInput(carnet, FIELDS.CARNET);
+
+
 
         // Verificar si la cédula ha cambiado
         const currentCedula = estudiante.Persona.cedula;
-        await validateUpdatesInputs({
+        await getFullName.validateUpdatesInputs({
             currentValue: currentCedula,
             newValue: cedula,
             model: Persona,
@@ -277,9 +287,9 @@ exports.eliminarEstudiante = async (req, res) => {
                 }
             ]
         });
-        
 
-        if (!estudiante) {            
+
+        if (!estudiante) {
             throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
         }
         // Buscar la persona asociada al estudiante

@@ -1,8 +1,8 @@
 const { Usuario } = require('../models');
 const bcrypt = require('bcryptjs');
-const { validateLoginInput } = require('./validations/validations');
 const { HttpStatus, MESSAGE_ERROR, MESSAGE_SUCCESS } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
+const { validateLoginInput } = require('../utils/helpers');
 
 // Login a user and create a session
 exports.login = async (req, res) => {
