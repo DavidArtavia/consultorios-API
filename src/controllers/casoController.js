@@ -199,13 +199,16 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
         });
 
         if (!casosNoAsignados || casosNoAsignados.length === 0) {
-            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.NO_UNASSIGNED_CASES);
-
+            sendResponse({
+                res,
+                statusCode: HttpStatus.OK,
+                message: MESSAGE_SUCCESS.NO_UNASSIGNED_CASES,
+                data: []
+            });
         }
-
         // Formatear la respuesta
         const resultado = casosNoAsignados.map(caso => ({
-            ...caso.get({ plain: true }),            
+            ...caso.get({ plain: true }),
         }));
 
         // Retornar la respuesta con los casos no asignados
@@ -215,7 +218,6 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
             message: MESSAGE_SUCCESS.UNASSIGNED_CASES,
             data: resultado
         });
-
 
     } catch (error) {
         console.error("Error al obtener casos no asignados:", error);
