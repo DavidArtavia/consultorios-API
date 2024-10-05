@@ -191,10 +191,10 @@ exports.actualizarEstudiante = async (req, res) => {
         if (!estudiante) {
             throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
         }
-        validateInput(primer_nombre, FIELDS.NAME);
-        validateInput(segundo_nombre, FIELDS.NAME);
-        validateInput(primer_apellido, FIELDS.NAME);
-        validateInput(segundo_apellido, FIELDS.NAME);
+        validateInput(primer_nombre, FIELDS.TEXT);
+        validateInput(segundo_nombre, FIELDS.TEXT);
+        validateInput(primer_apellido, FIELDS.TEXT);
+        validateInput(segundo_apellido, FIELDS.TEXT);
         validateInput(cedula, FIELDS.ID);
         validateInput(telefono, FIELDS.PHONE_NUMBER);
         validateInput(carnet, FIELDS.CARNET);

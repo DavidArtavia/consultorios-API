@@ -1,35 +1,27 @@
 const { Usuario } = require('../models');
 const bcrypt = require('bcryptjs');
-const { HttpStatus, MESSAGE_ERROR, MESSAGE_SUCCESS } = require('../constants/constants');
+const { HttpStatus, MESSAGE_ERROR, MESSAGE_SUCCESS, FIELDS, TABLE_FIELDS } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
-const { validateLoginInput } = require('../utils/helpers');
+const { validateInput, validateIfUserExists, validatePasswordHash } = require('../utils/helpers');
+
 
 // Login a user and create a session
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // verifica que los campos no esten vacios
-        const validationErrors = validateLoginInput(email, password);
-        if (validationErrors.length > 0) {
-
-            throw new CustomError(HttpStatus.BAD_REQUEST, validationErrors.join(', '));
-        
-        }
+        validateInput(email, FIELDS.EMAIL);
 
         // Buscar al usuario por email
-        const user = await Usuario.findOne({ where: { email } });
-        if (!user) {
-            throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.INVALID_EMAIL);
-            return;
-        }
+       const user = await validateIfUserExists({
+            model: Usuario,
+            field: TABLE_FIELDS.EMAIL,
+            value: email,
+            errorMessage: MESSAGE_ERROR.INVALID_EMAIL
+        });
 
-        // Verificar la contraseña
-        const passwordMatch = await bcrypt.compare(password, user.password_hash);
-        if (!passwordMatch) {
-            throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.INVALID_PASSWORD);
-            return;
-        }
+        // Validar la contraseña
+        await validatePasswordHash(password, user.password_hash);
 
         // Crear la sesión del usuario
         req.session.userId = user.id_usuario;
@@ -55,6 +47,8 @@ exports.login = async (req, res) => {
         });
 
     } catch (error) {
+        console.error(error);
+        
         sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,

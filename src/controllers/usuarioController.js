@@ -1,7 +1,8 @@
 
 const { Usuario, Persona, Direccion, Estudiante, Profesor, Sequelize } = require('../models');
-const { HttpStatus, ROL, MESSAGE_ERROR, MESSAGE_SUCCESS } = require('../constants/constants');
+const { HttpStatus, ROL, MESSAGE_ERROR, MESSAGE_SUCCESS, TABLE_FIELDS, FIELDS } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
+const { validateIfExists, validateExistingUser, validateRoleChange, validateInput } = require('../utils/helpers');
 
 
 // Register a new user
@@ -24,57 +25,42 @@ exports.register = async (req, res) => {
 
     try {
 
-
         const userRole = req.session.userRole;
-        // Verificar que el usuario no tenga el mismo rol
-        if (userRole === rol) {
-            throw new CustomError(
-                HttpStatus.FORBIDDEN,
-                MESSAGE_ERROR.WHIOUT_PERMISSION
-            );
-        }
 
-        // Validar datos y verificar que el usuario o correo no existan
-        const existingUser = await Usuario.findOne({
-            where: {
-                [Sequelize.Op.or]: [{ email }, { username }]
-            }
-        });
-        const existingPerson = await Persona.findOne({
-            where: {
-                cedula
-            }
+        validateRoleChange(userRole, rol);
+
+        await validateExistingUser(username, email);
+
+        await validateIfExists({
+            model: Persona,
+            field: TABLE_FIELDS.CEDULA,
+            value: cedula,
+            errorMessage: `Person with ID ${cedula} is already registered.`
         });
 
-        const existingCarnet = await Estudiante.findOne({
-            where: {
-                carnet
-            }
+        await validateIfExists({
+            model: Estudiante,
+            field: TABLE_FIELDS.CARNET,
+            value: carnet,
+            errorMessage: `Student with Carnet ${cedula} is already registered.`
         });
+        validateInput(primer_nombre, FIELDS.TEXT);
+        validateInput(segundo_nombre, FIELDS.TEXT);
+        validateInput(primer_apellido, FIELDS.TEXT);
+        validateInput(segundo_apellido, FIELDS.TEXT);
+        validateInput(rol, FIELDS.TEXT);
+        validateInput(cedula, FIELDS.ID);
+        validateInput(telefono, FIELDS.PHONE_NUMBER);
+        validateInput(email, FIELDS.EMAIL);
 
+        if (rol === ROL.STUDENT) {
+            validateInput(carnet, FIELDS.CARNET);
 
-        // Verificar si ya existe el usuario
-        if (existingUser) {
-            if (existingUser.email === email) {
-                throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.EMAIL_ALREADY_USED);
-            }
-            if (existingUser.username === username) {
-                throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.USERNAME_ALREADY_USED);
-            }
-        }
-
-        // Verificar si ya existe la cédula registrada
-        if (existingPerson && existingPerson.cedula === cedula) {
-            throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.ID_ALREADY_USED);
-        }
-
-        // Verificar si ya existe el carnet registrado (solo para estudiantes)
-        if (existingCarnet && existingCarnet.carnet === carnet) {
-            throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.CARNE_ALREADY_USED);
+        } else if (rol === ROL.PROFESSOR) {
+            validateInput(especialidad, FIELDS.TEXT);
         }
 
 
-        // // Crear un nuevo registro en la tabla Persona
         const persona = await Persona.create({
             primer_nombre,
             segundo_nombre,

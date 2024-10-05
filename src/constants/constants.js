@@ -14,13 +14,14 @@ const HttpStatus = {
 };
 
 const FIELDS = {
-    NAME: 'name',
+    TEXT: 'text',
     ID: 'id',
     EMAIL: 'email',
     NUMERIC: 'numeric',
     EXPEDIENTE: 'expediente',
     PHONE_NUMBER: 'phone_number',
-    CARNET: 'carnet'
+    CARNET: 'carnet',
+    PASSWORD: 'password'
 };
 
 

@@ -1,16 +1,34 @@
+const { Op } = require("sequelize");
 const { MESSAGE_ERROR, HttpStatus, FIELDS } = require("../constants/constants");
 const { CustomError } = require("../handlers/responseHandler");
+const { Usuario } = require("../models");
+const bcrypt = require("bcryptjs/dist/bcrypt");
 
 const getFullName = (persona) => {
     if (!persona) return null;
     return `${persona.primer_nombre} ${persona.segundo_nombre || ''} ${persona.primer_apellido} ${persona.segundo_apellido}`.trim();
 };
 
-const validateLoginInput = (email, password) => {
-    const errors = [];
-    if (!email) errors.push(MESSAGE_ERROR.EMAIL_IS_REQUIRED);
-    if (!password) errors.push(MESSAGE_ERROR.PASSWORD_IS_REQUIRED);
-    return errors;
+const validateExistingUser = async (username, email) => {
+    const existingUser = await Usuario.findOne({
+        where: {
+            [Op.or]: [{ email }, { username }]
+        }
+    });
+    if (existingUser) {
+        if (existingUser.email === email) {
+            throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.EMAIL_ALREADY_USED);
+        }
+        if (existingUser.username === username) {
+            throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.USERNAME_ALREADY_USED);
+        }
+    }
+};
+
+const validateRoleChange = (sessionRole, requestedRole) => {
+    if (sessionRole === requestedRole) {
+        throw new CustomError(HttpStatus.FORBIDDEN, MESSAGE_ERROR.WHIOUT_PERMISSION);
+    }
 };
 
 const validateUpdatesInputs = async ({ currentValue, newValue, model, field, message }) => {
@@ -37,10 +55,30 @@ const validateIfExists = async ({ model, field, value, errorMessage }) => {
         throw new CustomError(HttpStatus.BAD_REQUEST, errorMessage || `Record with ${field} ${value} already exists.`);
     }
 };
+const validateIfUserExists = async ({ model, field, value, errorMessage }) => {
+    const existingRecord = await model.findOne({
+        where: { [field]: value }
+    });
 
-const validateName = (name) => {
-    const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;  
-    return nameRegex.test(name);
+    if (!existingRecord) {
+        throw new CustomError(HttpStatus.BAD_REQUEST, errorMessage || `Record with ${field} ${value} already exists.`);
+    } else {
+        return existingRecord;
+    }
+};
+
+const validatePasswordHash = async (password, userPasswordHash) => {
+
+    const passwordMatch = await bcrypt.compare(password, userPasswordHash);
+    if (!passwordMatch) {
+        // Si la contraseña no coincide, lanza un error personalizado
+        throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.INVALID_PASSWORD);
+    }
+}
+
+const validateText = (text) => {
+    const textRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    return textRegex.test(text);
 };
 
 const validateID = (id) => {
@@ -114,42 +152,55 @@ const validatePhoneNumberCR = (phoneNumber) => {
     return phoneRegex.test(phoneNumber)
 };
 
+const validatePassword = (password) => {
+    // Expresión regular para la contraseña segura
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    return passwordRegex.test(password);
+};
+
 
 const validateInput = (input, field) => {
     switch (field) {
-        case FIELDS.NAME:
-            if (!validateName(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <--  Invalid name format. Only letters are allowed.`);
+        case FIELDS.TEXT:
+            if (!validateText(input)) {
+                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <--  Invalid ${FIELDS.TEXT} format. Only letters are allowed.`);
             }
             break;
         case FIELDS.ID:
             if (!validateID(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid ID format.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid ${FIELDS.ID} format.`);
             }
             break;
         case FIELDS.EMAIL:
             if (!validateEmail(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid email format.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid ${FIELDS.EMAIL} format.`);
+            }
+            break;
+        case FIELDS.PASSWORD:
+            if (!validatePassword(input)) {
+                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid ${FIELDS.PASSWORD} format. Password must be at least 8 characters long, contain one uppercase letter, one lowercase letter, one number, and one special character.`);
+
             }
             break;
         case FIELDS.NUMERIC:
             if (!validateNumericInput(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid numeric value.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid ${FIELDS.NUMERIC} value.`);
             }
             break;
         case FIELDS.EXPEDIENTE:
             if (!validateExpediente(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid case number format.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid ${FIELDS.EXPEDIENTE} number format.`);
             }
             break;
         case FIELDS.PHONE_NUMBER:
             if (!validatePhoneNumberCR(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid phone number format. The number must be 8 digits and start with 2, 5, 6, 7, or 8.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid ${FIELDS.PHONE_NUMBER} format. The number must be 8 digits and start with 2, 5, 6, 7, or 8.`);
             }
             break;
         case FIELDS.CARNET:
             if (!validateCarnet(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid carnet format.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid ${FIELDS.CARNET} format.`);
             }
             break;
     }
@@ -159,7 +210,10 @@ const validateInput = (input, field) => {
 module.exports = {
     validateInput,
     getFullName,
-    validateLoginInput,
     validateUpdatesInputs,
-    validateIfExists
+    validateIfExists,
+    validateExistingUser,
+    validateRoleChange,
+    validateIfUserExists,
+    validatePasswordHash
 };

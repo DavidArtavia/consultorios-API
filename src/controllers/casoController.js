@@ -36,14 +36,14 @@ exports.crearCaso = async (req, res) => {
         });
 
         let nuevoSubsidiario = null;
-        validateInput(cliente.primer_nombre, FIELDS.NAME);
-        validateInput(cliente.segundo_nombre, FIELDS.NAME);
-        validateInput(cliente.primer_apellido, FIELDS.NAME);
-        validateInput(cliente.segundo_apellido, FIELDS.NAME);
-        validateInput(contraparte.primer_nombre, FIELDS.NAME);
-        validateInput(contraparte.segundo_nombre, FIELDS.NAME);
-        validateInput(contraparte.primer_apellido, FIELDS.NAME);
-        validateInput(contraparte.segundo_apellido, FIELDS.NAME);
+        validateInput(cliente.primer_nombre, FIELDS.TEXT);
+        validateInput(cliente.segundo_nombre, FIELDS.TEXT);
+        validateInput(cliente.primer_apellido, FIELDS.TEXT);
+        validateInput(cliente.segundo_apellido, FIELDS.TEXT);
+        validateInput(contraparte.primer_nombre, FIELDS.TEXT);
+        validateInput(contraparte.segundo_nombre, FIELDS.TEXT);
+        validateInput(contraparte.primer_apellido, FIELDS.TEXT);
+        validateInput(contraparte.segundo_apellido, FIELDS.TEXT);
         validateInput(cliente.cedula, FIELDS.ID);
         validateInput(contraparte.cedula, FIELDS.ID);
         validateInput(cliente.telefono, FIELDS.PHONE_NUMBER);
@@ -103,7 +103,7 @@ exports.crearCaso = async (req, res) => {
             sexo: contraparte.sexo,
             detalles: contraparte.detalles
         });
-       
+
         if (subsidiario) {
             await validateIfExists({
                 model: Persona,
@@ -112,10 +112,10 @@ exports.crearCaso = async (req, res) => {
                 table_name: `Subsidiario with ID ${subsidiario.cedula} is already registered.`
             });
 
-            validateInput(subsidiario.primer_nombre, FIELDS.NAME);
-            validateInput(subsidiario.segundo_nombre, FIELDS.NAME);
-            validateInput(subsidiario.primer_apellido, FIELDS.NAME);
-            validateInput(subsidiario.segundo_apellido, FIELDS.NAME);
+            validateInput(subsidiario.primer_nombre, FIELDS.TEXT);
+            validateInput(subsidiario.segundo_nombre, FIELDS.TEXT);
+            validateInput(subsidiario.primer_apellido, FIELDS.TEXT);
+            validateInput(subsidiario.segundo_apellido, FIELDS.TEXT);
             validateInput(subsidiario.cedula, FIELDS.ID);
             validateInput(subsidiario.telefono, FIELDS.PHONE_NUMBER);
 
@@ -160,8 +160,8 @@ exports.crearCaso = async (req, res) => {
         });
 
     } catch (error) {
-        console.log( error);
-        
+        console.log(error);
+
         sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
