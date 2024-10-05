@@ -16,18 +16,7 @@ exports.crearCaso = async (req, res) => {
     try {
         // Validar si la cédula del cliente ya está registrada
 
-        await validateIfExists({
-            model: Persona,
-            field: TABLE_FIELDS.CEDULA,
-            value: cliente.cedula,
-            table_name: `Client with ID ${cliente.cedula} is already registered.`
-        });
-        await validateIfExists({
-            model: Persona,
-            field: TABLE_FIELDS.CEDULA,
-            value: contraparte.cedula,
-            table_name: `Contraparte with ID ${contraparte.cedula} is already registered.`
-        });
+       
         await validateIfExists({
             model: Caso,
             field: TABLE_FIELDS.EXPEDIENTE,
@@ -53,7 +42,12 @@ exports.crearCaso = async (req, res) => {
         validateInput(cliente.ingreso_economico, FIELDS.NUMERIC);
         validateInput(casoData.expediente, FIELDS.EXPEDIENTE);
 
-
+        await validateIfExists({
+            model: Persona,
+            field: TABLE_FIELDS.CEDULA,
+            value: cliente.cedula,
+            table_name: `Client with ID ${cliente.cedula} is already registered.`
+        });
         // Crear el cliente
         const clientePersona = await Persona.create({
             primer_nombre: cliente.primer_nombre,
@@ -77,6 +71,13 @@ exports.crearCaso = async (req, res) => {
             id_cliente: clientePersona.id_persona,
             sexo: cliente.sexo,
             ingreso_economico: cliente.ingreso_economico,
+        });
+
+        await validateIfExists({
+            model: Persona,
+            field: TABLE_FIELDS.CEDULA,
+            value: contraparte.cedula,
+            table_name: `Contraparte with ID ${contraparte.cedula} is already registered.`
         });
 
         // Crear la contraparte

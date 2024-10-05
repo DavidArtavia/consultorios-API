@@ -95,6 +95,7 @@ const validateEmail = (email) => {
 
     const validDomains = [
         'gmail.com',
+        "ucr.ac.cr",
         'yahoo.com',
         'hotmail.com',
         'outlook.com',
