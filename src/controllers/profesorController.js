@@ -1,7 +1,7 @@
 const { MESSAGE_ERROR, HttpStatus, TABLE_FIELDS, MESSAGE_SUCCESS } = require("../constants/constants");
 const { sendResponse, CustomError } = require("../handlers/responseHandler");
 const { Profesor, Persona, Direccion } = require("../models");
-const getFullName = require("../utils/helpers");
+const { getFullName } = require("../utils/helpers");
 
 
 exports.mostrarProfesor = async (req, res) => {
