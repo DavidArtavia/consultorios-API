@@ -1,8 +1,8 @@
 // controllers/casoController.js
 const { HttpStatus, MESSAGE_SUCCESS, MESSAGE_ERROR, TABLE_FIELDS, FIELDS } = require('../constants/constants');
 const { CustomError, sendResponse } = require('../handlers/responseHandler');
-const { AsignacionDeCaso, Estudiante, Caso, Persona, Direccion, Contraparte, Cliente, Sequelize, Subsidiario } = require('../models');
-const { validateIfExists, validateInput } = require('../utils/helpers');
+const { AsignacionDeCaso, Estudiante, Caso, Persona, Direccion, Contraparte, Cliente, Sequelize, Subsidiario, sequelize } = require('../models');
+const { validateIfExists, validateInput, validateUniqueCedulas } = require('../utils/helpers');
 
 
 exports.crearCaso = async (req, res) => {
@@ -13,10 +13,13 @@ exports.crearCaso = async (req, res) => {
         casoData
     } = req.body;
 
-    try {
-        // Validar si la cédula del cliente ya está registrada
+    const transaction = await sequelize.transaction(); // Inicia la transacción
 
-       
+    try { 
+        // Validar que las cédulas no se repitan
+        validateUniqueCedulas(cliente.cedula, contraparte.cedula, subsidiario?.cedula);
+
+        // Verificar si ya existe un expediente
         await validateIfExists({
             model: Caso,
             field: TABLE_FIELDS.EXPEDIENTE,
@@ -24,7 +27,7 @@ exports.crearCaso = async (req, res) => {
             table_name: `The case file ${casoData.expediente} is already registered.`
         });
 
-        let nuevoSubsidiario = null;
+        // Validar los campos de entrada
         validateInput(cliente.primer_nombre, FIELDS.TEXT);
         validateInput(cliente.segundo_nombre, FIELDS.TEXT);
         validateInput(cliente.primer_apellido, FIELDS.TEXT);
@@ -42,12 +45,14 @@ exports.crearCaso = async (req, res) => {
         validateInput(cliente.ingreso_economico, FIELDS.NUMERIC);
         validateInput(casoData.expediente, FIELDS.EXPEDIENTE);
 
+        // Validar si la cédula del cliente ya está registrada
         await validateIfExists({
             model: Persona,
             field: TABLE_FIELDS.CEDULA,
             value: cliente.cedula,
-            table_name: `Client with ID ${cliente.cedula} is already registered.`
+            errorMessage: `(Client) Person with ID ${cliente.cedula} is already registered.`
         });
+
         // Crear el cliente
         const clientePersona = await Persona.create({
             primer_nombre: cliente.primer_nombre,
@@ -56,7 +61,7 @@ exports.crearCaso = async (req, res) => {
             segundo_apellido: cliente.segundo_apellido,
             cedula: cliente.cedula,
             telefono: cliente.telefono,
-        });
+        }, { transaction });
 
         await Direccion.create({
             id_persona: clientePersona.id_persona,
@@ -65,19 +70,20 @@ exports.crearCaso = async (req, res) => {
             distrito: cliente.direccion.distrito,
             localidad: cliente.direccion.localidad,
             provincia: cliente.direccion.provincia,
-        });
+        }, { transaction });
 
         const nuevoCliente = await Cliente.create({
             id_cliente: clientePersona.id_persona,
             sexo: cliente.sexo,
             ingreso_economico: cliente.ingreso_economico,
-        });
+        }, { transaction });
 
+        // Validar si la cédula de la contraparte ya está registrada
         await validateIfExists({
             model: Persona,
             field: TABLE_FIELDS.CEDULA,
             value: contraparte.cedula,
-            table_name: `Contraparte with ID ${contraparte.cedula} is already registered.`
+            errorMessage: `(Contraparte) Person with ID ${contraparte.cedula} is already registered.`
         });
 
         // Crear la contraparte
@@ -88,7 +94,7 @@ exports.crearCaso = async (req, res) => {
             segundo_apellido: contraparte.segundo_apellido,
             cedula: contraparte.cedula,
             telefono: contraparte.telefono,
-        });
+        }, { transaction });
 
         await Direccion.create({
             id_persona: contrapartePersona.id_persona,
@@ -97,22 +103,25 @@ exports.crearCaso = async (req, res) => {
             distrito: contraparte.direccion.distrito,
             localidad: contraparte.direccion.localidad,
             provincia: contraparte.direccion.provincia,
-        });
+        }, { transaction });
 
         const nuevaContraparte = await Contraparte.create({
             id_contraparte: contrapartePersona.id_persona,
             sexo: contraparte.sexo,
             detalles: contraparte.detalles
-        });
+        }, { transaction });
 
+        let nuevoSubsidiario = null;
         if (subsidiario) {
+            // Validar si la cédula del subsidiario ya está registrada
             await validateIfExists({
                 model: Persona,
                 field: TABLE_FIELDS.CEDULA,
                 value: subsidiario.cedula,
-                table_name: `Subsidiario with ID ${subsidiario.cedula} is already registered.`
+                errorMessage: `(Subsidiario) Person with ID ${subsidiario.cedula} is already registered.`
             });
 
+            // Validar los campos del subsidiario
             validateInput(subsidiario.primer_nombre, FIELDS.TEXT);
             validateInput(subsidiario.segundo_nombre, FIELDS.TEXT);
             validateInput(subsidiario.primer_apellido, FIELDS.TEXT);
@@ -128,7 +137,7 @@ exports.crearCaso = async (req, res) => {
                 segundo_apellido: subsidiario.segundo_apellido,
                 cedula: subsidiario.cedula,
                 telefono: subsidiario.telefono,
-            });
+            }, { transaction });
 
             await Direccion.create({
                 id_persona: subsidiarioPersona.id_persona,
@@ -137,23 +146,27 @@ exports.crearCaso = async (req, res) => {
                 distrito: subsidiario.direccion.distrito,
                 localidad: subsidiario.direccion.localidad,
                 provincia: subsidiario.direccion.provincia,
-            });
+            }, { transaction });
 
             nuevoSubsidiario = await Subsidiario.create({
                 id_subsidiario: subsidiarioPersona.id_persona,
                 sexo: subsidiario.sexo,
                 detalles: subsidiario.detalles
-            });
+            }, { transaction });
         }
 
+        // Crear el caso
         const nuevoCaso = await Caso.create({
             ...casoData,
             id_cliente: nuevoCliente.id_cliente,
             id_contraparte: nuevaContraparte.id_contraparte,
             id_subsidiario: nuevoSubsidiario ? nuevoSubsidiario.id_subsidiario : null,
-        });
+        }, { transaction });
 
-        sendResponse({
+        // Confirmar la transacción
+        await transaction.commit();
+
+        return sendResponse({
             res,
             statusCode: HttpStatus.OK,
             message: MESSAGE_SUCCESS.CASE_CREATED,
@@ -161,9 +174,11 @@ exports.crearCaso = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
+        console.error(MESSAGE_ERROR.CREATING_CASE, error);
+        // Deshacer la transacción en caso de error
+        await transaction.rollback();
 
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
@@ -174,7 +189,6 @@ exports.crearCaso = async (req, res) => {
         });
     }
 };
-
 
 exports.asignarCasoAEstudiante = async (req, res) => {
     const { idEstudiante, idCaso } = req.body;

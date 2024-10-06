@@ -38,7 +38,6 @@ exports.mostrarEstudiantes = async (req, res) => {
 
         if (estudiantes.length === 0) {
             throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
-
         }
 
         const estudiantesInfo = estudiantes.map(estudiante => ({
@@ -156,7 +155,12 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                 ...asignacion.Caso.toJSON(),
             }))
         };
-        return sendResponse({ res, statusCode: HttpStatus.OK, message: MESSAGE_SUCCESS.STUDENT_INFO, data: estudianteInfo });
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: MESSAGE_SUCCESS.STUDENT_INFO,
+            data: estudianteInfo
+        });
     } catch (error) {
         return sendResponse({
             res,
@@ -198,23 +202,17 @@ exports.actualizarEstudiante = async (req, res) => {
         validateInput(cedula, FIELDS.ID);
         validateInput(telefono, FIELDS.PHONE_NUMBER);
         validateInput(carnet, FIELDS.CARNET);
-
-
-
-        // Verificar si la cédula ha cambiado
-        const currentCedula = estudiante.Persona.cedula;
+a;
         await validateUpdatesInputs({
-            currentValue: currentCedula,
+            currentValue: estudiante.Persona.cedula,
             newValue: cedula,
             model: Persona,
             field: TABLE_FIELDS.CEDULA,
             message: MESSAGE_ERROR.ID_ALREADY_USED
         });
 
-        // Verificar si el carnet ha cambiado
-        const currentCarnet = estudiante.carnet;
         await validateUpdatesInputs({
-            currentValue: currentCarnet,
+            currentValue: estudiante.carnet,
             newValue: carnet,
             model: Estudiante,
             field: TABLE_FIELDS.CARNET,

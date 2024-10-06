@@ -137,7 +137,9 @@ const MESSAGE_ERROR = {
     RETRIEVING: 'Error retrieving the information',
     NOT_PERSONS_FOUND: 'No persons found',
     UNASSIGNED_CASES: 'Error retrieving unassigned cases',
-
+    SUBSIDIARY_CLIENT_SAME_ID: 'The subsidiary and client cannot have the same ID',
+    CLIENT_COUNTERPART_SAME_ID: 'The client and counterpart cannot have the same ID',
+    SUBSIDIARY_COUNTERPART_SAME_ID: 'The subsidiary and counterpart cannot have the same ID',
 
 }
 

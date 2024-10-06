@@ -160,6 +160,19 @@ const validatePassword = (password) => {
     return passwordRegex.test(password);
 };
 
+const validateUniqueCedulas = (clienteCedula, contraparteCedula, subsidiarioCedula) => {
+    if (subsidiarioCedula) {
+        if (subsidiarioCedula === clienteCedula) {
+            throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.SUBSIDIARY_CLIENT_SAME_ID);
+        }
+        if (subsidiarioCedula === contraparteCedula) {
+            throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.SUBSIDIARY_COUNTERPART_SAME_ID);
+        }
+    }
+    if (clienteCedula === contraparteCedula) {
+        throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.CLIENT_COUNTERPART_SAME_ID);
+    }
+};
 
 const validateInput = (input, field) => {
     switch (field) {
@@ -216,5 +229,6 @@ module.exports = {
     validateExistingUser,
     validateRoleChange,
     validateIfUserExists,
-    validatePasswordHash
+    validatePasswordHash,
+    validateUniqueCedulas
 };

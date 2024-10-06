@@ -42,10 +42,10 @@ exports.register = async (req, res) => {
             model: Estudiante,
             field: TABLE_FIELDS.CARNET,
             value: carnet,
-            errorMessage: `Student with Carnet ${cedula} is already registered.`
+            errorMessage: `Student with Carnet ${carnet} is already registered.`
         });
         validateInput(primer_nombre, FIELDS.TEXT);
-        // validateInput(segundo_nombre, FIELDS.TEXT);
+        segundo_nombre ? validateInput(segundo_nombre, FIELDS.TEXT) : null;
         validateInput(primer_apellido, FIELDS.TEXT);
         validateInput(segundo_apellido, FIELDS.TEXT);
         validateInput(rol, FIELDS.TEXT);
