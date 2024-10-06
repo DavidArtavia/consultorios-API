@@ -57,7 +57,7 @@ exports.mostrarEstudiantes = async (req, res) => {
             casosAsignados: estudiante.AsignacionDeCasos.length || 0
         }));
 
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: HttpStatus.OK,
             message: MESSAGE_SUCCESS.RECOVERED_STUDENTS,
@@ -66,7 +66,7 @@ exports.mostrarEstudiantes = async (req, res) => {
     } catch (error) {
         console.error(MESSAGE_ERROR.RE, error);
 
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
@@ -156,9 +156,9 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                 ...asignacion.Caso.toJSON(),
             }))
         };
-        sendResponse({ res, statusCode: HttpStatus.OK, message: MESSAGE_SUCCESS.STUDENT_INFO, data: estudianteInfo });
+        return sendResponse({ res, statusCode: HttpStatus.OK, message: MESSAGE_SUCCESS.STUDENT_INFO, data: estudianteInfo });
     } catch (error) {
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
@@ -253,14 +253,14 @@ exports.actualizarEstudiante = async (req, res) => {
             } : {}
         };
 
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: HttpStatus.OK,
             message: MESSAGE_SUCCESS.STUDENT_UPDATED,
             data: { estudianteInfo }
         });
     } catch (error) {
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || MESSAGE_ERROR.UPDATE_STUDENT,
@@ -295,7 +295,7 @@ exports.eliminarEstudiante = async (req, res) => {
 
         await persona.destroy();
 
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: HttpStatus.OK,
             message: MESSAGE_SUCCESS.STUDENT_DELETED,
@@ -303,7 +303,7 @@ exports.eliminarEstudiante = async (req, res) => {
         });
     } catch (error) {
         console.error(MESSAGE_ERROR.DELETE_STUDENT, error);
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {

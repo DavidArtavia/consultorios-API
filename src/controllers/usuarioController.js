@@ -45,7 +45,7 @@ exports.register = async (req, res) => {
             errorMessage: `Student with Carnet ${cedula} is already registered.`
         });
         validateInput(primer_nombre, FIELDS.TEXT);
-        validateInput(segundo_nombre, FIELDS.TEXT);
+        // validateInput(segundo_nombre, FIELDS.TEXT);
         validateInput(primer_apellido, FIELDS.TEXT);
         validateInput(segundo_apellido, FIELDS.TEXT);
         validateInput(rol, FIELDS.TEXT);
@@ -115,7 +115,7 @@ exports.register = async (req, res) => {
         }
 
 
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: HttpStatus.CREATED,
             message: MESSAGE_SUCCESS.USER_REGISTERED,
@@ -126,7 +126,7 @@ exports.register = async (req, res) => {
         if (error.name === 'SequelizeValidationError') {
             const validationErrors = error.errors.map(err => err.message);
 
-            sendResponse({
+            return sendResponse({
                 res,
                 statusCode: HttpStatus.BAD_REQUEST,
                 message: {
@@ -134,10 +134,10 @@ exports.register = async (req, res) => {
                     error: error.stack,
                 }
             });
-            return;
+           
         }
 
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {

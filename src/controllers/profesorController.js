@@ -55,7 +55,7 @@ exports.mostrarProfesor = async (req, res) => {
             } : null,
         }));
 
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: HttpStatus.OK,
             message: MESSAGE_SUCCESS.RECOVERED_PROFESORS,
@@ -64,7 +64,7 @@ exports.mostrarProfesor = async (req, res) => {
     } catch (error) {
         console.error(MESSAGE_ERROR.RECOVERED_PROFESORS, error);
 
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {

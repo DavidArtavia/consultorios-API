@@ -49,7 +49,7 @@ exports.login = async (req, res) => {
     } catch (error) {
         console.error(error);
         
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || MESSAGE_ERROR.FATAL_ERROR_LOGIN,
@@ -80,7 +80,7 @@ exports.logout = (req, res) => {
         });
 
     } catch (error) {
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || MESSAGE_ERROR.FATAL_ERROR_LOGOUT,

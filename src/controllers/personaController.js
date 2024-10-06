@@ -42,18 +42,18 @@ exports.mostrarPersonasConUsuarios = async (req, res) => {
 
         // Retorna la respuesta
 
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: HttpStatus.OK,
             message: MESSAGE_SUCCESS.PERSONS_FOUND,
             data: resultado
         });
-       
+
 
     } catch (error) {
         console.error("Error al mostrar personas y usuarios:", error);
 
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
