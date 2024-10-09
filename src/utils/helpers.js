@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
 const { MESSAGE_ERROR, HttpStatus, FIELDS } = require("../constants/constants");
 const { CustomError } = require("../handlers/responseHandler");
-const { Usuario } = require("../models");
+const { Usuario, Caso, AsignacionDeCaso } = require("../models");
 const bcrypt = require("bcryptjs/dist/bcrypt");
 
 const getFullName = (persona) => {
@@ -9,6 +9,26 @@ const getFullName = (persona) => {
     return `${persona.primer_nombre} ${persona.segundo_nombre || ''} ${persona.primer_apellido} ${persona.segundo_apellido}`.trim();
 };
 
+const validateIfExists = async ({ model, field, value, errorMessage }) => {
+    const existingRecord = await model.findOne({
+        where: { [field]: value }
+    });
+
+    if (existingRecord) {
+        throw new CustomError(HttpStatus.BAD_REQUEST, errorMessage || `Record with ${field} ${value} already exists.`);
+    }
+};
+const validateIfUserExists = async ({ model, field, value, errorMessage }) => {
+    const existingRecord = await model.findOne({
+        where: { [field]: value }
+    });
+
+    if (!existingRecord) {
+        throw new CustomError(HttpStatus.BAD_REQUEST, errorMessage || `Record with ${field} ${value} already exists.`);
+    } else {
+        return existingRecord;
+    }
+};
 const validateExistingUser = async (username, email) => {
     const existingUser = await Usuario.findOne({
         where: {
@@ -23,6 +43,18 @@ const validateExistingUser = async (username, email) => {
             throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.USERNAME_ALREADY_USED);
         }
     }
+};
+
+const validateCaseAssignedToStudent = async (id_caso, id_estudiante) => {
+    const caso = await AsignacionDeCaso.findOne({
+        where: { id_caso, id_estudiante },
+        include: [Caso],
+    });
+
+    if (!caso) {
+        throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.NO_CASE_ASSIGNED);
+    }
+    return caso;
 };
 
 const validateRoleChange = (sessionRole, requestedRole) => {
@@ -46,26 +78,6 @@ const validateUpdatesInputs = async ({ currentValue, newValue, model, field, mes
     }
 }
 
-const validateIfExists = async ({ model, field, value, errorMessage }) => {
-    const existingRecord = await model.findOne({
-        where: { [field]: value }
-    });
-
-    if (existingRecord) {
-        throw new CustomError(HttpStatus.BAD_REQUEST, errorMessage || `Record with ${field} ${value} already exists.`);
-    }
-};
-const validateIfUserExists = async ({ model, field, value, errorMessage }) => {
-    const existingRecord = await model.findOne({
-        where: { [field]: value }
-    });
-
-    if (!existingRecord) {
-        throw new CustomError(HttpStatus.BAD_REQUEST, errorMessage || `Record with ${field} ${value} already exists.`);
-    } else {
-        return existingRecord;
-    }
-};
 
 const validatePasswordHash = async (password, userPasswordHash) => {
 
@@ -230,5 +242,6 @@ module.exports = {
     validateRoleChange,
     validateIfUserExists,
     validatePasswordHash,
-    validateUniqueCedulas
+    validateUniqueCedulas,
+    validateCaseAssignedToStudent
 };

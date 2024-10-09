@@ -29,11 +29,11 @@ exports.crearCaso = async (req, res) => {
 
         // Validar los campos de entrada
         validateInput(cliente.primer_nombre, FIELDS.TEXT);
-        validateInput(cliente.segundo_nombre, FIELDS.TEXT);
+        cliente.segundo_nombre ? validateInput(cliente.segundo_nombre, FIELDS.TEXT) : null;
         validateInput(cliente.primer_apellido, FIELDS.TEXT);
         validateInput(cliente.segundo_apellido, FIELDS.TEXT);
         validateInput(contraparte.primer_nombre, FIELDS.TEXT);
-        validateInput(contraparte.segundo_nombre, FIELDS.TEXT);
+        contraparte.segundo_nombre ? validateInput(contraparte.segundo_nombre, FIELDS.TEXT) : null;
         validateInput(contraparte.primer_apellido, FIELDS.TEXT);
         validateInput(contraparte.segundo_apellido, FIELDS.TEXT);
         validateInput(cliente.cedula, FIELDS.ID);
@@ -123,6 +123,7 @@ exports.crearCaso = async (req, res) => {
 
             // Validar los campos del subsidiario
             validateInput(subsidiario.primer_nombre, FIELDS.TEXT);
+            subsidiario.segundo_nombre ? validateInput(subsidiario.segundo_nombre, FIELDS.TEXT) : null;
             validateInput(subsidiario.segundo_nombre, FIELDS.TEXT);
             validateInput(subsidiario.primer_apellido, FIELDS.TEXT);
             validateInput(subsidiario.segundo_apellido, FIELDS.TEXT);
@@ -257,20 +258,37 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                     model: AsignacionDeCaso,
                     as: 'Asignaciones',
                     required: false, // Esto incluye los casos sin asignación
-                    attributes: [], // No necesitamos los atributos de AsignacionDeCaso
-                },
-                {
-                    model: Cliente, // Incluir la información del cliente
-                    include: [
-                        {
-                            model: Persona, // Incluir la información de la persona relacionada al cliente
-                            attributes: { exclude: ['id_persona'] }
-                        }
-                    ]
-                }
-            ],
-            where: {
-                '$Asignaciones.id_asignacion$': null // Filtrar los casos que no tienen asignación
+                    },
+                    {
+                        model: Cliente,
+                        include: [
+                            {
+                                model: Persona,
+                                attributes: { exclude: ['id_persona'] }
+                            }
+                        ]
+                    },
+                    {
+                        model: Contraparte,
+                        include: [
+                            {
+                                model: Persona,
+                                attributes: { exclude: ['id_persona'] }
+                            }
+                        ]
+                    },
+                    {
+                        model: Subsidiario,
+                        include: [
+                            {
+                                model: Persona,
+                                attributes: { exclude: ['id_persona'] }
+                            }
+                        ]
+                    }
+                ],
+                where: {
+                    '$Asignaciones.id_asignacion$': null
             }
         });
 

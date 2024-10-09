@@ -196,7 +196,7 @@ exports.actualizarEstudiante = async (req, res) => {
             throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
         }
         validateInput(primer_nombre, FIELDS.TEXT);
-        validateInput(segundo_nombre, FIELDS.TEXT);
+        segundo_nombre ? validateInput(segundo_nombre, FIELDS.TEXT) : null;
         validateInput(primer_apellido, FIELDS.TEXT);
         validateInput(segundo_apellido, FIELDS.TEXT);
         validateInput(cedula, FIELDS.ID);

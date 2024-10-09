@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.UUID,
             allowNull: false,
         },
+        id_estudiante: { 
+            type: DataTypes.UUID,
+            allowNull: false,
+        },
         fecha_avance: {
             type: DataTypes.DATE,
             allowNull: false,
@@ -45,6 +49,9 @@ module.exports = (sequelize, DataTypes) => {
     Avance.associate = models => {
         Avance.belongsTo(models.Caso, {
             foreignKey: TABLE_FIELDS.UID_CASO,
+        });
+        Avance.belongsTo(models.Estudiante, {
+            foreignKey: TABLE_FIELDS.UID_ESTUDIANTE,
         });
     };
 
