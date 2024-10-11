@@ -17,7 +17,6 @@ module.exports = (sequelize, DataTypes) => {
         },
     }, {
         tableName: TABLE_NAME.ESTUDIANTES,
-        timestamps: false, // Desactiva la creación automática de createdAt y updatedAt
     });
 
     // Definir asociaciones

@@ -3,6 +3,7 @@ const { HttpStatus, MESSAGE_SUCCESS, MESSAGE_ERROR, TABLE_FIELDS, FIELDS } = req
 const { CustomError, sendResponse } = require('../handlers/responseHandler');
 const { AsignacionDeCaso, Estudiante, Caso, Persona, Direccion, Contraparte, Cliente, Sequelize, Subsidiario, sequelize } = require('../models');
 const { validateIfExists, validateInput, validateUniqueCedulas } = require('../utils/helpers');
+const { Op } = require('sequelize');
 
 
 exports.crearCaso = async (req, res) => {
@@ -15,7 +16,7 @@ exports.crearCaso = async (req, res) => {
 
     const transaction = await sequelize.transaction(); // Inicia la transacción
 
-    try { 
+    try {
         // Validar que las cédulas no se repitan
         validateUniqueCedulas(cliente.cedula, contraparte.cedula, subsidiario?.cedula);
 
@@ -258,37 +259,37 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                     model: AsignacionDeCaso,
                     as: 'Asignaciones',
                     required: false, // Esto incluye los casos sin asignación
-                    },
-                    {
-                        model: Cliente,
-                        include: [
-                            {
-                                model: Persona,
-                                attributes: { exclude: ['id_persona'] }
-                            }
-                        ]
-                    },
-                    {
-                        model: Contraparte,
-                        include: [
-                            {
-                                model: Persona,
-                                attributes: { exclude: ['id_persona'] }
-                            }
-                        ]
-                    },
-                    {
-                        model: Subsidiario,
-                        include: [
-                            {
-                                model: Persona,
-                                attributes: { exclude: ['id_persona'] }
-                            }
-                        ]
-                    }
-                ],
-                where: {
-                    '$Asignaciones.id_asignacion$': null
+                },
+                {
+                    model: Cliente,
+                    include: [
+                        {
+                            model: Persona,
+                            attributes: { exclude: ['id_persona'] }
+                        }
+                    ]
+                },
+                {
+                    model: Contraparte,
+                    include: [
+                        {
+                            model: Persona,
+                            attributes: { exclude: ['id_persona'] }
+                        }
+                    ]
+                },
+                {
+                    model: Subsidiario,
+                    include: [
+                        {
+                            model: Persona,
+                            attributes: { exclude: ['id_persona'] }
+                        }
+                    ]
+                }
+            ],
+            where: {
+                '$Asignaciones.id_asignacion$': null
             }
         });
 
@@ -306,7 +307,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
         }));
 
         // Retornar la respuesta con los casos no asignados
-       return sendResponse({
+        return sendResponse({
             res,
             statusCode: HttpStatus.OK,
             message: MESSAGE_SUCCESS.UNASSIGNED_CASES,
@@ -320,6 +321,71 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
                 message: MESSAGE_ERROR.UNASSIGNED_CASES,
+                error: error.message,
+                stack: error.stack
+            }
+        });
+    }
+};
+
+exports.mostrarCasosAsignados = async (req, res) => {
+    try {
+        const casosAsignados = await Caso.findAll({
+            include: [
+                {
+                    model: AsignacionDeCaso,
+                    as: 'Asignaciones',
+                    where: {
+                        id_asignacion: {
+                            [Op.ne]: null // Esto filtra solo los casos con id_asignacion no nulo
+                        }
+                    },
+                    include: [
+                        {
+                            model: Estudiante,
+                            include: [{ model: Persona }]
+                        }
+                    ]
+                },
+                {
+                    model: Cliente,
+                    include: [{ model: Persona }]
+                },
+                {
+                    model: Contraparte,
+                    include: [{ model: Persona }]
+                }
+            ]
+        });
+
+        if (!casosAsignados || casosAsignados.length === 0) {
+            return sendResponse({
+                res,
+                statusCode: HttpStatus.OK,
+                message: MESSAGE_SUCCESS.NO_ASSIGNED_CASES,
+                data: []
+            });
+        }
+        // Mapear los casos no asignados
+        const resultado = casosAsignados.map(caso => ({
+            ...caso.get({ plain: true }),
+        }));
+
+        // Retornar la respuesta con los casos no asignados
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: MESSAGE_SUCCESS.ASSIGNED_CASES,
+            data: resultado
+        });
+
+    } catch (error) {
+        console.error("Error al obtener casos asignados:", error);
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: MESSAGE_ERROR.ASSIGNED_CASES,
                 error: error.message,
                 stack: error.stack
             }

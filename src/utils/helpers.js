@@ -49,6 +49,7 @@ const validateCaseAssignedToStudent = async (id_caso, id_estudiante) => {
     const caso = await AsignacionDeCaso.findOne({
         where: { id_caso, id_estudiante },
         include: [Caso],
+
     });
 
     if (!caso) {
@@ -59,7 +60,7 @@ const validateCaseAssignedToStudent = async (id_caso, id_estudiante) => {
 
 const validateRoleChange = (sessionRole, requestedRole) => {
     if (sessionRole === requestedRole) {
-        throw new CustomError(HttpStatus.FORBIDDEN, MESSAGE_ERROR.WHIOUT_PERMISSION);
+        throw new CustomError(HttpStatus.FORBIDDEN, MESSAGE_ERROR.WITHOUT_PERMISSION);
     }
 };
 
