@@ -62,8 +62,14 @@ exports.mostrarAvancesPorCaso = async (req, res) => {
             data: avances
         });
     } catch (error) {
-        return res.status(error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR).json({
-            message: error?.message || MESSAGE_ERROR.RETRIEVING_PROGRESS,
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: MESSAGE_ERROR.RETRIEVING_PROGRESS,
+                error: error.message,
+                stack: error.stack
+            }
         });
     }
 };

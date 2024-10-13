@@ -38,6 +38,7 @@ const TABLE_NAME = {
     INFORMES: 'informes',
     AVANCES: 'avances',
     SUBSIDIARIOS: 'subsidiarios',
+    SOLICITUD_CONFIRMACION: 'solicitud_confirmacion',
 
 };
 
