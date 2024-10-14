@@ -194,6 +194,7 @@ exports.crearCaso = async (req, res) => {
 
 exports.asignarCasoAEstudiante = async (req, res) => {
     const { idEstudiante, idCaso } = req.body;
+    const transaction = await sequelize.transaction(); // Inicia la transacción
 
     try {
         // Verificar si el estudiante y el caso existen
@@ -223,8 +224,15 @@ exports.asignarCasoAEstudiante = async (req, res) => {
         const nuevaAsignacion = await AsignacionDeCaso.create({
             id_caso: idCaso,
             id_estudiante: idEstudiante,
-        });
+        }, { transaction });
 
+        await Caso.update({
+            estado: 'asignado'
+        }, {
+            where: { id_caso: idCaso }
+        }, { transaction });
+
+        await transaction.commit();
 
         sendResponse({
             res,
@@ -235,6 +243,7 @@ exports.asignarCasoAEstudiante = async (req, res) => {
     } catch (error) {
         console.error(MESSAGE_ERROR.ASSIGN_CASE, error);
 
+        await transaction.rollback();
         sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,

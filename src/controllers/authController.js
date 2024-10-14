@@ -26,7 +26,12 @@ exports.login = async (req, res) => {
         // Crear la sesión del usuario
         req.session.userId = user.id_usuario;
         req.session.userRole = user.rol;
+        req.session.userName = user.username;
 
+        // Establecer cookies para que el cliente pueda acceder a estos datos
+        res.cookie('username', user.username, { maxAge: 900000, httpOnly: false }); // 15 min de duración
+        res.cookie('userRole', user.rol, { maxAge: 900000, httpOnly: false });
+        res.cookie('userName', user.username, { maxAge: 900000, httpOnly: false });
         // Responder al cliente
 
         return sendResponse({
@@ -45,6 +50,8 @@ exports.login = async (req, res) => {
                 }
             ]
         });
+
+        return res.json(req.session);
 
     } catch (error) {
         console.error(error);

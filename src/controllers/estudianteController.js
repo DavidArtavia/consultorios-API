@@ -1,4 +1,4 @@
-const { Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Direccion, Usuario } = require('../models');
+const { Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Direccion, Usuario, sequelize, SolicitudConfirmacion } = require('../models');
 const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL, FIELDS } = require("../constants/constants");
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
 const { validateUpdatesInputs, validateInput, getFullName } = require('../utils/helpers');
@@ -186,6 +186,7 @@ exports.actualizarEstudiante = async (req, res) => {
         carnet,
         direccion
     } = req.body;
+    const transaction = await sequelize.transaction(); // Inicia la transacción
 
     try {
         const estudiante = await Estudiante.findByPk(id_estudiante, {
@@ -202,7 +203,7 @@ exports.actualizarEstudiante = async (req, res) => {
         validateInput(cedula, FIELDS.ID);
         validateInput(telefono, FIELDS.PHONE_NUMBER);
         validateInput(carnet, FIELDS.CARNET);
-a;
+        a;
         await validateUpdatesInputs({
             currentValue: estudiante.Persona.cedula,
             newValue: cedula,
@@ -226,11 +227,11 @@ a;
             segundo_apellido,
             cedula,
             telefono
-        });
+        }, { transaction });
 
         await estudiante.update({
             carnet
-        });
+        }, { transaction });
 
         if (direccion) {
             await Direccion.update({
@@ -241,7 +242,7 @@ a;
                 provincia: direccion.provincia,
             }, {
                 where: { id_persona: estudiante.Persona.id_persona }
-            });
+            }, { transaction });
         }
 
         const estudianteInfo = {
@@ -251,6 +252,8 @@ a;
             } : {}
         };
 
+        await transaction.commit();
+
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
@@ -258,6 +261,8 @@ a;
             data: { estudianteInfo }
         });
     } catch (error) {
+        await transaction.rollback();
+
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -269,9 +274,11 @@ a;
 
 exports.eliminarEstudiante = async (req, res) => {
     const { id_estudiante } = req.body;
+    const profesorId = req.user.id_profesor; // Asumimos que el ID del profesor que hace la solicitud está en el `req.user`
+    const transaction = await sequelize.transaction(); // Inicia la transacción
 
     try {
-        // Buscar el estudiante y la persona asociada
+        // Buscar el estudiante
         const estudiante = await Estudiante.findByPk(id_estudiante, {
             include: [
                 {
@@ -284,32 +291,91 @@ exports.eliminarEstudiante = async (req, res) => {
             ]
         });
 
-
         if (!estudiante) {
             throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
         }
-        // Buscar la persona asociada al estudiante
-        const persona = estudiante.Persona;
 
-        await persona.destroy();
+        // Crear una solicitud de confirmación
+        const solicitud = await SolicitudConfirmacion.create({
+            id_estudiante: id_estudiante,
+            accion: 'eliminar',
+            detalles: `Solicitud para eliminar al estudiante 
+            ${getFullName(
+                estudiante.Persona.primer_nombre,
+                estudiante.Persona.segundo_nombre,
+                estudiante.Persona.primer_apellido,
+                estudiante.Persona.segundo_apellido
+            )} con ID: ${id_estudiante}`,
+            estado: 'pendiente',
+            createdBy: profesorId, // ID del profesor que hizo la solicitud
+        }, { transaction });
+
+        await transaction.commit();
 
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: MESSAGE_SUCCESS.STUDENT_DELETED,
-            data: { estudiante }
+            message: 'Solicitud enviada al administrador. El estudiante será eliminado si se aprueba.',
+            data: solicitud
         });
     } catch (error) {
         console.error(MESSAGE_ERROR.DELETE_STUDENT, error);
+        await transaction.rollback();
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
-                message: MESSAGE_ERROR.RECOVERED_PROFESORS,
+                message: MESSAGE_ERROR.RECOVERED_STUDENTS,
                 error: error.message,
                 stack: error.stack
             }
         });
     }
 };
+
+// exports.eliminarEstudiante = async (req, res) => {
+//     const { id_estudiante } = req.body;
+
+//     try {
+//         // Buscar el estudiante y la persona asociada
+//         const estudiante = await Estudiante.findByPk(id_estudiante, {
+//             include: [
+//                 {
+//                     model: Persona,
+//                     include: [Direccion, Usuario]
+//                 },
+//                 {
+//                     model: AsignacionDeCaso
+//                 }
+//             ]
+//         });
+
+
+//         if (!estudiante) {
+//             throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
+//         }
+//         // Buscar la persona asociada al estudiante
+//         const persona = estudiante.Persona;
+
+//         await persona.destroy();
+
+//         return sendResponse({
+//             res,
+//             statusCode: HttpStatus.OK,
+//             message: MESSAGE_SUCCESS.STUDENT_DELETED,
+//             data: { estudiante }
+//         });
+//     } catch (error) {
+//         console.error(MESSAGE_ERROR.DELETE_STUDENT, error);
+//         return sendResponse({
+//             res,
+//             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+//             message: error?.message || {
+//                 message: MESSAGE_ERROR.RECOVERED_PROFESORS,
+//                 error: error.message,
+//                 stack: error.stack
+//             }
+//         });
+//     }
+// };
 

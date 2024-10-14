@@ -61,15 +61,12 @@ module.exports = (sequelize, DataTypes) => {
     SolicitudConfirmacion.associate = models => {
         SolicitudConfirmacion.belongsTo(models.Caso, {
             foreignKey: TABLE_FIELDS.UID_CASO,
-            as: 'caso'
         });
         SolicitudConfirmacion.belongsTo(models.Estudiante, {
             foreignKey: TABLE_FIELDS.UID_ESTUDIANTE,
-            as: 'estudiante'
         });
         SolicitudConfirmacion.belongsTo(models.Profesor, {
             foreignKey: TABLE_FIELDS.UID_PROFESOR,
-            as: 'profesor'
         });
     };
 
