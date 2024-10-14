@@ -28,10 +28,16 @@ exports.login = async (req, res) => {
         req.session.userRole = user.rol;
         req.session.userName = user.username;
 
-        // Establecer cookies para que el cliente pueda acceder a estos datos
-        res.cookie('username', user.username, { maxAge: 900000, httpOnly: false }); // 15 min de duración
-        res.cookie('userRole', user.rol, { maxAge: 900000, httpOnly: false });
-        res.cookie('userName', user.username, { maxAge: 900000, httpOnly: false });
+        // Serializar los datos en un JSON y almacenarlos en una cookie
+        const userData = JSON.stringify({
+            userId: user.id_usuario,
+            userName: user.username,
+            userRole: user.rol
+        });
+
+        // Enviar la cookie con los datos del usuario
+        res.cookie('userData', userData, { maxAge: 900000, httpOnly: false });
+
         // Responder al cliente
 
         return sendResponse({
@@ -81,6 +87,8 @@ exports.logout = (req, res) => {
 
             // Clear the cookie
             res.clearCookie('connect.sid', { path: '/' });
+            res.clearCookie('userData', { maxAge: 0});
+
 
             // Respond to the client
             sendResponse({ res, statusCode: HttpStatus.OK, message: MESSAGE_SUCCESS.LOGOUT });
