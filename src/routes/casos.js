@@ -28,4 +28,11 @@ router.get(
     casoController.mostrarCasosNoAsignados
 );
 
+router.get(
+    '/asignados',
+    verifySession,
+    verifyRole([ROL.SUPERADMIN, ROL.PROFESSOR]),
+    casoController.mostrarCasosAsignados
+);
+
 module.exports = router;
