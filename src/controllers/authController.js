@@ -36,7 +36,7 @@ exports.login = async (req, res) => {
         });
 
         // Enviar la cookie con los datos del usuario
-        res.cookie('userData', userData, { maxAge: 900000, httpOnly: false });
+        res.cookie('userData', userData, { httpOnly: false });
 
         // Responder al cliente
 
@@ -87,7 +87,7 @@ exports.logout = (req, res) => {
 
             // Clear the cookie
             res.clearCookie('connect.sid', { path: '/' });
-            res.clearCookie('userData', { maxAge: 0});
+            res.clearCookie('userData', { path: '/' });
 
 
             // Respond to the client
