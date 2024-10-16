@@ -17,6 +17,8 @@ exports.crearCaso = async (req, res) => {
     const transaction = await sequelize.transaction(); // Inicia la transacción
 
     try {
+        console.log("pasa por aqui");
+        
         // Validar que las cédulas no se repitan
         validateUniqueCedulas(cliente.cedula, contraparte.cedula, subsidiario?.cedula);
 

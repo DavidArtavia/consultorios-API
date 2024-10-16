@@ -15,7 +15,6 @@ const personasRoutes = require('./src/routes/persona');
 const avancesRoutes = require('./src/routes/avances');
 
 const app = express();
-const router = express.Router();
 
 // Configuración de CORS con opciones
 const corsOptions = {
@@ -40,7 +39,14 @@ app.use(session({
     }
 }));
 
+// Middleware logger
+const logger = (req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    next(); // Pasa al siguiente middleware o ruta
+};
+
 // Rutas
+app.use(logger);
 app.use('/api/v1/usuarios', usuarioRoutes);
 app.use('/api/v1/casos', casosRoutes);
 app.use('/api/v1/estudiantes', estudiantesRoutes);

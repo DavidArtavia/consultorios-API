@@ -13,7 +13,7 @@ exports.login = async (req, res) => {
         validateInput(email, FIELDS.EMAIL);
 
         // Buscar al usuario por email
-       const user = await validateIfUserExists({
+        const user = await validateIfUserExists({
             model: Usuario,
             field: TABLE_FIELDS.EMAIL,
             value: email,
@@ -24,19 +24,23 @@ exports.login = async (req, res) => {
         await validatePasswordHash(password, user.password_hash);
 
         // Crear la sesión del usuario
-        req.session.userId = user.id_usuario;
-        req.session.userRole = user.rol;
-        req.session.userName = user.username;
-
-        // Serializar los datos en un JSON y almacenarlos en una cookie
-        const userData = JSON.stringify({
+        const userData = {
             userId: user.id_usuario,
+            PersonaId: user.id_persona,
+            userEmail: user.email,
             userName: user.username,
             userRole: user.rol
-        });
+        };
+
+        req.session.user = userData;
 
         // Enviar la cookie con los datos del usuario
-        res.cookie('userData', userData, { httpOnly: false });
+        res.cookie('userData', JSON.stringify(userData), {
+            httpOnly: false,
+            secure: process.env.NODE_ENV === 'production',
+            // sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        });
 
         // Responder al cliente
 
@@ -44,24 +48,12 @@ exports.login = async (req, res) => {
             res,
             statusCode: HttpStatus.OK,
             message: MESSAGE_SUCCESS.LOGIN,
-            data: [
-                {
-                    user: {
-                        id_usuario: user.id_usuario,
-                        id_persona: user.id_persona,
-                        username: user.username,
-                        email: user.email,
-                        rol: user.rol
-                    }
-                }
-            ]
+            data: [{ user: userData }]
         });
-
-        return res.json(req.session);
 
     } catch (error) {
         console.error(error);
-        
+
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -85,13 +77,23 @@ exports.logout = (req, res) => {
                 throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.DESTROY_SESSION);
             }
 
-            // Clear the cookie
-            res.clearCookie('connect.sid', { path: '/' });
-            res.clearCookie('userData', { path: '/' });
+            // Clear the cookies
+            const cookieOptions = {
+                path: '/',
+                httpOnly: false,
+                secure: process.env.NODE_ENV === 'production',
+                // sameSite: 'strict'
+            };
 
+            res.clearCookie('connect.sid', cookieOptions);
+            res.clearCookie('userData', cookieOptions);
 
             // Respond to the client
-            sendResponse({ res, statusCode: HttpStatus.OK, message: MESSAGE_SUCCESS.LOGOUT });
+            sendResponse({
+                res,
+                statusCode: HttpStatus.OK,
+                message: MESSAGE_SUCCESS.LOGOUT
+            });
         });
 
     } catch (error) {
