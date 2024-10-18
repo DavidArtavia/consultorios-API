@@ -49,13 +49,8 @@ module.exports = (sequelize, DataTypes) => {
                 key: TABLE_FIELDS.UID_PROFESOR
             }
         },
-        createdAt: {
-            type: DataTypes.DATE,
-            allowNull: false,
-            defaultValue: DataTypes.NOW
-        }
     }, {
-        tableName: TABLE_NAME.SOLICITUDES_CONFIRMACION,
+        tableName: TABLE_NAME.SOLICITUD_CONFIRMACION,
     });
 
     SolicitudConfirmacion.associate = models => {
@@ -66,7 +61,7 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: TABLE_FIELDS.UID_ESTUDIANTE,
         });
         SolicitudConfirmacion.belongsTo(models.Profesor, {
-            foreignKey: TABLE_FIELDS.UID_PROFESOR,
+            foreignKey: 'createdBy',
         });
     };
 

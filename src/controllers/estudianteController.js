@@ -1,7 +1,8 @@
-const { Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Direccion, Usuario, sequelize, SolicitudConfirmacion } = require('../models');
+const { Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Direccion, Usuario, sequelize, SolicitudConfirmacion, Profesor } = require('../models');
 const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL, FIELDS } = require("../constants/constants");
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
-const { validateUpdatesInputs, validateInput, getFullName } = require('../utils/helpers');
+const { validateUpdatesInputs, validateInput, getFullName, validateIfExists, validateIfUserExists, validateIfUserIsTeacher } = require('../utils/helpers');
+
 
 exports.mostrarEstudiantes = async (req, res) => {
     try {
@@ -240,9 +241,11 @@ exports.actualizarEstudiante = async (req, res) => {
                 distrito: direccion.distrito,
                 localidad: direccion.localidad,
                 provincia: direccion.provincia,
-            }, {
+            },
+                {
                 where: { id_persona: estudiante.Persona.id_persona }
-            }, { transaction });
+                },
+                { transaction });
         }
 
         const estudianteInfo = {
@@ -274,15 +277,28 @@ exports.actualizarEstudiante = async (req, res) => {
 
 exports.eliminarEstudiante = async (req, res) => {
     const { id_estudiante } = req.body;
-    const profesorId = req.user.id_profesor; // Asumimos que el ID del profesor que hace la solicitud está en el `req.user`
+    const personaId = req.session.user.personaId;
+    const userRole = req.session.user.userRole;
     const transaction = await sequelize.transaction(); // Inicia la transacción
 
     try {
+
+        // Verificar que el profesor existe
+        validateIfUserIsTeacher(userRole);
+
         // Buscar el estudiante
         const estudiante = await Estudiante.findByPk(id_estudiante, {
             include: [
                 {
                     model: Persona,
+                    attributes: [
+                        TABLE_FIELDS.PRIMER_NOMBRE,
+                        TABLE_FIELDS.SEGUNDO_NOMBRE,
+                        TABLE_FIELDS.PRIMER_APELLIDO,
+                        TABLE_FIELDS.SEGUNDO_APELLIDO,
+                        TABLE_FIELDS.CEDULA,
+                        TABLE_FIELDS.TELEFONO
+                    ],
                     include: [Direccion, Usuario]
                 },
                 {
@@ -293,21 +309,15 @@ exports.eliminarEstudiante = async (req, res) => {
 
         if (!estudiante) {
             throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
-        }
-
+        }     
+        
         // Crear una solicitud de confirmación
         const solicitud = await SolicitudConfirmacion.create({
             id_estudiante: id_estudiante,
             accion: 'eliminar',
-            detalles: `Solicitud para eliminar al estudiante 
-            ${getFullName(
-                estudiante.Persona.primer_nombre,
-                estudiante.Persona.segundo_nombre,
-                estudiante.Persona.primer_apellido,
-                estudiante.Persona.segundo_apellido
-            )} con ID: ${id_estudiante}`,
+            detalles: `Solicitud para eliminar al estudiante ${getFullName(estudiante.Persona)} con ID: ${estudiante.Persona.cedula}`,
             estado: 'pendiente',
-            createdBy: profesorId, // ID del profesor que hizo la solicitud
+            createdBy: personaId, // ID del profesor que hizo la solicitud
         }, { transaction });
 
         await transaction.commit();

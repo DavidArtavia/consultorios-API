@@ -15,6 +15,7 @@ const HttpStatus = {
 
 const FIELDS = {
     TEXT: 'text',
+    TEXTBOX: 'textbox',
     ID: 'id',
     EMAIL: 'email',
     NUMERIC: 'numeric',
@@ -54,7 +55,6 @@ const TABLE_FIELDS = {
     UID_ROL: 'id_rol',
     UID_TIPO_PROCESO: 'id_tipo_proceso',
     UID_ESTADO: 'id_estado',
-    UID_AVANCE: 'id_avance',
     UID_DIRECCION: 'id_direccion',
     UID_AVANCE: 'id_avance',
     UID_INFORME: 'id_informe',
@@ -106,6 +106,7 @@ const TABLE_FIELDS = {
 }
 const MESSAGE_ERROR = {
     RETRIEVING_PROGRESS: 'Error retrieving progress',
+    PROCESS_REQUEST: 'Error processing the request',
     CREATING_PROGRESS: 'Error creating progress.',
     NO_CASE_ASSIGNED: 'The case is not assigned to this student.',
     NO_PROGRESS_FOUND: 'No progress recorded for this case.',
@@ -118,7 +119,7 @@ const MESSAGE_ERROR = {
     FATAL_ERROR_LOGOUT: 'Fatal error during logout.',
     NO_ACTIVATE: 'No active session.',
     DESTROY_SESSION: 'Error destroying session.',
-    WITHOUT_PERMISSION: 'You do not have the necessary permissions to create a user with the same role as yours.',
+    WITHOUT_PERMISSION: 'You do not have the necessary permissions.',    
     EMAIL_ALREADY_USED: 'Email is already used.',
     USERNAME_ALREADY_USED: 'Username is already used.',
     ID_ALREADY_USED: 'Cedula is already used.',
@@ -130,6 +131,7 @@ const MESSAGE_ERROR = {
     NOT_STUDENTS_FOUND: 'No students found.',
     NOT_PROFESORS_FOUND: 'No profesors found.',
     UPDATE_STUDENT: 'Error updating student.',
+    UPDATING_PROGRESS: 'Error updating progress.',
     DELETE_STUDENT: 'Error deleting student.',
     CREATING_CASE: 'Error creating case.',
     CASE_NOT_FOUND: 'Case not found.',
@@ -141,6 +143,7 @@ const MESSAGE_ERROR = {
     MUST_LOGIN: 'You must login to access this resource.',
     RETRIEVING: 'Error retrieving the information.',
     NOT_PERSONS_FOUND: 'No persons found.',
+    PROGRESS_NOT_FOUND: 'Progress not found.',
     UNASSIGNED_CASES: 'Error retrieving unassigned cases.',
     ASSIGNED_CASES: 'Error retrieving assigned cases.',
     SUBSIDIARY_CLIENT_SAME_ID: 'The subsidiary and client cannot have the same ID.',
@@ -167,6 +170,7 @@ const MESSAGE_SUCCESS = {
     NO_ASSIGNED_CASES: 'No assigned cases found.',
     PROGRESS_CREATED: 'Progress created successfully.',
     PROGRESS_FOUND: 'Progress found successfully.',
+    PROGRESS_UPDATED: 'Progress updated successfully.',
 
 }
 

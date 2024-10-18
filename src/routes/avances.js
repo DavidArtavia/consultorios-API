@@ -11,10 +11,27 @@ router.post(
     '/crear',
     verifySession,
     verifyRole([
-        ROL.SUPERADMIN,
-        ROL.PROFESSOR,
         ROL.STUDENT]),
     avanceController.crearAvance
 );
+router.get(
+    '/caso',
+    verifySession,
+    verifyRole([
+        ROL.PROFESSOR,
+        ROL.SUPERADMIN,
+        ROL.STUDENT]),
+    avanceController.mostrarAvancesPorCaso
+);
+router.put(
+    '/actualizar',
+    verifySession,
+    verifyRole([
+        ROL.SUPERADMIN,
+        ROL.STUDENT]),
+    avanceController.actualizarAvance
+);
 
 module.exports = router;
+
+

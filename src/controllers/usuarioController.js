@@ -1,5 +1,5 @@
 
-const { Usuario, Persona, Direccion, Estudiante, Profesor, Sequelize } = require('../models');
+const { Usuario, Persona, Direccion, Estudiante, Profesor, Sequelize, sequelize } = require('../models');
 const { HttpStatus, ROL, MESSAGE_ERROR, MESSAGE_SUCCESS, TABLE_FIELDS, FIELDS } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
 const { validateIfExists, validateExistingUser, validateRoleChange, validateInput } = require('../utils/helpers');
@@ -23,10 +23,12 @@ exports.register = async (req, res) => {
         carnet
     } = req.body;
 
+    const transaction = await sequelize.transaction();
+
     try {
 
-        const userRole = req.session.userRole;
-
+        const userRole = req.session.user.userRole;
+        
         validateRoleChange(userRole, rol);
 
         await validateExistingUser(username, email);
@@ -68,7 +70,7 @@ exports.register = async (req, res) => {
             segundo_apellido,
             cedula,
             telefono,
-        });
+        }, { transaction });
 
         // Crear la dirección si se proporciona
         if (direccion) {
@@ -79,27 +81,25 @@ exports.register = async (req, res) => {
                 distrito: direccion.distrito,
                 localidad: direccion.localidad,
                 provincia: direccion.provincia,
-            });
+            }, { transaction });
         }
 
-        // Crear un nuevo usuario
         const usuario = await Usuario.create({
             id_persona: persona.id_persona,
             username,
             email,
             password_hash: password, // Se encripta en el hook beforeCreate
             rol
-        });
+        }, { transaction });
 
-        // Registrar en la tabla correspondiente según el rol
         if (rol === ROL.STUDENT) {
             try {
                 await Estudiante.create({
                     id_estudiante: persona.id_persona,
                     carnet: carnet
-                });
+                }, { transaction });
             } catch (error) {
-                console.error(MESSAGE_ERROR.CREATE_STUDENT, error); // Agregar log para ver si falla aquí
+                console.error(MESSAGE_ERROR.CREATE_STUDENT, error);
                 throw new CustomError(HttpStatus.INTERNAL_SERVER_ERROR, MESSAGE_ERROR.CREATE_STUDENT);
             }
         } else if (rol === ROL.PROFESSOR) {
@@ -107,13 +107,14 @@ exports.register = async (req, res) => {
                 await Profesor.create({
                     id_profesor: persona.id_persona,
                     especialidad
-                });
+                }, { transaction });
             } catch (error) {
-                console.error(MESSAGE_ERROR.CREATE_PROFESSOR, error); // Agregar log para ver si falla aquí
+                console.error(MESSAGE_ERROR.CREATE_PROFESSOR, error);
                 throw new CustomError(HttpStatus.INTERNAL_SERVER_ERROR, MESSAGE_ERROR.CREATE_PROFESSOR);
             }
         }
 
+        await transaction.commit();
 
         return sendResponse({
             res,
@@ -123,6 +124,9 @@ exports.register = async (req, res) => {
         });
 
     } catch (error) {
+
+        await transaction.rollback();
+
         if (error.name === 'SequelizeValidationError') {
             const validationErrors = error.errors.map(err => err.message);
 

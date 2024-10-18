@@ -14,7 +14,7 @@ const Direccion = require('./direccion')(sequelize, Sequelize.DataTypes);
 const Informe = require('./informes')(sequelize, Sequelize.DataTypes);
 const Profesor = require('./profesor')(sequelize, Sequelize.DataTypes);
 const Subsidiario = require('./subsidiario')(sequelize, Sequelize.DataTypes);
-const SolicitudConfirmacion = require('./solicitud_confirmacion')(sequelize, Sequelize.DataTypes);
+const SolicitudConfirmacion = require('./solicitud')(sequelize, Sequelize.DataTypes);
 
 const models = {
     Persona,

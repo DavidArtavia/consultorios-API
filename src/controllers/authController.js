@@ -26,7 +26,7 @@ exports.login = async (req, res) => {
         // Crear la sesión del usuario
         const userData = {
             userId: user.id_usuario,
-            PersonaId: user.id_persona,
+            personaId: user.id_persona,
             userEmail: user.email,
             userName: user.username,
             userRole: user.rol

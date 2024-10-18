@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const { MESSAGE_ERROR, HttpStatus, FIELDS } = require("../constants/constants");
+const { MESSAGE_ERROR, HttpStatus, FIELDS, ROL } = require("../constants/constants");
 const { CustomError } = require("../handlers/responseHandler");
 const { Usuario, Caso, AsignacionDeCaso } = require("../models");
 const bcrypt = require("bcryptjs/dist/bcrypt");
@@ -8,6 +8,15 @@ const getFullName = (persona) => {
     if (!persona) return null;
     return `${persona.primer_nombre} ${persona.segundo_nombre || ''} ${persona.primer_apellido} ${persona.segundo_apellido}`.trim();
 };
+
+const validateIfUserIsTeacher = (userRole) => {
+
+    if (userRole !== ROL.PROFESSOR) {
+        throw new CustomError(HttpStatus.FORBIDDEN, `${userRole}  ${MESSAGE_ERROR.WITHOUT_PERMISSION}`);
+    }
+ }
+
+
 
 const validateIfExists = async ({ model, field, value, errorMessage }) => {
     const existingRecord = await model.findOne({
@@ -19,6 +28,7 @@ const validateIfExists = async ({ model, field, value, errorMessage }) => {
     }
 };
 const validateIfUserExists = async ({ model, field, value, errorMessage }) => {
+
     const existingRecord = await model.findOne({
         where: { [field]: value }
     });
@@ -91,6 +101,11 @@ const validatePasswordHash = async (password, userPasswordHash) => {
 
 const validateText = (text) => {
     const textRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    return textRegex.test(text);
+};
+
+const validateTextWithSpaces = (text) => {
+    const textRegex = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,'()-]+$/;
     return textRegex.test(text);
 };
 
@@ -194,6 +209,11 @@ const validateInput = (input, field) => {
                 throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <--  Invalid ${FIELDS.TEXT} format. Only letters are allowed.`);
             }
             break;
+        case FIELDS.TEXTBOX:
+            if (!validateTextWithSpaces(input)) {
+                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <--  Invalid ${FIELDS.TEXT} format. Only text are allowed.`);
+            }
+            break;
         case FIELDS.ID:
             if (!validateID(input)) {
                 throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid ${FIELDS.ID} format.`);
@@ -244,5 +264,6 @@ module.exports = {
     validateIfUserExists,
     validatePasswordHash,
     validateUniqueCedulas,
-    validateCaseAssignedToStudent
+    validateCaseAssignedToStudent,
+    validateIfUserIsTeacher
 };
