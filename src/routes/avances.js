@@ -14,7 +14,7 @@ router.post(
         ROL.STUDENT]),
     avanceController.crearAvance
 );
-router.get(
+router.post(
     '/caso',
     verifySession,
     verifyRole([

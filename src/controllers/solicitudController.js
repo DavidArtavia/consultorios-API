@@ -15,11 +15,11 @@ exports.procesarSolicitudConfirmacion = async (req, res) => {
         });
 
         if (!solicitud) {
-            throw new CustomError(HttpStatus.NOT_FOUND, 'Solicitud no encontrada');
+            throw new CustomError(HttpStatus.NOT_FOUND, 'Request not found.');
         }
 
         if (solicitud.estado !== 'pendiente') {
-            throw new CustomError(HttpStatus.BAD_REQUEST, 'Esta solicitud ya fue procesada.');
+            throw new CustomError(HttpStatus.BAD_REQUEST, 'This request has already been processed.');
         }
 
         // Procesar la solicitud
@@ -31,7 +31,7 @@ exports.procesarSolicitudConfirmacion = async (req, res) => {
                 });
 
                 if (!estudiante) {
-                    throw new CustomError(HttpStatus.NOT_FOUND, 'Estudiante no encontrado');
+                    throw new CustomError(HttpStatus.NOT_FOUND, 'Student not found.');
                 }
                 const id_estudiante = estudiante.id_estudiante;
                 // Verificar si el estudiante tiene avances asociados
@@ -39,7 +39,7 @@ exports.procesarSolicitudConfirmacion = async (req, res) => {
 
                 if (avances.length > 0) {
                     // Opción 1: Actualizar los avances para desasignar al estudiante (dejar la referencia a NULL o a un valor alternativo)
-                    await Avance.update({ id_estudiante: null }, { where: { id_estudiante }, transaction });
+                    // await Avance.update({ id_estudiante: null }, { where: { id_estudiante }, transaction });
 
                     // Opción 2: Si prefieres eliminar los avances, usa el siguiente código en lugar de la actualización:
                     // await Avance.destroy({ where: { id_estudiante }, transaction });
