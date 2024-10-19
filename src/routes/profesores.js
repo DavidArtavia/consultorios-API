@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const profesorController = require('../controllers/profesorController');
+const { mostrarProfesor } = require('../controllers/profesorController');
 const verifySession = require('../middlewares/auth');
 const { verifyRole } = require('../middlewares/verifyRole');
 const { ROL } = require('../constants/constants');
@@ -12,7 +12,7 @@ router.get(
     verifySession,
     verifyRole([
         ROL.SUPERADMIN]),
-    profesorController.mostrarProfesor
+    mostrarProfesor
 );
 
 module.exports = router;

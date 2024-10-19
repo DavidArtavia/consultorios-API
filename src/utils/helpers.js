@@ -1,13 +1,58 @@
 const { Op } = require("sequelize");
 const { MESSAGE_ERROR, HttpStatus, FIELDS, ROL } = require("../constants/constants");
 const { CustomError } = require("../handlers/responseHandler");
-const { Usuario, Caso, AsignacionDeCaso } = require("../models");
+const { Usuario, Caso, AsignacionDeCaso, Avance, Estudiante } = require("../models");
 const bcrypt = require("bcryptjs/dist/bcrypt");
 
 const getFullName = (persona) => {
     if (!persona) return null;
     return `${persona.primer_nombre} ${persona.segundo_nombre || ''} ${persona.primer_apellido} ${persona.segundo_apellido}`.trim();
 };
+const findStudentByPk = async (id_estudiante) => {
+
+    const estudiante = await Estudiante.findByPk(id_estudiante, {
+        include: [Persona]
+    });
+
+    if (!estudiante) {
+        throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
+    }
+    
+    return estudiante;
+};
+const findConfirmationRequestById = async (id_solicitud) => {
+
+    const solicitud = await SolicitudConfirmacion.findByPk(id_solicitud, {
+        include: [Estudiante, Caso] // Asegúrate que se incluyan las referencias necesarias
+    });
+
+    if (!solicitud) {
+        throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.REQUEST_NOT_FOUND);
+    }
+    
+    return solicitud;
+};
+
+const checkStudentAssignmentsAndProgress = async (id_estudiante, transaction) => {
+
+    // Check if the student has associated progress
+    const avance = await Avance.findAll({ where: { id_estudiante: id_estudiante }, transaction });
+    if (avance.length > 0) {
+        console.log('Desarrollar la ogica para ver que hacer con los avances');
+        
+        // Set the student reference in progress to null
+        // await Avance.update({ id_estudiante: null }, { where: { id_estudiante: id_estudiante }, transaction });
+    }
+
+    // Check if the student has case assignments
+    const asignacion = await AsignacionDeCaso.findAll({ where: { id_estudiante: id_estudiante }, transaction });
+    if (asignacion.length > 0) {
+        for (const asignacion of asignacion) {
+            await asignacion.destroy({ transaction });
+        }
+    }
+};
+
 
 const validateIfUserIsTeacher = (userRole) => {
 
@@ -15,8 +60,6 @@ const validateIfUserIsTeacher = (userRole) => {
         throw new CustomError(HttpStatus.FORBIDDEN, `${userRole}  ${MESSAGE_ERROR.WITHOUT_PERMISSION}`);
     }
  }
-
-
 
 const validateIfExists = async ({ model, field, value, errorMessage }) => {
     const existingRecord = await model.findOne({
@@ -67,6 +110,7 @@ const validateCaseAssignedToStudent = async (id_caso, id_estudiante) => {
     }
     return caso;
 };
+
 
 const validateRoleChange = (sessionRole, requestedRole) => {
     if (sessionRole === requestedRole) {
@@ -255,6 +299,7 @@ const validateInput = (input, field) => {
 
 
 module.exports = {
+    findStudentByPk,
     validateInput,
     getFullName,
     validateUpdatesInputs,
@@ -265,5 +310,7 @@ module.exports = {
     validatePasswordHash,
     validateUniqueCedulas,
     validateCaseAssignedToStudent,
-    validateIfUserIsTeacher
+    validateIfUserIsTeacher,
+    checkStudentAssignmentsAndProgress,
+    findConfirmationRequestById
 };

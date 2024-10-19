@@ -1,5 +1,7 @@
 // const { UPDATE } = require("sequelize/lib/query-types");
 
+const { UPDATE } = require("sequelize/lib/query-types");
+
 // statusCodes.js
 const HttpStatus = {
     OK: 200,
@@ -105,6 +107,8 @@ const TABLE_FIELDS = {
 
 }
 const MESSAGE_ERROR = {
+    REQUEST_PENDING: 'A deletion request for this student is already pending. Please wait for it to be processed.',
+    INVALID_DECISION: 'Invalid decision. Must be "aceptado" o "denegado".',
     RETRIEVING_PROGRESS: 'Error retrieving progress',
     PROCESS_REQUEST: 'Error processing the request',
     CREATING_PROGRESS: 'Error creating progress.',
@@ -119,7 +123,7 @@ const MESSAGE_ERROR = {
     FATAL_ERROR_LOGOUT: 'Fatal error during logout.',
     NO_ACTIVATE: 'No active session.',
     DESTROY_SESSION: 'Error destroying session.',
-    WITHOUT_PERMISSION: 'You do not have the necessary permissions.',    
+    WITHOUT_PERMISSION: 'You do not have the necessary permissions.',
     EMAIL_ALREADY_USED: 'Email is already used.',
     USERNAME_ALREADY_USED: 'Username is already used.',
     ID_ALREADY_USED: 'Cedula is already used.',
@@ -149,6 +153,8 @@ const MESSAGE_ERROR = {
     SUBSIDIARY_CLIENT_SAME_ID: 'The subsidiary and client cannot have the same ID.',
     CLIENT_COUNTERPART_SAME_ID: 'The client and counterpart cannot have the same ID.',
     SUBSIDIARY_COUNTERPART_SAME_ID: 'The subsidiary and counterpart cannot have the same ID.',
+    REQUEST_NOT_FOUND: 'Request not found.',
+    REQUEST_PROCESSED: 'This request has already been processed.',
 }
 
 
@@ -162,6 +168,7 @@ const MESSAGE_SUCCESS = {
     CASE_ASSIGNED: 'Case assigned to student successfully.',
     RECOVERED_STUDENTS: 'List of students retrieved successfully.',
     RECOVERED_PROFESORS: 'List of profesors retrieved successfully.',
+    REQUEST_CREATED: 'Request sent to the administrator. The student will be deleted if approved.',
     STUDENT_DELETED: 'Student deleted successfully.',
     PERSONS_FOUND: 'Persons found.',
     UNASSIGNED_CASES: 'Unassigned cases found.',
@@ -174,13 +181,27 @@ const MESSAGE_SUCCESS = {
 
 }
 
-
 const ROL = {
     SUPERADMIN: 'administrador',
     PROFESSOR: 'profesor',
     STUDENT: 'estudiante',
 };
 
+const STATES = {
+    PENDING: 'pendiente',
+    ACCEPTED: 'aceptado',
+    DENIED: 'denegado',
+}
+
+const ACTION = {
+    DELETE: 'eliminar',
+    UPDATE: 'actualizar',
+}
+
+const DECISION = {
+    ACCEPTED: 'aceptado',
+    DENIED: 'denegado',
+}
 
 module.exports = {
     HttpStatus,
@@ -189,6 +210,9 @@ module.exports = {
     ROL,
     MESSAGE_ERROR,
     MESSAGE_SUCCESS,
-    FIELDS
+    FIELDS,
+    STATES,
+    ACTION,
+    DECISION
 }
 

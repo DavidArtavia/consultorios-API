@@ -1,5 +1,5 @@
 const { Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Direccion, Usuario, sequelize, SolicitudConfirmacion, Profesor } = require('../models');
-const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL, FIELDS } = require("../constants/constants");
+const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL, FIELDS, ACTION, STATES } = require("../constants/constants");
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
 const { validateUpdatesInputs, validateInput, getFullName, validateIfExists, validateIfUserExists, validateIfUserIsTeacher } = require('../utils/helpers');
 
@@ -204,7 +204,7 @@ exports.actualizarEstudiante = async (req, res) => {
         validateInput(cedula, FIELDS.ID);
         validateInput(telefono, FIELDS.PHONE_NUMBER);
         validateInput(carnet, FIELDS.CARNET);
-        a;
+        
         await validateUpdatesInputs({
             currentValue: estudiante.Persona.cedula,
             newValue: cedula,
@@ -243,7 +243,7 @@ exports.actualizarEstudiante = async (req, res) => {
                 provincia: direccion.provincia,
             },
                 {
-                where: { id_persona: estudiante.Persona.id_persona }
+                    where: { id_persona: estudiante.Persona.id_persona }
                 },
                 { transaction });
         }
@@ -275,7 +275,7 @@ exports.actualizarEstudiante = async (req, res) => {
     }
 };
 
-exports.eliminarEstudiante = async (req, res) => {
+exports.solicitarEliminarEstudiante = async (req, res) => {
     const { id_estudiante } = req.body;
     const personaId = req.session.user.personaId;
     const userRole = req.session.user.userRole;
@@ -309,14 +309,27 @@ exports.eliminarEstudiante = async (req, res) => {
 
         if (!estudiante) {
             throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
-        }     
-        
+        }
+
+        // Verificar si ya existe una solicitud pendiente para eliminar este estudiante
+        const solicitudExistente = await SolicitudConfirmacion.findOne({
+            where: {
+                id_estudiante: id_estudiante,
+                accion: ACTION.DELETE,
+                estado: STATES.PENDING
+            }
+        });
+
+        if (solicitudExistente) {
+            throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.REQUEST_PENDING);
+        }
+
         // Crear una solicitud de confirmación
         const solicitud = await SolicitudConfirmacion.create({
             id_estudiante: id_estudiante,
-            accion: 'eliminar',
+            accion: ACTION.DELETE,
             detalles: `Solicitud para eliminar al estudiante ${getFullName(estudiante.Persona)} con ID: ${estudiante.Persona.cedula}`,
-            estado: 'pendiente',
+            estado: STATES.PENDING,
             createdBy: personaId, // ID del profesor que hizo la solicitud
         }, { transaction });
 
@@ -325,7 +338,7 @@ exports.eliminarEstudiante = async (req, res) => {
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: 'Solicitud enviada al administrador. El estudiante será eliminado si se aprueba.',
+            message: MESSAGE_SUCCESS.REQUEST_CREATED,
             data: solicitud
         });
     } catch (error) {

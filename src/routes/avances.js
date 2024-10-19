@@ -1,10 +1,14 @@
 // routes/avances.js
 const express = require('express');
-const avanceController = require('../controllers/avanceController');
 const verifySession = require('../middlewares/auth');
 const { verifyRole } = require('../middlewares/verifyRole');
 const { ROL } = require('../constants/constants');
 const router = express.Router();
+const {
+    actualizarAvance,
+    crearAvance,
+    mostrarAvancesPorCaso,
+} = require('../controllers/avanceController');
 
 // Ruta para crear un avance
 router.post(
@@ -12,7 +16,7 @@ router.post(
     verifySession,
     verifyRole([
         ROL.STUDENT]),
-    avanceController.crearAvance
+    crearAvance
 );
 router.post(
     '/caso',
@@ -21,7 +25,7 @@ router.post(
         ROL.PROFESSOR,
         ROL.SUPERADMIN,
         ROL.STUDENT]),
-    avanceController.mostrarAvancesPorCaso
+    mostrarAvancesPorCaso
 );
 router.put(
     '/actualizar',
@@ -29,7 +33,7 @@ router.put(
     verifyRole([
         ROL.SUPERADMIN,
         ROL.STUDENT]),
-    avanceController.actualizarAvance
+    actualizarAvance
 );
 
 module.exports = router;

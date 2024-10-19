@@ -1,6 +1,49 @@
-const { MESSAGE_ERROR, HttpStatus } = require("../constants/constants");
+const { MESSAGE_ERROR, HttpStatus, ACTION, DECISION, STATES } = require("../constants/constants");
 const { sendResponse, CustomError } = require("../handlers/responseHandler");
 const { sequelize, Persona, Estudiante, Caso, SolicitudConfirmacion, AsignacionDeCaso, Avance } = require("../models");
+const { checkStudentAssignmentsAndProgress } = require("../utils/helpers");
+
+exports.mostrarSolicitudes = async (req, res) => {
+    try {
+        
+        // Obtener todas las solicitudes de confirmación
+        const solicitudes = await SolicitudConfirmacion.findAll({
+            include: [
+                {
+                    model: Estudiante,
+                    include: [Persona] 
+                },
+                {
+                    model: Caso 
+                }
+            ],
+            order: [['createdAt', 'DESC']] // Ordenar por fecha de creación, más recientes primero
+        });
+
+        if (!solicitudes || solicitudes.length === 0) {
+            throw new CustomError(HttpStatus.NOT_FOUND, 'No confirmation requests found.');
+        }
+
+        // Responder con las solicitudes
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: 'Confirmation requests found.',
+            data: solicitudes
+        });
+    } catch (error) {
+        console.error('Error retrieving confirmation requests:', error);
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: 'Error retrieving confirmation requests.',
+                error: error.message,
+                stack: error.stack
+            }
+        });
+    }
+};
 
 
 exports.procesarSolicitudConfirmacion = async (req, res) => {
@@ -10,65 +53,37 @@ exports.procesarSolicitudConfirmacion = async (req, res) => {
 
     try {
         // Buscar la solicitud de confirmación
-        const solicitud = await SolicitudConfirmacion.findByPk(id_solicitud, {
-            include: [Estudiante, Caso] // Asegúrate que se incluyan las referencias necesarias
-        });
+        const solicitud = await findConfirmationRequestById(id_solicitud);
 
-        if (!solicitud) {
-            throw new CustomError(HttpStatus.NOT_FOUND, 'Request not found.');
-        }
+        const state = solicitud.estado;
 
-        if (solicitud.estado !== 'pendiente') {
-            throw new CustomError(HttpStatus.BAD_REQUEST, 'This request has already been processed.');
+        if (state !== STATES.PENDING) {
+            throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.REQUEST_PROCESSED);
         }
 
         // Procesar la solicitud
-        if (decision === 'aceptado') {
+        if (decision === DECISION.ACCEPTED) {
+            const id_estudiante = solicitud.id_estudiante;
             // Si es una solicitud para eliminar un estudiante
-            if (solicitud.accion === 'eliminar' && solicitud.id_estudiante) {
-                const estudiante = await Estudiante.findByPk(solicitud.id_estudiante, {
-                    include: [Persona]
-                });
+            if (solicitud.accion === ACTION.DELETE && id_estudiante) {
 
-                if (!estudiante) {
-                    throw new CustomError(HttpStatus.NOT_FOUND, 'Student not found.');
-                }
-                const id_estudiante = estudiante.id_estudiante;
-                // Verificar si el estudiante tiene avances asociados
-                const avances = await Avance.findAll({ where: { id_estudiante } });
-
-                if (avances.length > 0) {
-                    // Opción 1: Actualizar los avances para desasignar al estudiante (dejar la referencia a NULL o a un valor alternativo)
-                    // await Avance.update({ id_estudiante: null }, { where: { id_estudiante }, transaction });
-
-                    // Opción 2: Si prefieres eliminar los avances, usa el siguiente código en lugar de la actualización:
-                    // await Avance.destroy({ where: { id_estudiante }, transaction });
-                }
-
-                // Verificar si el estudiante tiene asignaciones de caso
-                const asignaciones = await AsignacionDeCaso.findAll({ where: { id_estudiante: estudiante.id_estudiante } });
-                if (asignaciones.length > 0) {
-                    // Desasignar casos en lugar de eliminar
-                    for (const asignacion of asignaciones) {
-                        await asignacion.destroy({ transaction });
-                    }
-                }
+                const estudiante = await findStudentByPk(id_estudiante);
+                // Verificar si el estudiante tiene asociados
+                await checkStudentAssignmentsAndProgress(id_estudiante, transaction);
 
                 // Eliminar al estudiante y su persona asociada
-                const persona = estudiante.Persona;
-                await persona.destroy({ transaction });
+                await estudiante.Persona.destroy({ transaction });
 
                 // Actualizar el estado de la solicitud a 'aceptado'
-                solicitud.estado = 'aceptado';
+                await solicitud.update({ estado: DECISION.ACCEPTED }, { transaction });
             }
-        } else if (decision === 'denegado') {
-            solicitud.estado = 'denegado'; // Marcar la solicitud como denegada
+        } else if (decision === DECISION.DENIED) {
+            // Marcar la solicitud como denegada
+            await solicitud.update({ estado: DECISION.DENIED }, { transaction });
         } else {
-            throw new CustomError(HttpStatus.BAD_REQUEST, 'Decisión inválida. Debe ser "aceptado" o "denegado".');
+            throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.INVALID_DECISION);
         }
 
-        // Guardar los cambios
-        await solicitud.save({ transaction });
         await transaction.commit();
 
         return sendResponse({
