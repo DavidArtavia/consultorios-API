@@ -13,7 +13,7 @@ router.post(
     ROL.SUPERADMIN,
     ROL.PROFESSOR
     ]),
-    register)
-    ;
+    register
+);
 
 module.exports = router;

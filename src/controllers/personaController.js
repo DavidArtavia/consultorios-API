@@ -32,12 +32,12 @@ exports.mostrarPersonasConUsuarios = async (req, res) => {
             segundo_apellido: persona.segundo_apellido,
             cedula: persona.cedula,
             telefono: persona.telefono,
-            usuario: persona.Usuario ? {
+            ...(persona.Usuario && { usuario: { 
                 id_usuario: persona.Usuario.id_usuario,
                 username: persona.Usuario.username,
                 email: persona.Usuario.email,
                 rol: persona.Usuario.rol
-            } : null // Si no tiene usuario, se muestra como null
+            }})
         }));
 
         // Retorna la respuesta

@@ -56,7 +56,7 @@ exports.mostrarAvancesPorCaso = async (req, res) => {
             order: [[TABLE_FIELDS.FECHA_AVANCE, 'ASC']],
         });
 
-        if (!avances || avances.length === 0) {
+        if (!avances || avances.length == 0) {
             throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.NO_PROGRESS_FOUND);
         }
 

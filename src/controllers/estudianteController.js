@@ -37,7 +37,7 @@ exports.mostrarEstudiantes = async (req, res) => {
             ]
         });
 
-        if (estudiantes.length === 0) {
+        if (estudiantes.length == 0) {
             throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
         }
 
@@ -198,7 +198,7 @@ exports.actualizarEstudiante = async (req, res) => {
             throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
         }
         validateInput(primer_nombre, FIELDS.TEXT);
-        segundo_nombre ? validateInput(segundo_nombre, FIELDS.TEXT) : null;
+        segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT);
         validateInput(primer_apellido, FIELDS.TEXT);
         validateInput(segundo_apellido, FIELDS.TEXT);
         validateInput(cedula, FIELDS.ID);

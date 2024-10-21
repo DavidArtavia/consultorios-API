@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
 const { MESSAGE_ERROR, HttpStatus, FIELDS, ROL } = require("../constants/constants");
 const { CustomError } = require("../handlers/responseHandler");
-const { Usuario, Caso, AsignacionDeCaso, Avance, Estudiante } = require("../models");
+const { Usuario, Caso, AsignacionDeCaso, Avance, Estudiante, SolicitudConfirmacion, Persona } = require("../models");
 const bcrypt = require("bcryptjs/dist/bcrypt");
 
 const getFullName = (persona) => {
@@ -38,8 +38,11 @@ const checkStudentAssignmentsAndProgress = async (id_estudiante, transaction) =>
     // Check if the student has associated progress
     const avance = await Avance.findAll({ where: { id_estudiante: id_estudiante }, transaction });
     if (avance.length > 0) {
-        console.log('Desarrollar la ogica para ver que hacer con los avances');
+        console.log('Desarrollar la logica para ver que hacer con los avances');
         
+        // se puiede eliminar un estudiante que no haya hecho ningun avance 
+        //Agregar un enum de activo inactivo Finalisado en estudiante
+
         // Set the student reference in progress to null
         // await Avance.update({ id_estudiante: null }, { where: { id_estudiante: id_estudiante }, transaction });
     }

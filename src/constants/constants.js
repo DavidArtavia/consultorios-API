@@ -203,6 +203,22 @@ const DECISION = {
     DENIED: 'denegado',
 }
 
+const KEYS = { 
+    USER_DATA: 'userData',
+    CONNECT_SID: "connect.sid"
+}
+
+const ENV = { 
+    QA: 'QA',
+    PROD: "PROD",
+    DEV: 'DEV'
+}
+
+const ROUTES = {
+    SHOW: '/mostrar',
+    DELETE: '/eliminar'
+}
+
 module.exports = {
     HttpStatus,
     TABLE_FIELDS,
@@ -213,6 +229,9 @@ module.exports = {
     FIELDS,
     STATES,
     ACTION,
-    DECISION
+    DECISION,
+    KEYS,
+    ENV,
+    ROUTES
 }
 

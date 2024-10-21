@@ -1,7 +1,7 @@
 const { MESSAGE_ERROR, HttpStatus, ACTION, DECISION, STATES } = require("../constants/constants");
 const { sendResponse, CustomError } = require("../handlers/responseHandler");
 const { sequelize, Persona, Estudiante, Caso, SolicitudConfirmacion, AsignacionDeCaso, Avance } = require("../models");
-const { checkStudentAssignmentsAndProgress } = require("../utils/helpers");
+const { checkStudentAssignmentsAndProgress, findConfirmationRequestById, findStudentByPk } = require("../utils/helpers");
 
 exports.mostrarSolicitudes = async (req, res) => {
     try {
@@ -52,17 +52,19 @@ exports.procesarSolicitudConfirmacion = async (req, res) => {
     const transaction = await sequelize.transaction();
 
     try {
+        console.log('Procesando solicitud de confirmación:', id_solicitud, decision);
+        
         // Buscar la solicitud de confirmación
         const solicitud = await findConfirmationRequestById(id_solicitud);
 
         const state = solicitud.estado;
 
-        if (state !== STATES.PENDING) {
+        if (state != STATES.PENDING) {
             throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.REQUEST_PROCESSED);
         }
 
         // Procesar la solicitud
-        if (decision === DECISION.ACCEPTED) {
+        if (decision == DECISION.ACCEPTED) {
             const id_estudiante = solicitud.id_estudiante;
             // Si es una solicitud para eliminar un estudiante
             if (solicitud.accion === ACTION.DELETE && id_estudiante) {

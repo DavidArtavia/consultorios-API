@@ -4,6 +4,8 @@ const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
 const sequelize = require('./src/config/database');
+const i18next = require('./src/middlewares/i18nextConfig');
+const i18nextMiddleware = require('i18next-express-middleware');
 
 // rutas 
 const casosRoutes = require('./src/routes/casos');
@@ -35,8 +37,8 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         httpOnly: true, // Protege la cookie contra accesos desde JavaScript del lado del cliente
-        secure: process.env.NODE_ENV === 'production', // Usar solo HTTPS en producción
-       // maxAge: 1000 * 60 * 60 * 24 // 24 horas de duración
+        secure: process.env.APP_ENV === 'DEV', // Usar solo HTTPS en producción
+        maxAge: 1000 * 60 * 60 * 24 // 24 horas de duración
     }
 }));
 
@@ -46,8 +48,11 @@ const logger = (req, res, next) => {
     next(); // Pasa al siguiente middleware o ruta
 };
 
-// Rutas
+//middeleware i18next
+app.use(i18nextMiddleware.handle(i18next));
 app.use(logger);
+
+// Rutas
 app.use('/api/v1/usuarios', usuarioRoutes);
 app.use('/api/v1/casos', casosRoutes);
 app.use('/api/v1/estudiantes', estudiantesRoutes);
@@ -60,7 +65,7 @@ app.use('/api/v1/solicitud', solicitudRoutes);
 
 app.get('/api/v1/version', (req, res) => {
     res.send('v0.0.1');
-  });
+});
 
 
 const port = process.env.PORT || 3000;

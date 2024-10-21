@@ -47,7 +47,7 @@ exports.register = async (req, res) => {
             errorMessage: `Student with Carnet ${carnet} is already registered.`
         });
         validateInput(primer_nombre, FIELDS.TEXT);
-        segundo_nombre ? validateInput(segundo_nombre, FIELDS.TEXT) : null;
+        segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT);
         validateInput(primer_apellido, FIELDS.TEXT);
         validateInput(segundo_apellido, FIELDS.TEXT);
         validateInput(rol, FIELDS.TEXT);
@@ -55,10 +55,10 @@ exports.register = async (req, res) => {
         validateInput(telefono, FIELDS.PHONE_NUMBER);
         validateInput(email, FIELDS.EMAIL);
 
-        if (rol === ROL.STUDENT) {
+        if (rol == ROL.STUDENT) {
             validateInput(carnet, FIELDS.CARNET);
 
-        } else if (rol === ROL.PROFESSOR) {
+        } else if (rol == ROL.PROFESSOR) {
             validateInput(especialidad, FIELDS.TEXT);
         }
 

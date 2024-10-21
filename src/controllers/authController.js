@@ -1,10 +1,11 @@
 const { Usuario } = require('../models');
 const bcrypt = require('bcryptjs');
-const { HttpStatus, MESSAGE_ERROR, MESSAGE_SUCCESS, FIELDS, TABLE_FIELDS } = require('../constants/constants');
+const { HttpStatus, MESSAGE_ERROR, MESSAGE_SUCCESS, FIELDS, TABLE_FIELDS, ENV, KEYS } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
 const { validateInput, validateIfUserExists, validatePasswordHash } = require('../utils/helpers');
+const i18next = require('i18next'); 
 
-
+// Login a user and create a session
 // Login a user and create a session
 exports.login = async (req, res) => {
     try {
@@ -17,7 +18,7 @@ exports.login = async (req, res) => {
             model: Usuario,
             field: TABLE_FIELDS.EMAIL,
             value: email,
-            errorMessage: MESSAGE_ERROR.INVALID_EMAIL
+            errorMessage: i18next.t('error.invalidEmail')  // Traducido
         });
 
         // Validar la contraseña
@@ -35,19 +36,17 @@ exports.login = async (req, res) => {
         req.session.user = userData;
 
         // Enviar la cookie con los datos del usuario
-        res.cookie('userData', JSON.stringify(userData), {
+        res.cookie(KEYS.USER_DATA, JSON.stringify(userData), {
             httpOnly: false,
-            secure: process.env.NODE_ENV === 'production',
-            // sameSite: 'strict',
-            maxAge: 24 * 60 * 60 * 1000 // 24 hours
+            secure: process.env.APP_ENV == ENV.PROD,
+            maxAge: 24 * 60 * 60 * 1000 // 24 horas
         });
 
         // Responder al cliente
-
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: MESSAGE_SUCCESS.LOGIN,
+            message: i18next.t('success.login'),  // Traducido
             data: [{ user: userData }]
         });
 
@@ -57,10 +56,11 @@ exports.login = async (req, res) => {
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-            message: error?.message || MESSAGE_ERROR.FATAL_ERROR_LOGIN,
+            message: error?.message || i18next.t('error.fatalErrorLogin'),  // Traducido
         });
     }
 };
+
 
 // Logout
 exports.logout = (req, res) => {
@@ -81,7 +81,7 @@ exports.logout = (req, res) => {
             const cookieOptions = {
                 path: '/',
                 httpOnly: false,
-                secure: process.env.NODE_ENV === 'production',
+                secure: process.env.NODE_ENV === 'PROD',
                 // sameSite: 'strict'
             };
 

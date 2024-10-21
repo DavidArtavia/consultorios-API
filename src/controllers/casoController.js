@@ -4,6 +4,7 @@ const { CustomError, sendResponse } = require('../handlers/responseHandler');
 const { AsignacionDeCaso, Estudiante, Caso, Persona, Direccion, Contraparte, Cliente, Sequelize, Subsidiario, sequelize } = require('../models');
 const { validateIfExists, validateInput, validateUniqueCedulas } = require('../utils/helpers');
 const { Op } = require('sequelize');
+const jsontext = require('../translation/TransES.json')
 
 
 exports.crearCaso = async (req, res) => {
@@ -86,8 +87,24 @@ exports.crearCaso = async (req, res) => {
             model: Persona,
             field: TABLE_FIELDS.CEDULA,
             value: contraparte.cedula,
-            errorMessage: `(Contraparte) Person with ID ${contraparte.cedula} is already registered.`
+            // errorMessage: texto("TEXT_ERROR_1", {cedula: contraparte.cedula}) // TODO
         });
+
+        console.log('jsontext :>> ', jsontext); // TODO
+
+        const search = (keyToSearch) => { // TODO
+            try {
+                const a = data.find(e => e = jsontext)
+                return a;
+
+            } catch (error) {
+                return keyToSearch
+            }
+        }
+
+        const text = search("TEXT1")
+
+        console.log('text :>> ', text); // - Hola mundo
 
         // Crear la contraparte
         const contrapartePersona = await Persona.create({
