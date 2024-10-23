@@ -19,6 +19,14 @@ module.exports = {
          key: TABLE_FIELDS.UID_CASO // Columna de la tabla referenciada
        },
      },
+     id_estudiante: {
+       type: Sequelize.UUID,
+       allowNull: false,
+       references: {
+         model: TABLE_NAME.ESTUDIANTES,  // Nombre de la tabla a la que se refiere la FK
+         key: TABLE_FIELDS.UID_ESTUDIANTE,  // Llave primaria en la tabla Estudiantes
+       },
+     },
      fecha_avance: {
        type: Sequelize.DATE,
        allowNull: false,

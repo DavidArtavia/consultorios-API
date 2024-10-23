@@ -14,7 +14,7 @@ exports.crearAvance = async (req, res) => {
     try {
         
         // Validar que el caso existe y está asignado al estudiante
-        await validateCaseAssignedToStudent(id_caso, id_estudiante);
+        await validateCaseAssignedToStudent(id_caso, id_estudiante, req);
         // Crear el avance
         const nuevoAvance = await Avance.create({
             id_caso,
@@ -101,12 +101,12 @@ exports.actualizarAvance = async (req, res) => {
         }
 
         // Validar que el caso existe y está asignado al estudiante
-        await validateCaseAssignedToStudent(id_caso, id_estudiante);
+        await validateCaseAssignedToStudent(id_caso, id_estudiante, req);
 
-        validateInput(gestion, FIELDS.TEXTBOX);
-        validateInput(resultado_concreto, FIELDS.TEXTBOX);
-        validateInput(evidencia, FIELDS.TEXTBOX);
-        validateInput(observaciones, FIELDS.TEXTBOX);
+        validateInput(gestion, FIELDS.TEXTBOX, req);
+        validateInput(resultado_concreto, FIELDS.TEXTBOX, req);
+        validateInput(evidencia, FIELDS.TEXTBOX, req);
+        validateInput(observaciones, FIELDS.TEXTBOX, req);
 
         // Actualizar los campos del avance
         await avance.update(
@@ -128,8 +128,6 @@ exports.actualizarAvance = async (req, res) => {
             data: avance
         });
     } catch (error) {
-        console.error(error);
-
         await transaction.rollback();
 
         return sendResponse({

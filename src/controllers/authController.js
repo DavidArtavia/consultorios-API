@@ -20,7 +20,7 @@ exports.login = async (req, res) => {
         });
 
         // Validar la contraseña
-        await validatePasswordHash(password, user.password_hash);
+        await validatePasswordHash(password, user.password_hash, req);
 
         // Crear la sesión del usuario
         const userData = {
@@ -49,8 +49,6 @@ exports.login = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
-
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,

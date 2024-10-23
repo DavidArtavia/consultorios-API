@@ -70,7 +70,7 @@ const checkStudentAssignmentsAndProgress = async (id_estudiante, transaction) =>
 };
 
 
-const validateIfUserIsTeacher = (userRole) => {
+const validateIfUserIsTeacher = (userRole, req) => {
 
     if (userRole !== ROL.PROFESSOR) {
         throw new CustomError(HttpStatus.FORBIDDEN, req.t('warning.WITHOUT_PERMISSION'), { userRole });

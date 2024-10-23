@@ -196,13 +196,13 @@ exports.actualizarEstudiante = async (req, res) => {
         if (!estudiante) {
             throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.STUDENT_NOT_FOUND'));
         }
-        validateInput(primer_nombre, FIELDS.TEXT);
-        segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT);
-        validateInput(primer_apellido, FIELDS.TEXT);
-        validateInput(segundo_apellido, FIELDS.TEXT);
-        validateInput(cedula, FIELDS.ID);
-        validateInput(telefono, FIELDS.PHONE_NUMBER);
-        validateInput(carnet, FIELDS.CARNET);
+        validateInput(primer_nombre, FIELDS.TEXT, req);
+        segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT, req);
+        validateInput(primer_apellido, FIELDS.TEXT, req);
+        validateInput(segundo_apellido, FIELDS.TEXT, req);
+        validateInput(cedula, FIELDS.ID, req);
+        validateInput(telefono, FIELDS.PHONE_NUMBER, req);
+        validateInput(carnet, FIELDS.CARNET, req);
 
         await validateUpdatesInputs({
             currentValue: estudiante.Persona.cedula,
@@ -283,7 +283,7 @@ exports.solicitarEliminarEstudiante = async (req, res) => {
     try {
 
         // Verificar que el profesor existe
-        validateIfUserIsTeacher(userRole);
+        validateIfUserIsTeacher(userRole, req);
 
         // Buscar el estudiante
         const estudiante = await Estudiante.findByPk(id_estudiante, {
@@ -313,7 +313,7 @@ exports.solicitarEliminarEstudiante = async (req, res) => {
         // Verificar si ya existe una solicitud pendiente para eliminar este estudiante
         const solicitudExistente = await SolicitudConfirmacion.findOne({
             where: {
-                id_estudiante: id_estudiante,
+                id_estudiante,
                 accion: ACTION.DELETE,
                 estado: STATES.PENDING
             }

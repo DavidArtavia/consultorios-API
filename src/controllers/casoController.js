@@ -19,7 +19,12 @@ exports.crearCaso = async (req, res) => {
 
     try {
         // Validar que las cédulas no se repitan
-        validateUniqueCedulas(cliente.cedula, contraparte.cedula, subsidiario?.cedula);
+        validateUniqueCedulas(
+            cliente.cedula,
+            contraparte.cedula,
+            subsidiario?.cedula,
+            req
+        );
 
         // Verificar si ya existe un expediente
         await validateIfExists({
@@ -30,22 +35,22 @@ exports.crearCaso = async (req, res) => {
         });
 
         // Validar los campos de entrada
-        validateInput(cliente.primer_nombre, FIELDS.TEXT);
-        cliente.segundo_nombre && validateInput(cliente.segundo_nombre, FIELDS.TEXT);
-        validateInput(cliente.primer_apellido, FIELDS.TEXT);
-        validateInput(cliente.segundo_apellido, FIELDS.TEXT);
-        validateInput(contraparte.primer_nombre, FIELDS.TEXT);
-        contraparte.segundo_nombre && validateInput(contraparte.segundo_nombre, FIELDS.TEXT);
-        validateInput(contraparte.primer_apellido, FIELDS.TEXT);
-        validateInput(contraparte.segundo_apellido, FIELDS.TEXT);
-        validateInput(cliente.cedula, FIELDS.ID);
-        validateInput(contraparte.cedula, FIELDS.ID);
-        validateInput(cliente.telefono, FIELDS.PHONE_NUMBER);
-        validateInput(contraparte.telefono, FIELDS.PHONE_NUMBER);
-        validateInput(casoData.cuantia_proceso, FIELDS.NUMERIC);
-        validateInput(casoData.aporte_comunidad, FIELDS.NUMERIC);
-        validateInput(cliente.ingreso_economico, FIELDS.NUMERIC);
-        validateInput(casoData.expediente, FIELDS.EXPEDIENTE);
+        validateInput(cliente.primer_nombre, FIELDS.TEXT, req);
+        cliente.segundo_nombre && validateInput(cliente.segundo_nombre, FIELDS.TEXT, req);
+        validateInput(cliente.primer_apellido, FIELDS.TEXT, req);
+        validateInput(cliente.segundo_apellido, FIELDS.TEXT, req);
+        validateInput(contraparte.primer_nombre, FIELDS.TEXT, req);
+        contraparte.segundo_nombre && validateInput(contraparte.segundo_nombre, FIELDS.TEXT, req);
+        validateInput(contraparte.primer_apellido, FIELDS.TEXT, req);
+        validateInput(contraparte.segundo_apellido, FIELDS.TEXT, req);
+        validateInput(cliente.cedula, FIELDS.ID, req);
+        validateInput(contraparte.cedula, FIELDS.ID, req);
+        validateInput(cliente.telefono, FIELDS.PHONE_NUMBER, req);
+        validateInput(contraparte.telefono, FIELDS.PHONE_NUMBER, req);
+        validateInput(casoData.cuantia_proceso, FIELDS.NUMERIC, req);
+        validateInput(casoData.aporte_comunidad, FIELDS.NUMERIC, req);
+        validateInput(cliente.ingreso_economico, FIELDS.NUMERIC, req);
+        validateInput(casoData.expediente, FIELDS.EXPEDIENTE, req);
 
         // Validar si la cédula del cliente ya está registrada
         await validateIfExists({
@@ -136,13 +141,13 @@ exports.crearCaso = async (req, res) => {
             });
 
             // Validar los campos del subsidiario
-            validateInput(subsidiario.primer_nombre, FIELDS.TEXT);
-            subsidiario.segundo_nombre && validateInput(subsidiario.segundo_nombre, FIELDS.TEXT);
-            validateInput(subsidiario.segundo_nombre, FIELDS.TEXT);
-            validateInput(subsidiario.primer_apellido, FIELDS.TEXT);
-            validateInput(subsidiario.segundo_apellido, FIELDS.TEXT);
-            validateInput(subsidiario.cedula, FIELDS.ID);
-            validateInput(subsidiario.telefono, FIELDS.PHONE_NUMBER);
+            validateInput(subsidiario.primer_nombre, FIELDS.TEXT, req);
+            subsidiario.segundo_nombre && validateInput(subsidiario.segundo_nombre, FIELDS.TEXT, req);
+            validateInput(subsidiario.segundo_nombre, FIELDS.TEXT, req);
+            validateInput(subsidiario.primer_apellido, FIELDS.TEXT, req);
+            validateInput(subsidiario.segundo_apellido, FIELDS.TEXT, req);
+            validateInput(subsidiario.cedula, FIELDS.ID, req);
+            validateInput(subsidiario.telefono, FIELDS.PHONE_NUMBER, req);
 
             // Crear el subsidiario si está presente
             const subsidiarioPersona = await Persona.create({

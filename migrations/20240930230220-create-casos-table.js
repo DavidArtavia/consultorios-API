@@ -27,7 +27,7 @@ module.exports = {
           model: TABLE_NAME.SUBSIDIARIOS,  // Referencia a la tabla subsidarios
           key: TABLE_FIELDS.UID_SUBSIDIARIO,  // Columna referenciada en subsidarios
         },
-        onDelete: 'CASCADE',
+        onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
       },
       id_contraparte: { // Clave foránea referenciando a contrapartes
@@ -38,6 +38,8 @@ module.exports = {
           key: TABLE_FIELDS.UID_CONTRAPARTE,  // Columna de referencia
         },
         onDelete: 'SET NULL',
+        onUpdate: 'CASCADE',
+
       },
       expediente: {
         type: Sequelize.STRING(50),
@@ -67,12 +69,12 @@ module.exports = {
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('NOW')
+        defaultValue: Sequelize.DATE
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('NOW')
+        defaultValue: Sequelize.DATE
       },
       etapa_proceso: {
         type: Sequelize.TEXT,

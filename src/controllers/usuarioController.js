@@ -29,9 +29,9 @@ exports.register = async (req, res) => {
 
         const userRole = req.session.user.userRole;
         
-        validateRoleChange(userRole, rol);
+        validateRoleChange(userRole, rol, req);
 
-        await validateExistingUser(username, email);
+        await validateExistingUser(username, email, req);
 
         await validateIfExists({
             model: Persona,
@@ -45,21 +45,22 @@ exports.register = async (req, res) => {
             field: TABLE_FIELDS.CARNET,
             value: carnet,
             errorMessage: req.t('warning.CARNET_ALREADY_REGISTERED', { carnet })
-        });
-        validateInput(primer_nombre, FIELDS.TEXT);
-        segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT);
-        validateInput(primer_apellido, FIELDS.TEXT);
-        validateInput(segundo_apellido, FIELDS.TEXT);
-        validateInput(rol, FIELDS.TEXT);
-        validateInput(cedula, FIELDS.ID);
-        validateInput(telefono, FIELDS.PHONE_NUMBER);
-        validateInput(email, FIELDS.EMAIL);
+        }, req);
+
+        validateInput(primer_nombre, FIELDS.TEXT, req);
+        segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT, req);
+        validateInput(primer_apellido, FIELDS.TEXT, req);
+        validateInput(segundo_apellido, FIELDS.TEXT, req);
+        validateInput(rol, FIELDS.TEXT, req);
+        validateInput(cedula, FIELDS.ID, req);
+        validateInput(telefono, FIELDS.PHONE_NUMBER, req);
+        validateInput(email, FIELDS.EMAIL, req);
 
         if (rol == ROL.STUDENT) {
-            validateInput(carnet, FIELDS.CARNET);
+            validateInput(carnet, FIELDS.CARNET, req);
 
         } else if (rol == ROL.PROFESSOR) {
-            validateInput(especialidad, FIELDS.TEXT);
+            validateInput(especialidad, FIELDS.TEXT, req);
         }
 
 
@@ -119,7 +120,7 @@ exports.register = async (req, res) => {
         return sendResponse({
             res,
             statusCode: HttpStatus.CREATED,
-            message: MESSAGE_SUCCESS.USER_REGISTERED,
+            message: req.t('success.USER_REGISTERED'),
             data: { user: usuario }
         });
 
