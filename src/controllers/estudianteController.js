@@ -38,7 +38,7 @@ exports.mostrarEstudiantes = async (req, res) => {
         });
 
         if (estudiantes.length == 0) {
-            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.STUDENT_NOT_FOUND'));
         }
 
         const estudiantesInfo = estudiantes.map(estudiante => ({
@@ -60,17 +60,16 @@ exports.mostrarEstudiantes = async (req, res) => {
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: MESSAGE_SUCCESS.RECOVERED_STUDENTS,
+            message: req.t('success.RECOVERED_STUDENTS'),
             data: estudiantesInfo
         });
     } catch (error) {
-        console.error(MESSAGE_ERROR.RE, error);
 
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
-                message: MESSAGE_ERROR.RECOVERED_STUDENTS,
+                message: req.t('error.RECOVERED_STUDENTS'),
                 error: error.message,
                 stack: error.stack
             }
@@ -143,7 +142,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
         });
 
         if (!estudiante) {
-            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.STUDENT_NOT_FOUND'));
         }
 
         const estudianteInfo = {
@@ -159,7 +158,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: MESSAGE_SUCCESS.STUDENT_INFO,
+            message: req.t('success.STUDENT_INFO'),
             data: estudianteInfo
         });
     } catch (error) {
@@ -167,7 +166,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
-                message: MESSAGE_ERROR.RETRIEVING,
+                message: req.t('error.RETRIEVING', { data: req.t('person.STUDENTS') }),
                 error: error.message,
                 stack: error.stack
             }
@@ -195,7 +194,7 @@ exports.actualizarEstudiante = async (req, res) => {
         });
 
         if (!estudiante) {
-            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.STUDENT_NOT_FOUND'));
         }
         validateInput(primer_nombre, FIELDS.TEXT);
         segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT);
@@ -204,13 +203,13 @@ exports.actualizarEstudiante = async (req, res) => {
         validateInput(cedula, FIELDS.ID);
         validateInput(telefono, FIELDS.PHONE_NUMBER);
         validateInput(carnet, FIELDS.CARNET);
-        
+
         await validateUpdatesInputs({
             currentValue: estudiante.Persona.cedula,
             newValue: cedula,
             model: Persona,
             field: TABLE_FIELDS.CEDULA,
-            message: MESSAGE_ERROR.ID_ALREADY_USED
+            message: req.t('warning.CEDULA_ALREADY_USED')
         });
 
         await validateUpdatesInputs({
@@ -218,7 +217,7 @@ exports.actualizarEstudiante = async (req, res) => {
             newValue: carnet,
             model: Estudiante,
             field: TABLE_FIELDS.CARNET,
-            message: MESSAGE_ERROR.CARNE_ALREADY_USED
+            message: req.t('warning.CARNET_ALREADY_USED')
         });
 
         await estudiante.Persona.update({
@@ -260,7 +259,7 @@ exports.actualizarEstudiante = async (req, res) => {
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: MESSAGE_SUCCESS.STUDENT_UPDATED,
+            message: req.t('success.STUDENT_UPDATED'),
             data: { estudianteInfo }
         });
     } catch (error) {
@@ -269,7 +268,7 @@ exports.actualizarEstudiante = async (req, res) => {
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-            message: error?.message || MESSAGE_ERROR.UPDATE_STUDENT,
+            message: error?.message || req.t('error.UPDATE_STUDENT'),
             error: error.stack
         });
     }
@@ -308,7 +307,7 @@ exports.solicitarEliminarEstudiante = async (req, res) => {
         });
 
         if (!estudiante) {
-            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.STUDENT_NOT_FOUND'));
         }
 
         // Verificar si ya existe una solicitud pendiente para eliminar este estudiante
@@ -321,16 +320,21 @@ exports.solicitarEliminarEstudiante = async (req, res) => {
         });
 
         if (solicitudExistente) {
-            throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.REQUEST_PENDING);
+            throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.REQUEST_PENDING'));
         }
 
         // Crear una solicitud de confirmación
         const solicitud = await SolicitudConfirmacion.create({
             id_estudiante: id_estudiante,
             accion: ACTION.DELETE,
-            detalles: `Solicitud para eliminar al estudiante ${getFullName(estudiante.Persona)} con ID: ${estudiante.Persona.cedula}`,
+            detalles: req.t('request.DELETE_STUDENT',
+                {
+                    fullName: getFullName(estudiante.Persona),
+                    ID: estudiante.Persona.cedula
+                }
+            ),
             estado: STATES.PENDING,
-            createdBy: personaId, // ID del profesor que hizo la solicitud
+            createdBy: personaId,
         }, { transaction });
 
         await transaction.commit();
@@ -338,17 +342,16 @@ exports.solicitarEliminarEstudiante = async (req, res) => {
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: MESSAGE_SUCCESS.REQUEST_CREATED,
+            message: req.t('success.REQUEST_CREATED'),
             data: solicitud
         });
     } catch (error) {
-        console.error(MESSAGE_ERROR.DELETE_STUDENT, error);
         await transaction.rollback();
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
-                message: MESSAGE_ERROR.RECOVERED_STUDENTS,
+                message: req.t('error.RECOVERED_STUDENTS'),
                 error: error.message,
                 stack: error.stack
             }

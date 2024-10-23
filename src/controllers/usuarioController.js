@@ -37,14 +37,14 @@ exports.register = async (req, res) => {
             model: Persona,
             field: TABLE_FIELDS.CEDULA,
             value: cedula,
-            errorMessage: `Person with ID ${cedula} is already registered.`
+            errorMessage: req.t('warning.IS_ALREADY_REGISTERED', { cedula })
         });
 
         await validateIfExists({
             model: Estudiante,
             field: TABLE_FIELDS.CARNET,
             value: carnet,
-            errorMessage: `Student with Carnet ${carnet} is already registered.`
+            errorMessage: req.t('warning.CARNET_ALREADY_REGISTERED', { carnet })
         });
         validateInput(primer_nombre, FIELDS.TEXT);
         segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT);
@@ -100,7 +100,7 @@ exports.register = async (req, res) => {
                 }, { transaction });
             } catch (error) {
                 console.error(MESSAGE_ERROR.CREATE_STUDENT, error);
-                throw new CustomError(HttpStatus.INTERNAL_SERVER_ERROR, MESSAGE_ERROR.CREATE_STUDENT);
+                throw new CustomError(HttpStatus.INTERNAL_SERVER_ERROR, req.t('error.CREATE_STUDENT'));
             }
         } else if (rol === ROL.PROFESSOR) {
             try {
@@ -110,7 +110,7 @@ exports.register = async (req, res) => {
                 }, { transaction });
             } catch (error) {
                 console.error(MESSAGE_ERROR.CREATE_PROFESSOR, error);
-                throw new CustomError(HttpStatus.INTERNAL_SERVER_ERROR, MESSAGE_ERROR.CREATE_PROFESSOR);
+                throw new CustomError(HttpStatus.INTERNAL_SERVER_ERROR, req.t('error.CREATE_PROFESSOR'));
             }
         }
 
@@ -134,7 +134,7 @@ exports.register = async (req, res) => {
                 res,
                 statusCode: HttpStatus.BAD_REQUEST,
                 message: {
-                    'Validation error': validationErrors,
+                    "Validation error": validationErrors,
                     error: error.stack,
                 }
             });
@@ -145,7 +145,7 @@ exports.register = async (req, res) => {
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
-                message: MESSAGE_ERROR.CREATE_USER,
+                message: req.t('error.CREATE_USER'),
                 error: error.message,
                 stack: error.stack
             }

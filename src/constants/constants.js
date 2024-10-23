@@ -61,7 +61,6 @@ const TABLE_FIELDS = {
     UID_AVANCE: 'id_avance',
     UID_INFORME: 'id_informe',
     UID_PROFESOR: 'id_profesor',
-    UID_USUARIO: 'id_usuario',
     FECHA_ASIGNACION: 'fecha_asignacion',
     FECHA_AVANCE: 'fecha_avance',
     GESTION: 'gestion',
@@ -104,9 +103,12 @@ const TABLE_FIELDS = {
     PASSWORD_HASH: 'password_hash',
     ROL: 'rol',
     USERNAME: 'username',
+    CREATE_AT: 'createAt',
 
 }
 const MESSAGE_ERROR = {
+    CHANGING_LANGUAGE: 'Error changing language.',
+    INVALID_LANGUAGE: 'Invalid language. Must be "es" or "en".',
     REQUEST_PENDING: 'A deletion request for this student is already pending. Please wait for it to be processed.',
     INVALID_DECISION: 'Invalid decision. Must be "aceptado" o "denegado".',
     RETRIEVING_PROGRESS: 'Error retrieving progress',
@@ -159,6 +161,7 @@ const MESSAGE_ERROR = {
 
 
 const MESSAGE_SUCCESS = {
+    LANGUAGE_CHANGED: 'Language changed successfully.',
     LOGIN: 'Succesfully login.',
     LOGOUT: 'Logout success.',
     USER_REGISTERED: 'User registered successfully',
@@ -181,16 +184,34 @@ const MESSAGE_SUCCESS = {
 
 }
 
+const TIME = {
+    SECOND: 1000,                     // 1 segundo en milisegundos
+    MINUTE: 60 * 1000,                // 1 minuto en milisegundos
+    HOUR: 60 * 60 * 1000,             // 1 hora en milisegundos
+    DAY: 24 * 60 * 60 * 1000,         // 1 día en milisegundos
+    WEEK: 7 * 24 * 60 * 60 * 1000,    // 1 semana en milisegundos
+    MONTH: 30 * 24 * 60 * 60 * 1000,  // Aproximadamente 1 mes en milisegundos
+    YEAR: 365 * 24 * 60 * 60 * 1000   // 1 año en milisegundos
+};
+
+
+
 const ROL = {
     SUPERADMIN: 'administrador',
     PROFESSOR: 'profesor',
     STUDENT: 'estudiante',
 };
 
+const ORDER = {
+    ASC: 'ASC',
+    DESC: 'DESC'
+};
+
 const STATES = {
     PENDING: 'pendiente',
     ACCEPTED: 'aceptado',
     DENIED: 'denegado',
+    ASSIGNED: 'asignado',
 }
 
 const ACTION = {
@@ -205,7 +226,13 @@ const DECISION = {
 
 const KEYS = { 
     USER_DATA: 'userData',
-    CONNECT_SID: "connect.sid"
+    CONNECT_SID: "connect.sid",
+    LANGUAGE: 'language',
+}
+
+const LANGUAGES = {
+    SPANISH: 'es',
+    ENGLISH: 'en'
 }
 
 const ENV = { 
@@ -220,18 +247,21 @@ const ROUTES = {
 }
 
 module.exports = {
-    HttpStatus,
-    TABLE_FIELDS,
-    TABLE_NAME,
-    ROL,
-    MESSAGE_ERROR,
-    MESSAGE_SUCCESS,
-    FIELDS,
-    STATES,
     ACTION,
     DECISION,
-    KEYS,
     ENV,
-    ROUTES
+    FIELDS,
+    HttpStatus,
+    KEYS,
+    LANGUAGES,
+    MESSAGE_ERROR,
+    MESSAGE_SUCCESS,
+    ORDER,
+    ROL,
+    ROUTES,
+    STATES,
+    TABLE_FIELDS,
+    TABLE_NAME,
+    TIME
 }
 

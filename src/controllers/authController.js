@@ -1,12 +1,10 @@
 const { Usuario } = require('../models');
 const bcrypt = require('bcryptjs');
-const { HttpStatus, MESSAGE_ERROR, MESSAGE_SUCCESS, FIELDS, TABLE_FIELDS, ENV, KEYS } = require('../constants/constants');
+const { HttpStatus, MESSAGE_ERROR, MESSAGE_SUCCESS, FIELDS, TABLE_FIELDS, ENV, KEYS, TIME } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
 const { validateInput, validateIfUserExists, validatePasswordHash } = require('../utils/helpers');
-const i18next = require('i18next'); 
+const i18next = require('i18next');
 
-// Login a user and create a session
-// Login a user and create a session
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -18,7 +16,7 @@ exports.login = async (req, res) => {
             model: Usuario,
             field: TABLE_FIELDS.EMAIL,
             value: email,
-            errorMessage: i18next.t('error.invalidEmail')  // Traducido
+            errorMessage: req.t('info.USER_NOT_FOUND')
         });
 
         // Validar la contraseña
@@ -39,14 +37,14 @@ exports.login = async (req, res) => {
         res.cookie(KEYS.USER_DATA, JSON.stringify(userData), {
             httpOnly: false,
             secure: process.env.APP_ENV == ENV.PROD,
-            maxAge: 24 * 60 * 60 * 1000 // 24 horas
+            maxAge: TIME.DAY
         });
 
         // Responder al cliente
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: i18next.t('success.login'),  // Traducido
+            message: req.t('success.LOGIN'),
             data: [{ user: userData }]
         });
 
@@ -56,7 +54,11 @@ exports.login = async (req, res) => {
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-            message: error?.message || i18next.t('error.fatalErrorLogin'),  // Traducido
+            message: error?.message || {
+                message: req.t('error.FATAL_ERROR_LOGIN'),
+                error: error.message,
+                stack: error.stack
+            }
         });
     }
 };
@@ -68,20 +70,20 @@ exports.logout = (req, res) => {
 
     try {
         if (!req.session) {
-            throw new CustomError(HttpStatus.FORBIDDEN, MESSAGE_ERROR.NO_ACTIVATE);
+            throw new CustomError(HttpStatus.FORBIDDEN, req.t('info.NO_ACTIVATE'));
 
         }
 
         req.session.destroy((err) => {
             if (err) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.DESTROY_SESSION);
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('error.DESTROY_SESSION'));
             }
 
             // Clear the cookies
             const cookieOptions = {
                 path: '/',
                 httpOnly: false,
-                secure: process.env.NODE_ENV === 'PROD',
+                secure: process.env.APP_ENV === 'PROD',
                 // sameSite: 'strict'
             };
 
@@ -89,18 +91,23 @@ exports.logout = (req, res) => {
             res.clearCookie('userData', cookieOptions);
 
             // Respond to the client
-            sendResponse({
+            return sendResponse({
                 res,
                 statusCode: HttpStatus.OK,
-                message: MESSAGE_SUCCESS.LOGOUT
+                message: req.t('success.LOGOUT')
             });
         });
 
     } catch (error) {
+
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-            message: error?.message || MESSAGE_ERROR.FATAL_ERROR_LOGOUT,
+            message: error?.message || {
+                message: req.t('error.FATAL_ERROR_LOGOUT'), 
+                error: error.message,
+                stack: error.stack
+            }
         });
     }
 };

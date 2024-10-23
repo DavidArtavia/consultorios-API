@@ -34,9 +34,9 @@ exports.mostrarProfesor = async (req, res) => {
             ]
         });
 
-        if (profesor.length === 0) {
+        if (profesor.length == 0) {
  
-            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.NOT_PROFESORS_FOUND);
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.NOT_PROFESORS_FOUND'));
         }
 
         const profesoresInfo = profesor.map(profesor => ({
@@ -58,17 +58,16 @@ exports.mostrarProfesor = async (req, res) => {
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: MESSAGE_SUCCESS.RECOVERED_PROFESORS,
+            message: req.t('success.RECOVERED_PROFESORS'),
             data: profesoresInfo
         });
     } catch (error) {
-        console.error(MESSAGE_ERROR.RECOVERED_PROFESORS, error);
 
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
-                message: MESSAGE_ERROR.RECOVERED_PROFESORS,
+                message: req.t('error.RECOVERED_PROFESORS'),
                 error: error.message,
                 stack: error.stack
             }

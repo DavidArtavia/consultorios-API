@@ -28,7 +28,7 @@ exports.crearAvance = async (req, res) => {
         return sendResponse({
             res,
             statusCode: HttpStatus.CREATED,
-            message: MESSAGE_SUCCESS.PROGRESS_CREATED,
+            message: req.t('success.PROGRESS_CREATED'),
             data: nuevoAvance
         });
     } catch (error) {
@@ -38,7 +38,7 @@ exports.crearAvance = async (req, res) => {
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
-                message: MESSAGE_ERROR.CREATING_PROGRESS,
+                message: req.t('error.CREATING_PROGRESS'),
                 error: error.message,
                 stack: error.stack
             }
@@ -57,13 +57,13 @@ exports.mostrarAvancesPorCaso = async (req, res) => {
         });
 
         if (!avances || avances.length == 0) {
-            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.NO_PROGRESS_FOUND);
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('info.PROGRESS_NOT_FOUND'));
         }
 
         return sendResponse({
             res,
             statusCode: HttpStatus.CREATED,
-            message: MESSAGE_SUCCESS.PROGRESS_FOUND,
+            message: req.t('success.PROGRESS_FOUND'),
             data: avances
         });
     } catch (error) {
@@ -71,7 +71,7 @@ exports.mostrarAvancesPorCaso = async (req, res) => {
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
-                message: MESSAGE_ERROR.RETRIEVING_PROGRESS,
+                message: req.t('error.RETRIEVING_PROGRESS'),
                 error: error.message,
                 stack: error.stack
             }
@@ -97,7 +97,7 @@ exports.actualizarAvance = async (req, res) => {
         const avance = await Avance.findByPk(id_avance);
 
         if (!avance) {
-            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.PROGRESS_NOT_FOUND);
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('info.PROGRESS_NOT_FOUND'));
         }
 
         // Validar que el caso existe y está asignado al estudiante
@@ -124,7 +124,7 @@ exports.actualizarAvance = async (req, res) => {
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: MESSAGE_SUCCESS.PROGRESS_UPDATED,
+            message: req.t('success.PROGRESS_UPDATED'),
             data: avance
         });
     } catch (error) {
@@ -136,7 +136,7 @@ exports.actualizarAvance = async (req, res) => {
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
-                message: MESSAGE_ERROR.UPDATING_PROGRESS,
+                message: req.t('error.UPDATING_PROGRESS'),
                 error: error.message,
                 stack: error.stack
             }

@@ -1,10 +1,10 @@
 // controllers/casoController.js
-const { HttpStatus, MESSAGE_SUCCESS, MESSAGE_ERROR, TABLE_FIELDS, FIELDS } = require('../constants/constants');
+const { t } = require('i18next');
+const { HttpStatus, MESSAGE_SUCCESS, MESSAGE_ERROR, TABLE_FIELDS, FIELDS, STATES } = require('../constants/constants');
 const { CustomError, sendResponse } = require('../handlers/responseHandler');
 const { AsignacionDeCaso, Estudiante, Caso, Persona, Direccion, Contraparte, Cliente, Sequelize, Subsidiario, sequelize } = require('../models');
 const { validateIfExists, validateInput, validateUniqueCedulas } = require('../utils/helpers');
 const { Op } = require('sequelize');
-const jsontext = require('../translation/TransES.json')
 
 
 exports.crearCaso = async (req, res) => {
@@ -18,8 +18,6 @@ exports.crearCaso = async (req, res) => {
     const transaction = await sequelize.transaction(); // Inicia la transacción
 
     try {
-        console.log("pasa por aqui");
-        
         // Validar que las cédulas no se repitan
         validateUniqueCedulas(cliente.cedula, contraparte.cedula, subsidiario?.cedula);
 
@@ -28,16 +26,16 @@ exports.crearCaso = async (req, res) => {
             model: Caso,
             field: TABLE_FIELDS.EXPEDIENTE,
             value: casoData.expediente,
-            table_name: `The case file ${casoData.expediente} is already registered.`
+            errorMessage: req.t('warning.CASE_ALREADY_REGISTERED', { data: casoData.expediente }),
         });
 
         // Validar los campos de entrada
         validateInput(cliente.primer_nombre, FIELDS.TEXT);
-        cliente.segundo_nombre ? validateInput(cliente.segundo_nombre, FIELDS.TEXT) : null;
+        cliente.segundo_nombre && validateInput(cliente.segundo_nombre, FIELDS.TEXT);
         validateInput(cliente.primer_apellido, FIELDS.TEXT);
         validateInput(cliente.segundo_apellido, FIELDS.TEXT);
         validateInput(contraparte.primer_nombre, FIELDS.TEXT);
-        contraparte.segundo_nombre ? validateInput(contraparte.segundo_nombre, FIELDS.TEXT) : null;
+        contraparte.segundo_nombre && validateInput(contraparte.segundo_nombre, FIELDS.TEXT);
         validateInput(contraparte.primer_apellido, FIELDS.TEXT);
         validateInput(contraparte.segundo_apellido, FIELDS.TEXT);
         validateInput(cliente.cedula, FIELDS.ID);
@@ -54,7 +52,11 @@ exports.crearCaso = async (req, res) => {
             model: Persona,
             field: TABLE_FIELDS.CEDULA,
             value: cliente.cedula,
-            errorMessage: `(Client) Person with ID ${cliente.cedula} is already registered.`
+            errorMessage: req.t(
+                'warning.PERSON_ALREADY_REGISTERED',
+                { person: req.t('person.CLIENT') },
+                { data: cliente.cedula }
+            )
         });
 
         // Crear el cliente
@@ -87,24 +89,12 @@ exports.crearCaso = async (req, res) => {
             model: Persona,
             field: TABLE_FIELDS.CEDULA,
             value: contraparte.cedula,
-            // errorMessage: texto("TEXT_ERROR_1", {cedula: contraparte.cedula}) // TODO
+            errorMessage: req.t(
+                'warning.PERSON_ALREADY_REGISTERED',
+                { person: req.t('person.COUNTERPART')},
+                { data: contraparte.cedula }
+            )
         });
-
-        console.log('jsontext :>> ', jsontext); // TODO
-
-        const search = (keyToSearch) => { // TODO
-            try {
-                const a = data.find(e => e = jsontext)
-                return a;
-
-            } catch (error) {
-                return keyToSearch
-            }
-        }
-
-        const text = search("TEXT1")
-
-        console.log('text :>> ', text); // - Hola mundo
 
         // Crear la contraparte
         const contrapartePersona = await Persona.create({
@@ -138,12 +128,16 @@ exports.crearCaso = async (req, res) => {
                 model: Persona,
                 field: TABLE_FIELDS.CEDULA,
                 value: subsidiario.cedula,
-                errorMessage: `(Subsidiario) Person with ID ${subsidiario.cedula} is already registered.`
+                errorMessage: req.t(
+                    'warning.PERSON_ALREADY_REGISTERED',
+                    { person: req.t('person.SUBSIDIARY') },
+                    { data: subsidiario.cedula }
+                )
             });
 
             // Validar los campos del subsidiario
             validateInput(subsidiario.primer_nombre, FIELDS.TEXT);
-            subsidiario.segundo_nombre ? validateInput(subsidiario.segundo_nombre, FIELDS.TEXT) : null;
+            subsidiario.segundo_nombre && validateInput(subsidiario.segundo_nombre, FIELDS.TEXT);
             validateInput(subsidiario.segundo_nombre, FIELDS.TEXT);
             validateInput(subsidiario.primer_apellido, FIELDS.TEXT);
             validateInput(subsidiario.segundo_apellido, FIELDS.TEXT);
@@ -190,12 +184,11 @@ exports.crearCaso = async (req, res) => {
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: MESSAGE_SUCCESS.CASE_CREATED,
+            message: req.t('success.CASE_CREATED'),
             data: nuevoCaso
         });
 
     } catch (error) {
-        console.error(MESSAGE_ERROR.CREATING_CASE, error);
         // Deshacer la transacción en caso de error
         await transaction.rollback();
 
@@ -203,7 +196,7 @@ exports.crearCaso = async (req, res) => {
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
-                message: MESSAGE_ERROR.CREATING_CASE,
+                message: req.t('error.CREATING_CASE'),
                 error: error.message,
                 stack: error.stack
             }
@@ -222,11 +215,11 @@ exports.asignarCasoAEstudiante = async (req, res) => {
 
         if (!estudiante) {
 
-            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.STUDENT_NOT_FOUND'));
         }
         if (!caso) {
 
-            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.CASE_NOT_FOUND);
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.CASE_NOT_FOUND'));
         }
 
         // Verificar si el caso ya está asignado a algún estudiante
@@ -236,7 +229,7 @@ exports.asignarCasoAEstudiante = async (req, res) => {
 
         if (asignacionExistente) {
 
-            throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.CASE_ALREADY_ASSIGNED);
+            throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.CASE_ALREADY_ASSIGNED'));
         }
 
         // Crear la asignación
@@ -246,28 +239,27 @@ exports.asignarCasoAEstudiante = async (req, res) => {
         }, { transaction });
 
         await Caso.update({
-            estado: 'asignado'
+            estado: STATES.ASSIGNED
         }, {
             where: { id_caso: idCaso }
         }, { transaction });
 
         await transaction.commit();
 
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: HttpStatus.CREATED,
-            message: MESSAGE_SUCCESS.CASE_ASSIGNED,
+            message: req.t('success.CASE_ASSIGNED'),
             data: nuevaAsignacion
         });
     } catch (error) {
-        console.error(MESSAGE_ERROR.ASSIGN_CASE, error);
 
         await transaction.rollback();
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
-                message: MESSAGE_ERROR.ASSIGN_CASE,
+                message: req.t('error.ASSIGNING_CASE'),
                 error: error.message,
                 stack: error.stack
             }
@@ -293,7 +285,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                     include: [
                         {
                             model: Persona,
-                            attributes: { exclude: ['id_persona'] }
+                            attributes: { exclude: [TABLE_FIELDS.UID_PERSONA] }
                         }
                     ]
                 },
@@ -302,7 +294,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                     include: [
                         {
                             model: Persona,
-                            attributes: { exclude: ['id_persona'] }
+                            attributes: { exclude: [TABLE_FIELDS.UID_PERSONA] }
                         }
                     ]
                 },
@@ -311,7 +303,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                     include: [
                         {
                             model: Persona,
-                            attributes: { exclude: ['id_persona'] }
+                            attributes: { exclude: [TABLE_FIELDS.UID_PERSONA] }
                         }
                     ]
                 }
@@ -325,7 +317,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
             return sendResponse({
                 res,
                 statusCode: HttpStatus.OK,
-                message: MESSAGE_SUCCESS.NO_UNASSIGNED_CASES,
+                message: req.t('warning.NO_UNASSIGNED_CASES'),
                 data: []
             });
         }
@@ -338,17 +330,16 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: MESSAGE_SUCCESS.UNASSIGNED_CASES,
+            message: req.t('success.UNASSIGNED_CASES'),
             data: resultado
         });
 
     } catch (error) {
-        console.error("Error al obtener casos no asignados:", error);
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
-                message: MESSAGE_ERROR.UNASSIGNED_CASES,
+                message: req.t('error.UNASSIGNED_CASES'),
                 error: error.message,
                 stack: error.stack
             }
@@ -390,7 +381,7 @@ exports.mostrarCasosAsignados = async (req, res) => {
             return sendResponse({
                 res,
                 statusCode: HttpStatus.OK,
-                message: MESSAGE_SUCCESS.NO_ASSIGNED_CASES,
+                message: req.t('warning.NO_ASSIGNED_CASES'),
                 data: []
             });
         }
@@ -403,17 +394,17 @@ exports.mostrarCasosAsignados = async (req, res) => {
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: MESSAGE_SUCCESS.ASSIGNED_CASES,
+            // message: MESSAGE_SUCCESS.ASSIGNED_CASES,
+            message: req.t('success.ASSIGNED_CASES'),
             data: resultado
         });
 
     } catch (error) {
-        console.error("Error al obtener casos asignados:", error);
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
-                message: MESSAGE_ERROR.ASSIGNED_CASES,
+                message: req.t('error.ASSIGNED_CASES'),
                 error: error.message,
                 stack: error.stack
             }

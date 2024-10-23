@@ -5,7 +5,7 @@ const cors = require('cors');
 const session = require('express-session');
 const sequelize = require('./src/config/database');
 const i18next = require('./src/middlewares/i18nextConfig');
-const i18nextMiddleware = require('i18next-express-middleware');
+const i18nextMiddleware = require('i18next-http-middleware'); 
 
 // rutas 
 const casosRoutes = require('./src/routes/casos');
@@ -16,6 +16,7 @@ const authRoutes = require('./src/routes/auth');
 const personasRoutes = require('./src/routes/persona');
 const avancesRoutes = require('./src/routes/avances');
 const solicitudRoutes = require('./src/routes/solicitud');
+const languageRoutes = require('./src/routes/language');
 
 const app = express();
 
@@ -37,7 +38,7 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         httpOnly: true, // Protege la cookie contra accesos desde JavaScript del lado del cliente
-        secure: process.env.APP_ENV === 'DEV', // Usar solo HTTPS en producción
+        secure: process.env.APP_ENV === 'PROD', // Usar solo HTTPS en producción
         maxAge: 1000 * 60 * 60 * 24 // 24 horas de duración
     }
 }));
@@ -61,6 +62,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/personas', personasRoutes);
 app.use('/api/v1/avances', avancesRoutes);
 app.use('/api/v1/solicitud', solicitudRoutes);
+app.use('/api/v1/language', languageRoutes);
 
 
 app.get('/api/v1/version', (req, res) => {

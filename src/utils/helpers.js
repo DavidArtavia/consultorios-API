@@ -5,31 +5,47 @@ const { Usuario, Caso, AsignacionDeCaso, Avance, Estudiante, SolicitudConfirmaci
 const bcrypt = require("bcryptjs/dist/bcrypt");
 
 const getFullName = (persona) => {
-    if (!persona) return null;
-    return `${persona.primer_nombre} ${persona.segundo_nombre || ''} ${persona.primer_apellido} ${persona.segundo_apellido}`.trim();
+    const {
+        primer_nombre,
+        segundo_nombre = '',
+        primer_apellido,
+        segundo_apellido
+    } = persona;
+
+    if (!primer_nombre || !primer_apellido || !segundo_apellido) return null;
+
+    const fullName = [
+        primer_nombre,
+        segundo_nombre,
+        primer_apellido,
+        segundo_apellido
+    ].filter(Boolean).join(' ');
+
+    return fullName.trim();
 };
-const findStudentByPk = async (id_estudiante) => {
+
+const findStudentByPk = async (id_estudiante, req) => {
 
     const estudiante = await Estudiante.findByPk(id_estudiante, {
         include: [Persona]
     });
 
     if (!estudiante) {
-        throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
+        throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.STUDENT_NOT_FOUND'));
     }
-    
+
     return estudiante;
 };
-const findConfirmationRequestById = async (id_solicitud) => {
+const findConfirmationRequestById = async (id_solicitud, req) => {
 
     const solicitud = await SolicitudConfirmacion.findByPk(id_solicitud, {
         include: [Estudiante, Caso] // Asegúrate que se incluyan las referencias necesarias
     });
 
     if (!solicitud) {
-        throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.REQUEST_NOT_FOUND);
+        throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.REQUEST_NOT_FOUND'));
     }
-    
+
     return solicitud;
 };
 
@@ -39,12 +55,9 @@ const checkStudentAssignmentsAndProgress = async (id_estudiante, transaction) =>
     const avance = await Avance.findAll({ where: { id_estudiante: id_estudiante }, transaction });
     if (avance.length > 0) {
         console.log('Desarrollar la logica para ver que hacer con los avances');
-        
+
         // se puiede eliminar un estudiante que no haya hecho ningun avance 
         //Agregar un enum de activo inactivo Finalisado en estudiante
-
-        // Set the student reference in progress to null
-        // await Avance.update({ id_estudiante: null }, { where: { id_estudiante: id_estudiante }, transaction });
     }
 
     // Check if the student has case assignments
@@ -60,9 +73,9 @@ const checkStudentAssignmentsAndProgress = async (id_estudiante, transaction) =>
 const validateIfUserIsTeacher = (userRole) => {
 
     if (userRole !== ROL.PROFESSOR) {
-        throw new CustomError(HttpStatus.FORBIDDEN, `${userRole}  ${MESSAGE_ERROR.WITHOUT_PERMISSION}`);
+        throw new CustomError(HttpStatus.FORBIDDEN, req.t('warning.WITHOUT_PERMISSION'), { userRole });
     }
- }
+};
 
 const validateIfExists = async ({ model, field, value, errorMessage }) => {
     const existingRecord = await model.findOne({
@@ -70,7 +83,7 @@ const validateIfExists = async ({ model, field, value, errorMessage }) => {
     });
 
     if (existingRecord) {
-        throw new CustomError(HttpStatus.BAD_REQUEST, errorMessage || `Record with ${field} ${value} already exists.`);
+        throw new CustomError(HttpStatus.BAD_REQUEST, errorMessage);
     }
 };
 const validateIfUserExists = async ({ model, field, value, errorMessage }) => {
@@ -80,12 +93,12 @@ const validateIfUserExists = async ({ model, field, value, errorMessage }) => {
     });
 
     if (!existingRecord) {
-        throw new CustomError(HttpStatus.BAD_REQUEST, errorMessage || `Record with ${field} ${value} already exists.`);
+        throw new CustomError(HttpStatus.BAD_REQUEST, errorMessage);
     } else {
         return existingRecord;
     }
 };
-const validateExistingUser = async (username, email) => {
+const validateExistingUser = async (username, email, req) => {
     const existingUser = await Usuario.findOne({
         where: {
             [Op.or]: [{ email }, { username }]
@@ -93,15 +106,15 @@ const validateExistingUser = async (username, email) => {
     });
     if (existingUser) {
         if (existingUser.email === email) {
-            throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.EMAIL_ALREADY_USED);
+            throw new CustomError(HttpStatus.OK, req.t('warning.EMAIL_ALREADY_USED'));
         }
         if (existingUser.username === username) {
-            throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.USERNAME_ALREADY_USED);
+            throw new CustomError(HttpStatus.OK, req.t('warning.USERNAME_ALREADY_USED'));
         }
     }
 };
 
-const validateCaseAssignedToStudent = async (id_caso, id_estudiante) => {
+const validateCaseAssignedToStudent = async (id_caso, id_estudiante, req) => {
     const caso = await AsignacionDeCaso.findOne({
         where: { id_caso, id_estudiante },
         include: [Caso],
@@ -109,15 +122,15 @@ const validateCaseAssignedToStudent = async (id_caso, id_estudiante) => {
     });
 
     if (!caso) {
-        throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.NO_CASE_ASSIGNED);
+        throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.NO_CASE_ASSIGNED'));
     }
     return caso;
 };
 
 
-const validateRoleChange = (sessionRole, requestedRole) => {
+const validateRoleChange = (sessionRole, requestedRole, req) => {
     if (sessionRole === requestedRole) {
-        throw new CustomError(HttpStatus.FORBIDDEN, MESSAGE_ERROR.WITHOUT_PERMISSION);
+        throw new CustomError(HttpStatus.FORBIDDEN, req.t('warning.WITHOUT_PERMISSION'), { userRole });
     }
 };
 
@@ -137,12 +150,12 @@ const validateUpdatesInputs = async ({ currentValue, newValue, model, field, mes
 }
 
 
-const validatePasswordHash = async (password, userPasswordHash) => {
+const validatePasswordHash = async (password, userPasswordHash, req) => {
 
     const passwordMatch = await bcrypt.compare(password, userPasswordHash);
     if (!passwordMatch) {
         // Si la contraseña no coincide, lanza un error personalizado
-        throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.INVALID_PASSWORD);
+        throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.INVALID_PASSWORD'));
     }
 }
 
@@ -235,66 +248,75 @@ const validatePassword = (password) => {
     return passwordRegex.test(password);
 };
 
-const validateUniqueCedulas = (clienteCedula, contraparteCedula, subsidiarioCedula) => {
+const validateUniqueCedulas = (clienteCedula, contraparteCedula, subsidiarioCedula, req) => {
     if (subsidiarioCedula) {
         if (subsidiarioCedula === clienteCedula) {
-            throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.SUBSIDIARY_CLIENT_SAME_ID);
+            throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.SAME_ID_ID_CONFLICT', {
+                entity1: req.t('person.CLIENT'),
+                entity2: req.t('person.SUBSIDIARY')
+            }));
         }
         if (subsidiarioCedula === contraparteCedula) {
-            throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.SUBSIDIARY_COUNTERPART_SAME_ID);
+            throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.SAME_ID_ID_CONFLICT', {
+                entity1: req.t('person.COUNTERPART'),
+                entity2: req.t('person.SUBSIDIARY')
+            }));
         }
     }
     if (clienteCedula === contraparteCedula) {
-        throw new CustomError(HttpStatus.BAD_REQUEST, MESSAGE_ERROR.CLIENT_COUNTERPART_SAME_ID);
+        throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.SAME_ID_ID_CONFLICT', {
+            entity1: req.t('person.CLIENT'),
+            entity2: req.t('person.COUNTERPART')
+        }));
     }
 };
 
-const validateInput = (input, field) => {
+const validateInput = (input, field, req) => {
     switch (field) {
         case FIELDS.TEXT:
             if (!validateText(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <--  Invalid ${FIELDS.TEXT} format. Only letters are allowed.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_TEXT_FORMAT'), {input} );
             }
             break;
         case FIELDS.TEXTBOX:
             if (!validateTextWithSpaces(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <--  Invalid ${FIELDS.TEXT} format. Only text are allowed.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_TEXTBOX_FORMAT'), {input} );
             }
             break;
         case FIELDS.ID:
             if (!validateID(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid ${FIELDS.ID} format.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_ID_FORMAT'), {input} );
             }
             break;
         case FIELDS.EMAIL:
             if (!validateEmail(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid ${FIELDS.EMAIL} format.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST,  req.t('validation.INVALID_EMAIL_FORMAT'), {input} );
             }
             break;
         case FIELDS.PASSWORD:
             if (!validatePassword(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid ${FIELDS.PASSWORD} format. Password must be at least 8 characters long, contain one uppercase letter, one lowercase letter, one number, and one special character.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_PASSWORD_FORMAT'), {input} );
 
             }
             break;
         case FIELDS.NUMERIC:
             if (!validateNumericInput(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid ${FIELDS.NUMERIC} value.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_NUMERIC_FORMAT'), {input} );
             }
             break;
         case FIELDS.EXPEDIENTE:
             if (!validateExpediente(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid ${FIELDS.EXPEDIENTE} number format.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_EXPEDIENTE_FORMAT'), {input} );
             }
             break;
         case FIELDS.PHONE_NUMBER:
             if (!validatePhoneNumberCR(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid ${FIELDS.PHONE_NUMBER} format. The number must be 8 digits and start with 2, 5, 6, 7, or 8.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_PHONE_NUMBER_FORMAT'), {input} );
             }
             break;
         case FIELDS.CARNET:
             if (!validateCarnet(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, `--> ${input} <-- Invalid ${FIELDS.CARNET} format.`);
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_CARNET_FORMAT'), {input} );
             }
             break;
     }

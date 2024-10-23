@@ -29,14 +29,15 @@ This API allows managing the information of legal consultancies, including the c
    npm install
    ```
 
-## configuracion de desarrollo
+## Development Configuration
 
-Se debe crear un archivo llamado .env en la raiz del proyecto
+You need to create a file named `.env` at the root of the project.
 
-Contenido sugerido:
+Suggested content:
+
 
 ```sh
- DB_NAME=consultorios_db  
+DB_NAME=consultorios_db  
 DB_USER=postgres
 DB_PASSWORD=postgres
 DB_HOST=localhost
