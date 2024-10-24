@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: TABLE_FIELDS.UID_CLIENTE,
             onDelete: 'CASCADE',
         });
-       
+
     };
 
     return Cliente;

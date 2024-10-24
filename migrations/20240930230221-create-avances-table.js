@@ -14,7 +14,8 @@ module.exports = {
      },
      id_caso: {
        type: Sequelize.UUID,
-       allowNull: false, references: {
+       allowNull: false,
+       references: {
          model: TABLE_NAME.CASOS, // Nombre de la tabla referenciada
          key: TABLE_FIELDS.UID_CASO // Columna de la tabla referenciada
        },

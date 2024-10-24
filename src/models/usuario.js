@@ -46,7 +46,6 @@ const Usuario = sequelize.define('Usuario', {
     tableName: TABLE_NAME.USUARIOS, 
 });
 
-
 // Asociación uno a uno
 Usuario.associate = models => {
     Usuario.belongsTo(models.Persona, {
@@ -56,5 +55,4 @@ Usuario.associate = models => {
 };
 
     return Usuario;
-
 }
