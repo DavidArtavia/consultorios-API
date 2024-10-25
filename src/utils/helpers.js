@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
 const { MESSAGE_ERROR, HttpStatus, FIELDS, ROL } = require("../constants/constants");
 const { CustomError } = require("../handlers/responseHandler");
-const { Usuario, Caso, AsignacionDeCaso, Avance, Estudiante, SolicitudConfirmacion, Persona } = require("../models");
+const { Usuario, Caso, AsignacionDeCaso, Avance, Estudiante, SolicitudConfirmacion, Persona } = require("../../models");
 const bcrypt = require("bcryptjs/dist/bcrypt");
 
 const getFullName = (persona) => {

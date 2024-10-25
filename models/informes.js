@@ -1,6 +1,4 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const { TABLE_FIELDS, TABLE_NAME } = require('../constants/constants');
+const { TABLE_FIELDS, TABLE_NAME } = require("../src/constants/constants");
 
 module.exports = (sequelize, DataTypes) => {
     const Informe = sequelize.define('Informe', {

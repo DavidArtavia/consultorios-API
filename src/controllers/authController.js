@@ -1,4 +1,4 @@
-const { Usuario } = require('../models');
+const { Usuario } = require('../../models');
 const bcrypt = require('bcryptjs');
 const { HttpStatus, MESSAGE_ERROR, MESSAGE_SUCCESS, FIELDS, TABLE_FIELDS, ENV, KEYS, TIME } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');

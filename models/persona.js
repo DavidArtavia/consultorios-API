@@ -1,9 +1,6 @@
+const { TABLE_NAME, TABLE_FIELDS } = require("../src/constants/constants");
+
 // models/persona.js
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const { TABLE_FIELDS, TABLE_NAME } = require('../constants/constants');
-
-
 module.exports = (sequelize, DataTypes) => {
     const Persona = sequelize.define('Persona', {
         id_persona: {

@@ -1,5 +1,5 @@
 
-const { Usuario, Persona, Direccion, Estudiante, Profesor, Sequelize, sequelize } = require('../models');
+const { Usuario, Persona, Direccion, Estudiante, Profesor, Sequelize, sequelize } = require('../../models');
 const { HttpStatus, ROL, MESSAGE_ERROR, MESSAGE_SUCCESS, TABLE_FIELDS, FIELDS } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
 const { validateIfExists, validateExistingUser, validateRoleChange, validateInput } = require('../utils/helpers');

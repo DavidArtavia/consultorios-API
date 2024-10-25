@@ -2,7 +2,7 @@
 const { t } = require('i18next');
 const { HttpStatus, MESSAGE_SUCCESS, MESSAGE_ERROR, TABLE_FIELDS, FIELDS, STATES } = require('../constants/constants');
 const { CustomError, sendResponse } = require('../handlers/responseHandler');
-const { AsignacionDeCaso, Estudiante, Caso, Persona, Direccion, Contraparte, Cliente, Sequelize, Subsidiario, sequelize } = require('../models');
+const { AsignacionDeCaso, Estudiante, Caso, Persona, Direccion, Contraparte, Cliente, Sequelize, Subsidiario, sequelize } = require('../../models');
 const { validateIfExists, validateInput, validateUniqueCedulas } = require('../utils/helpers');
 const { Op } = require('sequelize');
 

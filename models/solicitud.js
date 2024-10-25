@@ -1,4 +1,4 @@
-const { TABLE_FIELDS, TABLE_NAME } = require('../constants/constants');
+const { TABLE_NAME, TABLE_FIELDS } = require("../src/constants/constants");
 
 module.exports = (sequelize, DataTypes) => {
     const SolicitudConfirmacion = sequelize.define('SolicitudConfirmacion', {

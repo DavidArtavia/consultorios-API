@@ -1,6 +1,6 @@
-const { MESSAGE_ERROR, HttpStatus, ACTION, DECISION, STATES, TABLE_FIELDS, ORDER } = require("../constants/constants");
+const { HttpStatus, ACTION, DECISION, STATES, TABLE_FIELDS, ORDER } = require("../constants/constants");
 const { sendResponse, CustomError } = require("../handlers/responseHandler");
-const { sequelize, Persona, Estudiante, Caso, SolicitudConfirmacion, AsignacionDeCaso, Avance } = require("../models");
+const { sequelize, Persona, Estudiante, Caso, SolicitudConfirmacion} = require("../../models");
 const { checkStudentAssignmentsAndProgress, findConfirmationRequestById, findStudentByPk } = require("../utils/helpers");
 
 exports.mostrarSolicitudes = async (req, res) => {

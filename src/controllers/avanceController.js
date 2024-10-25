@@ -1,4 +1,4 @@
-const { Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Direccion, Usuario, Avance, sequelize } = require('../models');
+const { Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Direccion, Usuario, Avance, sequelize } = require('../../models');
 const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL, FIELDS } = require("../constants/constants");
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
 const { validateUpdatesInputs, validateInput, getFullName, validateCaseAssignedToStudent } = require('../utils/helpers');

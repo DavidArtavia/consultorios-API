@@ -1,6 +1,6 @@
 const { MESSAGE_ERROR, MESSAGE_SUCCESS, HttpStatus, TABLE_FIELDS } = require("../constants/constants");
 const { sendResponse, CustomError } = require("../handlers/responseHandler");
-const { Persona, Usuario } = require("../models");
+const { Persona, Usuario } = require("../../models");
 
 
 

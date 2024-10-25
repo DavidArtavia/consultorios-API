@@ -1,7 +1,4 @@
-// models/estudiante.js
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const { TABLE_FIELDS, TABLE_NAME } = require('../constants/constants');
+const { TABLE_FIELDS, TABLE_NAME } = require("../src/constants/constants");
 
 module.exports = (sequelize, DataTypes) => {
     const Estudiante = sequelize.define('Estudiante', {
@@ -17,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
         },
     }, {
         tableName: TABLE_NAME.ESTUDIANTES,
+        // timestamps: false,
     });
 
     // Definir asociaciones

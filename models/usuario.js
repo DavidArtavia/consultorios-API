@@ -1,9 +1,7 @@
 // models/usuario.js
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const bcrypt = require('bcryptjs');
-const { TABLE_FIELDS, ROL, TABLE_NAME } = require('../constants/constants');
 
+const bcrypt = require('bcryptjs');
+const { TABLE_NAME, TABLE_FIELDS, ROL } = require('../src/constants/constants');
 module.exports = (sequelize, DataTypes) => {
 const Usuario = sequelize.define('Usuario', {
     id_usuario: {
