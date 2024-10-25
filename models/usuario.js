@@ -2,6 +2,7 @@
 
 const bcrypt = require('bcryptjs');
 const { TABLE_NAME, TABLE_FIELDS, ROL } = require('../src/constants/constants');
+
 module.exports = (sequelize, DataTypes) => {
 const Usuario = sequelize.define('Usuario', {
     id_usuario: {

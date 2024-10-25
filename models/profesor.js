@@ -1,6 +1,4 @@
 const { TABLE_NAME, TABLE_FIELDS } = require("../src/constants/constants");
-
-// models/profesor.js
 module.exports = (sequelize, DataTypes) => {
 const Profesor = sequelize.define('Profesor', {
     id_profesor: {

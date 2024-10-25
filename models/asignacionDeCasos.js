@@ -1,4 +1,3 @@
-const { DataTypes } = require('sequelize');
 const { TABLE_NAME, TABLE_FIELDS } = require('../src/constants/constants');
 
 module.exports = (sequelize, DataTypes) => {
