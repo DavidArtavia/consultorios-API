@@ -1,11 +1,11 @@
 'use strict';
 
-const { TABLE_FIELDS } = require('../src/constants/constants');
+const { TABLE_FIELDS, TABLE_NAME } = require('../src/constants/constants');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-   await queryInterface.createTable('avances', {
+   await queryInterface.createTable(TABLE_NAME.AVANCES, {
      id_avance: {
        type: Sequelize.UUID,
        defaultValue: Sequelize.UUIDV4,
@@ -14,9 +14,18 @@ module.exports = {
      },
      id_caso: {
        type: Sequelize.UUID,
-       allowNull: false, references: {
-         model: 'casos', // Nombre de la tabla referenciada
+       allowNull: false,
+       references: {
+         model: TABLE_NAME.CASOS, // Nombre de la tabla referenciada
          key: TABLE_FIELDS.UID_CASO // Columna de la tabla referenciada
+       },
+     },
+     id_estudiante: {
+       type: Sequelize.UUID,
+       allowNull: false,
+       references: {
+         model: TABLE_NAME.ESTUDIANTES,  // Nombre de la tabla a la que se refiere la FK
+         key: TABLE_FIELDS.UID_ESTUDIANTE,  // Llave primaria en la tabla Estudiantes
        },
      },
      fecha_avance: {
@@ -54,7 +63,7 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('avances');
+    await queryInterface.dropTable(TABLE_NAME.AVANCES);
 
   }
 };

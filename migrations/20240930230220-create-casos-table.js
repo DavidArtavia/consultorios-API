@@ -1,8 +1,10 @@
 'use strict';
 
+const { TABLE_NAME, TABLE_FIELDS } = require("../src/constants/constants");
+
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('casos', {
+    await queryInterface.createTable(TABLE_NAME.CASOS, {
       id_caso: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -13,19 +15,31 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'clientes',  // Nombre de la tabla referenciada
-          key: 'id_cliente',  // Columna de referencia
+          model: TABLE_NAME.CLIENTES,  // Nombre de la tabla referenciada
+          key: TABLE_FIELDS.UID_CLIENTE,  // Columna de referencia
         },
         onDelete: 'CASCADE',
+      },
+      id_subsidiario: {
+        type: Sequelize.UUID,
+        allowNull: true,
+        references: {
+          model: TABLE_NAME.SUBSIDIARIOS,  // Referencia a la tabla subsidarios
+          key: TABLE_FIELDS.UID_SUBSIDIARIO,  // Columna referenciada en subsidarios
+        },
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE',
       },
       id_contraparte: { // Clave foránea referenciando a contrapartes
         type: Sequelize.UUID,
         allowNull: true,
         references: {
-          model: 'contraparte',  // Nombre de la tabla referenciada
-          key: 'id_contraparte',  // Columna de referencia
+          model: TABLE_NAME.CONTRAPARTES,  // Nombre de la tabla referenciada
+          key: TABLE_FIELDS.UID_CONTRAPARTE,  // Columna de referencia
         },
         onDelete: 'SET NULL',
+        onUpdate: 'CASCADE',
+
       },
       expediente: {
         type: Sequelize.STRING(50),
@@ -78,6 +92,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('casos');
+    await queryInterface.dropTable(TABLE_NAME.CASOS);
   },
 };

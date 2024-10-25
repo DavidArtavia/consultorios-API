@@ -1,19 +1,19 @@
 'use strict';
 
-const { TABLE_FIELDS } = require('../src/constants/constants');
+const { TABLE_NAME, TABLE_FIELDS } = require('../src/constants/constants');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('estudiantes', {
+    await queryInterface.createTable(TABLE_NAME.ESTUDIANTES, {
       id_estudiante: {
         type: Sequelize.UUID,
         primaryKey: true,
         allowNull: false,
         references: {
-          model: 'persona',  // Nombre de la tabla a la que se hace referencia
-          key: 'id_persona',  // Nombre de la columna de referencia
-        },
+          model: TABLE_NAME.PERSONAS,  // Referencia a la tabla persona
+          key: TABLE_FIELDS.UID_PERSONA,  // Columna referenciada en persona
+        }, 
         onDelete: 'CASCADE',  // Elimina el subsidario si se elimina la persona
         onUpdate: 'CASCADE',
       },
@@ -33,11 +33,11 @@ module.exports = {
         defaultValue: Sequelize.fn('NOW')
       }
     });
-    
+
   },
 
-  async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('estudiantes');
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable(TABLE_NAME.ESTUDIANTES);
 
   }
 };

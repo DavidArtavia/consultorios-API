@@ -1,8 +1,8 @@
-const { Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Direccion, Usuario } = require('../models');
-const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL } = require("../constants/constants");
+const { Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Direccion, Usuario, sequelize, SolicitudConfirmacion, Profesor } = require('../../models');
+const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL, FIELDS, ACTION, STATES } = require("../constants/constants");
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
-const getFullName = require('../utils/helpers');
-const { validateUpdatesInputs } = require('./validations/validations');
+const { validateUpdatesInputs, validateInput, getFullName, validateIfExists, validateIfUserExists, validateIfUserIsTeacher } = require('../utils/helpers');
+
 
 exports.mostrarEstudiantes = async (req, res) => {
     try {
@@ -37,13 +37,12 @@ exports.mostrarEstudiantes = async (req, res) => {
             ]
         });
 
-        if (estudiantes.length === 0) {
-            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
-          
+        if (estudiantes.length == 0) {
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.STUDENT_NOT_FOUND'));
         }
 
         const estudiantesInfo = estudiantes.map(estudiante => ({
-            id: estudiante.id_estudiante,
+            id_estudiante: estudiante.id_estudiante,
             primer_nombre: estudiante.Persona.primer_nombre,
             segundo_nombre: estudiante.Persona.segundo_nombre,
             primer_apellido: estudiante.Persona.primer_apellido,
@@ -58,20 +57,19 @@ exports.mostrarEstudiantes = async (req, res) => {
             casosAsignados: estudiante.AsignacionDeCasos.length || 0
         }));
 
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: MESSAGE_SUCCESS.RECOVERED_STUDENTS,
+            message: req.t('success.RECOVERED_STUDENTS'),
             data: estudiantesInfo
         });
     } catch (error) {
-        console.error(MESSAGE_ERROR.RE, error);
 
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
-                message: MESSAGE_ERROR.RECOVERED_STUDENTS,
+                message: req.t('error.RECOVERED_STUDENTS'),
                 error: error.message,
                 stack: error.stack
             }
@@ -144,7 +142,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
         });
 
         if (!estudiante) {
-            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.STUDENT_NOT_FOUND'));
         }
 
         const estudianteInfo = {
@@ -157,13 +155,18 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                 ...asignacion.Caso.toJSON(),
             }))
         };
-        sendResponse({ res, statusCode: HttpStatus.OK, message: MESSAGE_SUCCESS.STUDENT_INFO, data: estudianteInfo });
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: req.t('success.STUDENT_INFO'),
+            data: estudianteInfo
+        });
     } catch (error) {
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
-                message: MESSAGE_ERROR.RETRIEVING,
+                message: req.t('error.RETRIEVING', { data: req.t('person.STUDENTS') }),
                 error: error.message,
                 stack: error.stack
             }
@@ -183,6 +186,7 @@ exports.actualizarEstudiante = async (req, res) => {
         carnet,
         direccion
     } = req.body;
+    const transaction = await sequelize.transaction(); // Inicia la transacción
 
     try {
         const estudiante = await Estudiante.findByPk(id_estudiante, {
@@ -190,27 +194,30 @@ exports.actualizarEstudiante = async (req, res) => {
         });
 
         if (!estudiante) {
-            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.STUDENT_NOT_FOUND'));
         }
+        validateInput(primer_nombre, FIELDS.TEXT, req);
+        segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT, req);
+        validateInput(primer_apellido, FIELDS.TEXT, req);
+        validateInput(segundo_apellido, FIELDS.TEXT, req);
+        validateInput(cedula, FIELDS.ID, req);
+        validateInput(telefono, FIELDS.PHONE_NUMBER, req);
+        validateInput(carnet, FIELDS.CARNET, req);
 
-        // Verificar si la cédula ha cambiado
-        const currentCedula = estudiante.Persona.cedula;
         await validateUpdatesInputs({
-            currentValue: currentCedula,
+            currentValue: estudiante.Persona.cedula,
             newValue: cedula,
             model: Persona,
             field: TABLE_FIELDS.CEDULA,
-            message: MESSAGE_ERROR.ID_ALREADY_USED
+            message: req.t('warning.CEDULA_ALREADY_USED')
         });
 
-        // Verificar si el carnet ha cambiado
-        const currentCarnet = estudiante.carnet;
         await validateUpdatesInputs({
-            currentValue: currentCarnet,
+            currentValue: estudiante.carnet,
             newValue: carnet,
             model: Estudiante,
             field: TABLE_FIELDS.CARNET,
-            message: MESSAGE_ERROR.CARNE_ALREADY_USED
+            message: req.t('warning.CARNET_ALREADY_USED')
         });
 
         await estudiante.Persona.update({
@@ -220,11 +227,11 @@ exports.actualizarEstudiante = async (req, res) => {
             segundo_apellido,
             cedula,
             telefono
-        });
+        }, { transaction });
 
         await estudiante.update({
             carnet
-        });
+        }, { transaction });
 
         if (direccion) {
             await Direccion.update({
@@ -233,9 +240,11 @@ exports.actualizarEstudiante = async (req, res) => {
                 distrito: direccion.distrito,
                 localidad: direccion.localidad,
                 provincia: direccion.provincia,
-            }, {
-                where: { id_persona: estudiante.Persona.id_persona }
-            });
+            },
+                {
+                    where: { id_persona: estudiante.Persona.id_persona }
+                },
+                { transaction });
         }
 
         const estudianteInfo = {
@@ -245,31 +254,50 @@ exports.actualizarEstudiante = async (req, res) => {
             } : {}
         };
 
-        sendResponse({
+        await transaction.commit();
+
+        return sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: MESSAGE_SUCCESS.STUDENT_UPDATED,
+            message: req.t('success.STUDENT_UPDATED'),
             data: { estudianteInfo }
         });
     } catch (error) {
-        sendResponse({
+        await transaction.rollback();
+
+        return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-            message: error?.message || MESSAGE_ERROR.UPDATE_STUDENT,
+            message: error?.message || req.t('error.UPDATE_STUDENT'),
             error: error.stack
         });
     }
 };
 
-exports.eliminarEstudiante = async (req, res) => {
+exports.solicitarEliminarEstudiante = async (req, res) => {
     const { id_estudiante } = req.body;
+    const personaId = req.session.user.personaId;
+    const userRole = req.session.user.userRole;
+    const transaction = await sequelize.transaction(); // Inicia la transacción
 
     try {
-        // Buscar el estudiante y la persona asociada
+
+        // Verificar que el profesor existe
+        validateIfUserIsTeacher(userRole, req);
+
+        // Buscar el estudiante
         const estudiante = await Estudiante.findByPk(id_estudiante, {
             include: [
                 {
                     model: Persona,
+                    attributes: [
+                        TABLE_FIELDS.PRIMER_NOMBRE,
+                        TABLE_FIELDS.SEGUNDO_NOMBRE,
+                        TABLE_FIELDS.PRIMER_APELLIDO,
+                        TABLE_FIELDS.SEGUNDO_APELLIDO,
+                        TABLE_FIELDS.CEDULA,
+                        TABLE_FIELDS.TELEFONO
+                    ],
                     include: [Direccion, Usuario]
                 },
                 {
@@ -277,33 +305,103 @@ exports.eliminarEstudiante = async (req, res) => {
                 }
             ]
         });
-        
 
-        if (!estudiante) {            
-            throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
+        if (!estudiante) {
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.STUDENT_NOT_FOUND'));
         }
-        // Buscar la persona asociada al estudiante
-        const persona = estudiante.Persona;
 
-        await persona.destroy();
+        // Verificar si ya existe una solicitud pendiente para eliminar este estudiante
+        const solicitudExistente = await SolicitudConfirmacion.findOne({
+            where: {
+                id_estudiante,
+                accion: ACTION.DELETE,
+                estado: STATES.PENDING
+            }
+        });
 
-        sendResponse({
+        if (solicitudExistente) {
+            throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.REQUEST_PENDING'));
+        }
+
+        // Crear una solicitud de confirmación
+        const solicitud = await SolicitudConfirmacion.create({
+            id_estudiante: id_estudiante,
+            accion: ACTION.DELETE,
+            detalles: req.t('request.DELETE_STUDENT',
+                {
+                    fullName: getFullName(estudiante.Persona),
+                    ID: estudiante.Persona.cedula
+                }
+            ),
+            estado: STATES.PENDING,
+            createdBy: personaId,
+        }, { transaction });
+
+        await transaction.commit();
+
+        return sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: MESSAGE_SUCCESS.STUDENT_DELETED,
-            data: { estudiante }
+            message: req.t('success.REQUEST_CREATED'),
+            data: solicitud
         });
     } catch (error) {
-        console.error(MESSAGE_ERROR.DELETE_STUDENT, error);
-        sendResponse({
+        await transaction.rollback();
+        return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
-                message: MESSAGE_ERROR.RECOVERED_PROFESORS,
+                message: req.t('error.RECOVERED_STUDENTS'),
                 error: error.message,
                 stack: error.stack
             }
         });
     }
 };
+
+// exports.eliminarEstudiante = async (req, res) => {
+//     const { id_estudiante } = req.body;
+
+//     try {
+//         // Buscar el estudiante y la persona asociada
+//         const estudiante = await Estudiante.findByPk(id_estudiante, {
+//             include: [
+//                 {
+//                     model: Persona,
+//                     include: [Direccion, Usuario]
+//                 },
+//                 {
+//                     model: AsignacionDeCaso
+//                 }
+//             ]
+//         });
+
+
+//         if (!estudiante) {
+//             throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
+//         }
+//         // Buscar la persona asociada al estudiante
+//         const persona = estudiante.Persona;
+
+//         await persona.destroy();
+
+//         return sendResponse({
+//             res,
+//             statusCode: HttpStatus.OK,
+//             message: MESSAGE_SUCCESS.STUDENT_DELETED,
+//             data: { estudiante }
+//         });
+//     } catch (error) {
+//         console.error(MESSAGE_ERROR.DELETE_STUDENT, error);
+//         return sendResponse({
+//             res,
+//             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+//             message: error?.message || {
+//                 message: MESSAGE_ERROR.RECOVERED_PROFESORS,
+//                 error: error.message,
+//                 stack: error.stack
+//             }
+//         });
+//     }
+// };
 

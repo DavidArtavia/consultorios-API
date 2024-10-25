@@ -1,6 +1,4 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const { TABLE_FIELDS } = require('../constants/constants');
+const { TABLE_FIELDS, TABLE_NAME } = require('../src/constants/constants');
 
 module.exports = (sequelize, DataTypes) => {
     const Avance = sequelize.define('Avance', {
@@ -11,6 +9,10 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
         },
         id_caso: {
+            type: DataTypes.UUID,
+            allowNull: false,
+        },
+        id_estudiante: { 
             type: DataTypes.UUID,
             allowNull: false,
         },
@@ -38,13 +40,16 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
         },
     }, {
-        tableName: 'avances'
+        tableName: TABLE_NAME.AVANCES,
     });
 
     // Definir asociaciones
     Avance.associate = models => {
         Avance.belongsTo(models.Caso, {
             foreignKey: TABLE_FIELDS.UID_CASO,
+        });
+        Avance.belongsTo(models.Estudiante, {
+            foreignKey: TABLE_FIELDS.UID_ESTUDIANTE,
         });
     };
 

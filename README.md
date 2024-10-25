@@ -1,47 +1,101 @@
 # Consultorios API
 
-## Descripción
-Esta API permite gestionar la información de consultorios juridicos, incluyendo la creación, actualización, eliminación y consulta de datos de consultorios.
+## Description
 
-## Estructura de la API
+This API allows managing the information of legal consultancies, including the creation, updating, deletion, and querying of consultancy data.
+
+## API Structure
 
 ### Endpoints
 
-#### Consultorios       ```
+1. The implemented API endpoints are available.
+   ```sh
+   https://gold-spaceship-124028.postman.co/workspace/David~634df219-77d1-47fc-9b34-42c00ade5c01/collection/19333935-2eff82c0-3fcc-4490-bd32-11cd07d33e5c?action=share&creator=19333935
+   ```
+2. It is recommended to use `Postman` to visualize the endpoints.
 
-## Instalación
+## Installation
 
-1. Clona el repositorio:
-     ```sh
-     git clone https://github.com/DavidArtavia/consultorios-API.git
-     ```
-2. Navega al directorio del proyecto:
-     ```sh
-     cd consultorios-API
-     ```
-3. Instala las dependencias:
-     ```sh
-     npm install
-     ```
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/DavidArtavia/consultorios-API.git
+   ```
+2. Navigate to the project directory:
+   ```sh
+   cd consultorios-API
+   ```
+3. Install the dependencies:
+   ```sh
+   npm install
+   ```
 
-## Uso
+## Development Configuration
 
-1. Inicia el servidor:
-     ```sh
-     npm run dev
-     ```
-2. Accede a la API en `http://localhost:3000`.
+You need to create a file named `.env` at the root of the project.
 
-## Recomendaciones
-
-1. Usa el `.en.example` para ver la definicion correcta de las credenciales de la base de datos
-
-2. se usa `postgreSQL` como gestor de base de datos
+Suggested content:
 
 
-## Contribuciones
+```sh
+DB_NAME=consultorios_db  
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_HOST=localhost
+DB_PORT=5432
+SECRET= abc
+# PROD | QA | DEV
+APP_ENV=DEV
+# ES | EN
+LANGUAGE_APP=ES
+```
 
+## Usage
 
+1. Start the server:
+   ```sh
+   npm run dev
+   ```
+2. Access the API at `http://localhost:3000`.
 
-## Licencia
+## Recommendations
 
+1. Use the `.en.example` to see the correct definition of the database credentials.
+
+2. `postgreSQL` is used as the database manager.
+
+## Migrations
+
+1. To generate a migration file with predefined `up` and `down` methods:
+
+   ```sh
+   npx sequelize-cli migration:generate --name add-example
+   ```
+
+2. To apply all pending migrations:
+
+   ```sh
+   npx sequelize-cli db:migrate
+   ```
+
+3. To undo all migrations:
+
+   ```sh
+   npx sequelize-cli db:migrate:undo
+   ```
+
+4. To apply a specific migration:
+
+   ```sh
+   npx sequelize-cli db:migrate --name 20240930230219-create-name-table.js
+   ```
+
+5. To undo a specific migration:
+   ```sh
+   npx sequelize-cli db:migrate:undo --name 20240930230219-create-name-table.js
+   ```
+
+## License
+
+```
+
+```

@@ -1,11 +1,11 @@
 'use strict';
 
-const { TABLE_FIELDS } = require('../src/constants/constants');
+const {TABLE_NAME, TABLE_FIELDS } = require('../src/constants/constants');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('asignaciondecasos', {
+    await queryInterface.createTable( TABLE_NAME.ASIGNACION_DE_CASOS, {
       id_asignacion: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -16,7 +16,7 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'casos', // Nombre de la tabla referenciada
+          model: TABLE_NAME.CASOS, // Nombre de la tabla referenciada
           key: TABLE_FIELDS.UID_CASO  // Columna de la tabla referenciada
         },
         onDelete: 'CASCADE'
@@ -25,7 +25,7 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'estudiantes', // Nombre de la tabla referenciada
+          model: TABLE_NAME.ESTUDIANTES, // Nombre de la tabla referenciada
           key: TABLE_FIELDS.UID_ESTUDIANTE // Columna de la tabla referenciada
         },
         onDelete: 'CASCADE'
@@ -44,7 +44,7 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('asignaciondecasos');
+    await queryInterface.dropTable(TABLE_NAME.ASIGNACION_DE_CASOS);
 
   }
 };

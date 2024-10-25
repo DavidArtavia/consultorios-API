@@ -1,7 +1,8 @@
 
-const { Usuario, Persona, Direccion, Estudiante, Profesor, Sequelize } = require('../models');
-const { HttpStatus, ROL, MESSAGE_ERROR, MESSAGE_SUCCESS } = require('../constants/constants');
+const { Usuario, Persona, Direccion, Estudiante, Profesor, Sequelize, sequelize } = require('../../models');
+const { HttpStatus, ROL, MESSAGE_ERROR, MESSAGE_SUCCESS, TABLE_FIELDS, FIELDS } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
+const { validateIfExists, validateExistingUser, validateRoleChange, validateInput } = require('../utils/helpers');
 
 
 // Register a new user
@@ -22,59 +23,47 @@ exports.register = async (req, res) => {
         carnet
     } = req.body;
 
+    const transaction = await sequelize.transaction();
+
     try {
 
+        const userRole = req.session.user.userRole;
+        
+        validateRoleChange(userRole, rol, req);
 
-        const userRole = req.session.userRole;
-        // Verificar que el usuario no tenga el mismo rol
-        if (userRole === rol) {
-            throw new CustomError(
-                HttpStatus.FORBIDDEN,
-                MESSAGE_ERROR.WHIOUT_PERMISSION
-            );
-        }
+        await validateExistingUser(username, email, req);
 
-        // Validar datos y verificar que el usuario o correo no existan
-        const existingUser = await Usuario.findOne({
-            where: {
-                [Sequelize.Op.or]: [{ email }, { username }]
-            }
-        });
-        const existingPerson = await Persona.findOne({
-            where: {
-                cedula
-            }
+        await validateIfExists({
+            model: Persona,
+            field: TABLE_FIELDS.CEDULA,
+            value: cedula,
+            errorMessage: req.t('warning.IS_ALREADY_REGISTERED', { cedula })
         });
 
-        const existingCarnet = await Estudiante.findOne({
-            where: {
-                carnet
-            }
-        });
+        await validateIfExists({
+            model: Estudiante,
+            field: TABLE_FIELDS.CARNET,
+            value: carnet,
+            errorMessage: req.t('warning.CARNET_ALREADY_REGISTERED', { carnet })
+        }, req);
 
+        validateInput(primer_nombre, FIELDS.TEXT, req);
+        segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT, req);
+        validateInput(primer_apellido, FIELDS.TEXT, req);
+        validateInput(segundo_apellido, FIELDS.TEXT, req);
+        validateInput(rol, FIELDS.TEXT, req);
+        validateInput(cedula, FIELDS.ID, req);
+        validateInput(telefono, FIELDS.PHONE_NUMBER, req);
+        validateInput(email, FIELDS.EMAIL, req);
 
-        // Verificar si ya existe el usuario
-        if (existingUser) {
-            if (existingUser.email === email) {
-                throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.EMAIL_ALREADY_USED);
-            }
-            if (existingUser.username === username) {
-                throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.USERNAME_ALREADY_USED);
-            }
-        }
+        if (rol == ROL.STUDENT) {
+            validateInput(carnet, FIELDS.CARNET, req);
 
-        // Verificar si ya existe la cédula registrada
-        if (existingPerson && existingPerson.cedula === cedula) {
-            throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.ID_ALREADY_USED);
-        }
-
-        // Verificar si ya existe el carnet registrado (solo para estudiantes)
-        if (existingCarnet && existingCarnet.carnet === carnet) {
-            throw new CustomError(HttpStatus.OK, MESSAGE_ERROR.CARNE_ALREADY_USED);
+        } else if (rol == ROL.PROFESSOR) {
+            validateInput(especialidad, FIELDS.TEXT, req);
         }
 
 
-        // // Crear un nuevo registro en la tabla Persona
         const persona = await Persona.create({
             primer_nombre,
             segundo_nombre,
@@ -82,7 +71,7 @@ exports.register = async (req, res) => {
             segundo_apellido,
             cedula,
             telefono,
-        });
+        }, { transaction });
 
         // Crear la dirección si se proporciona
         if (direccion) {
@@ -93,69 +82,71 @@ exports.register = async (req, res) => {
                 distrito: direccion.distrito,
                 localidad: direccion.localidad,
                 provincia: direccion.provincia,
-            });
+            }, { transaction });
         }
 
-        // Crear un nuevo usuario
         const usuario = await Usuario.create({
             id_persona: persona.id_persona,
             username,
             email,
             password_hash: password, // Se encripta en el hook beforeCreate
             rol
-        });
+        }, { transaction });
 
-        // Registrar en la tabla correspondiente según el rol
         if (rol === ROL.STUDENT) {
             try {
                 await Estudiante.create({
                     id_estudiante: persona.id_persona,
                     carnet: carnet
-                });
+                }, { transaction });
             } catch (error) {
-                console.error(MESSAGE_ERROR.CREATE_STUDENT, error); // Agregar log para ver si falla aquí
-                throw new CustomError(HttpStatus.INTERNAL_SERVER_ERROR, MESSAGE_ERROR.CREATE_STUDENT);
+                console.error(MESSAGE_ERROR.CREATE_STUDENT, error);
+                throw new CustomError(HttpStatus.INTERNAL_SERVER_ERROR, req.t('error.CREATE_STUDENT'));
             }
         } else if (rol === ROL.PROFESSOR) {
             try {
                 await Profesor.create({
                     id_profesor: persona.id_persona,
                     especialidad
-                });
+                }, { transaction });
             } catch (error) {
-                console.error(MESSAGE_ERROR.CREATE_PROFESSOR, error); // Agregar log para ver si falla aquí
-                throw new CustomError(HttpStatus.INTERNAL_SERVER_ERROR, MESSAGE_ERROR.CREATE_PROFESSOR);
+                console.error(MESSAGE_ERROR.CREATE_PROFESSOR, error);
+                throw new CustomError(HttpStatus.INTERNAL_SERVER_ERROR, req.t('error.CREATE_PROFESSOR'));
             }
         }
 
+        await transaction.commit();
 
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: HttpStatus.CREATED,
-            message: MESSAGE_SUCCESS.USER_REGISTERED,
+            message: req.t('success.USER_REGISTERED'),
             data: { user: usuario }
         });
 
     } catch (error) {
+
+        await transaction.rollback();
+
         if (error.name === 'SequelizeValidationError') {
             const validationErrors = error.errors.map(err => err.message);
 
-            sendResponse({
+            return sendResponse({
                 res,
                 statusCode: HttpStatus.BAD_REQUEST,
                 message: {
-                    'Validation error': validationErrors,
+                    "Validation error": validationErrors,
                     error: error.stack,
                 }
             });
-            return;
+           
         }
 
-        sendResponse({
+        return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
-                message: MESSAGE_ERROR.CREATE_USER,
+                message: req.t('error.CREATE_USER'),
                 error: error.message,
                 stack: error.stack
             }

@@ -1,9 +1,11 @@
 'use strict';
 
+const { TABLE_NAME, TABLE_FIELDS } = require('../src/constants/constants');
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('direcciones', {
+    await queryInterface.createTable(TABLE_NAME.DIRECCIONES, {
       id_direccion: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -14,8 +16,8 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: { // Aquí especificas la tabla y columna a la que hace referencia
-          model: 'persona', // Nombre de la tabla a la que haces referencia
-          key: 'id_persona', // Columna a la que estás referenciando
+          model: TABLE_NAME.PERSONAS,  // Referencia a la tabla persona
+          key: TABLE_FIELDS.UID_PERSONA,  // Columna referenciada en persona
         },
         onDelete: 'CASCADE', // Opción para eliminar en cascada si la fila en la tabla 'persona' es eliminada
         onUpdate: 'CASCADE', 
@@ -54,7 +56,7 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('direcciones');
+    await queryInterface.dropTable(TABLE_NAME.DIRECCIONES);
 
   }
 };

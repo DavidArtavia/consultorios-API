@@ -1,9 +1,4 @@
-// models/persona.js
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const { TABLE_FIELDS } = require('../constants/constants');
-
-
+const { TABLE_NAME, TABLE_FIELDS } = require("../src/constants/constants");
 module.exports = (sequelize, DataTypes) => {
     const Persona = sequelize.define('Persona', {
         id_persona: {
@@ -37,20 +32,20 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
         },
     }, {
-        tableName: 'persona'
+        tableName: TABLE_NAME.PERSONAS,
     });
 
     Persona.associate = (models) => {
         Persona.hasOne(models.Estudiante, {
-            foreignKey: 'id_estudiante',
+            foreignKey: TABLE_FIELDS.UID_ESTUDIANTE,
             onDelete: 'CASCADE',
         });
         Persona.hasOne(models.Usuario, {
-            foreignKey: 'id_persona',
+            foreignKey: TABLE_FIELDS.UID_PERSONA,
             onDelete: 'CASCADE',
         });
         Persona.hasOne(models.Direccion, {
-            foreignKey: 'id_persona',
+            foreignKey: TABLE_FIELDS.UID_PERSONA,
             onDelete: 'CASCADE',
         });
     };

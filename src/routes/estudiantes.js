@@ -1,9 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const estudianteController = require('../controllers/estudianteController');
 const verifySession = require('../middlewares/auth');
 const { verifyRole } = require('../middlewares/verifyRole');
 const { ROL } = require('../constants/constants');
+const {
+    mostrarInformacionEstudianteConCasos,
+    actualizarEstudiante,
+    mostrarEstudiantes,
+    solicitarEliminarEstudiante,
+} = require('../controllers/estudianteController');
 
 // Ruta para obtener la información del estudiante y sus casos
 router.post(
@@ -13,7 +18,7 @@ router.post(
         ROL.SUPERADMIN,
         ROL.PROFESSOR,
         ROL.STUDENT]),
-    estudianteController.mostrarInformacionEstudianteConCasos
+    mostrarInformacionEstudianteConCasos
 );
 
 router.put(
@@ -23,7 +28,7 @@ router.put(
         ROL.SUPERADMIN,
         ROL.PROFESSOR
     ]),
-    estudianteController.actualizarEstudiante
+    actualizarEstudiante
 );
 
 
@@ -34,18 +39,18 @@ router.get(
         ROL.SUPERADMIN,
         ROL.PROFESSOR
     ]),
-    estudianteController.mostrarEstudiantes
+    mostrarEstudiantes
 );
 
 
-router.delete(
-    '/eliminar',
+router.post(
+    '/solicitar/eliminar',
     verifySession,
     verifyRole([
         ROL.SUPERADMIN,
         ROL.PROFESSOR
     ]),
-    estudianteController.eliminarEstudiante
+    solicitarEliminarEstudiante
 );
 
 module.exports = router;

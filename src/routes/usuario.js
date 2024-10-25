@@ -1,10 +1,10 @@
 // routes/usuario.js
 const express = require('express');
 const router = express.Router();
-const usuarioController = require('../controllers/usuarioController');
 const verifySession = require('../middlewares/auth');
 const { ROL } = require('../constants/constants');
 const { verifyRole } = require('../middlewares/verifyRole');
+const {register} = require('../controllers/usuarioController');
 
 router.post(
     '/register',
@@ -13,6 +13,7 @@ router.post(
     ROL.SUPERADMIN,
     ROL.PROFESSOR
     ]),
-    usuarioController.register);
+    register
+);
 
 module.exports = router;

@@ -1,24 +1,17 @@
 'use strict';
+
+const { TABLE_NAME, TABLE_FIELDS } = require("../src/constants/constants");
+
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('clientes', {
+    await queryInterface.createTable(TABLE_NAME.CLIENTES, {
       id_cliente: {
         type: Sequelize.UUID, // Tipo UUID correcto
         allowNull: false,
         primaryKey: true, // Clave primaria
         references: {
-          model: 'persona',  // Referencia a la tabla persona
-          key: 'id_persona',  // Columna referenciada en persona
-        },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-      },
-      id_subsidiario: {
-        type: Sequelize.UUID,
-        allowNull: true,
-        references: {
-          model: 'subsidarios',  // Referencia a la tabla subsidarios
-          key: 'id_subsidiario',  // Columna referenciada en subsidarios
+          model: TABLE_NAME.PERSONAS,  // Referencia a la tabla persona
+          key: TABLE_FIELDS.UID_PERSONA,  // Columna referenciada en persona
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
@@ -34,17 +27,17 @@ module.exports = {
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('NOW')
+        defaultValue: Sequelize.fn('NOW'),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('NOW')
-      }
+        defaultValue: Sequelize.fn('NOW'),
+      },
     });
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('clientes');
+    await queryInterface.dropTable(TABLE_NAME.CLIENTES);
   },
 };

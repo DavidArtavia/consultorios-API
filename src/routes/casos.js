@@ -1,31 +1,43 @@
 // routes/casos.js
 const express = require('express');
 const router = express.Router();
-const casoController = require('../controllers/casoController');
 const verifySession = require('../middlewares/auth');
 const { verifyRole } = require('../middlewares/verifyRole');
 const { ROL } = require('../constants/constants');
+const {
+    asignarCasoAEstudiante,
+    mostrarCasosAsignados,
+    crearCaso,
+    mostrarCasosNoAsignados,    
+} = require('../controllers/casoController');
 
 // Ruta para crear un caso
 router.post(
     '/crear',
     verifySession,
     verifyRole([ROL.PROFESSOR, ROL.SUPERADMIN]),
-    casoController.crearCaso
+    crearCaso
 );
 
 router.post(
     '/asignar',
     verifySession,
     verifyRole([ROL.SUPERADMIN, ROL.PROFESSOR]),
-    casoController.asignarCasoAEstudiante
+    asignarCasoAEstudiante
 );
 
 router.get(
     '/noAsignados',
     verifySession,
     verifyRole([ROL.SUPERADMIN, ROL.PROFESSOR]),
-    casoController.mostrarCasosNoAsignados
+    mostrarCasosNoAsignados
+);
+
+router.get(
+    '/asignados',
+    verifySession,
+    verifyRole([ROL.SUPERADMIN, ROL.PROFESSOR]),
+    mostrarCasosAsignados
 );
 
 module.exports = router;

@@ -1,19 +1,12 @@
-// models/cliente.js
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const { TABLE_FIELDS } = require('../constants/constants');
+const { TABLE_FIELDS, TABLE_NAME } = require("../src/constants/constants");
 
+// models/cliente.js
 module.exports = (sequelize, DataTypes) => {
     const Cliente = sequelize.define('Cliente', {
         id_cliente: {
             type: DataTypes.UUID,
             primaryKey: true,
             allowNull: false,
-        },
-        id_subsidiario: {
-            type: DataTypes.UUID,
-            primaryKey: true,
-            allowNull: true,
         },
         sexo: {
             type: DataTypes.ENUM('M', 'F'),
@@ -25,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
             field: TABLE_FIELDS.INGRESO_ECONOMICO
         },
     }, {
-        tableName: 'clientes',
+        tableName: TABLE_NAME.CLIENTES,
     });
 
     // Definir asociaciones
@@ -34,11 +27,7 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: TABLE_FIELDS.UID_CLIENTE,
             onDelete: 'CASCADE',
         });
-        // Relación con Subsidiario (un cliente puede tener muchos subsidiarios)
-        Cliente.hasMany(models.Subsidiario, { // Nota el uso correcto del nombre del modelo con mayúscula
-            foreignKey: 'id_subsidiario', // Revisa que este campo exista en la tabla subsidiarios
-            onDelete: 'CASCADE',
-        });
+
     };
 
     return Cliente;

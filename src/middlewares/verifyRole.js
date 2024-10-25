@@ -4,7 +4,7 @@ const { sendResponse } = require("../handlers/responseHandler");
 // Middleware para verificar el rol del usuario
 exports.verifyRole = (roles) => {
     return (req, res, next) => {
-        const userRole = req.session.userRole;  // Obtener el rol del usuario desde la sesión
+        const userRole = req.session.user.userRole;  // Obtener el rol del usuario desde la sesión
         
         if (!userRole || !roles.includes(userRole)) {
 
