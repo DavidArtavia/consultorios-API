@@ -105,7 +105,9 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                                         TABLE_FIELDS.PRIMER_NOMBRE,
                                         TABLE_FIELDS.SEGUNDO_NOMBRE,
                                         TABLE_FIELDS.PRIMER_APELLIDO,
-                                        TABLE_FIELDS.SEGUNDO_APELLIDO
+                                        TABLE_FIELDS.SEGUNDO_APELLIDO,
+                                        TABLE_FIELDS.CEDULA,
+                                        TABLE_FIELDS.TELEFONO
                                     ]
                                 }
                             },
@@ -117,7 +119,9 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                                         TABLE_FIELDS.PRIMER_NOMBRE,
                                         TABLE_FIELDS.SEGUNDO_NOMBRE,
                                         TABLE_FIELDS.PRIMER_APELLIDO,
-                                        TABLE_FIELDS.SEGUNDO_APELLIDO
+                                        TABLE_FIELDS.SEGUNDO_APELLIDO,
+                                        TABLE_FIELDS.CEDULA,
+                                        TABLE_FIELDS.TELEFONO
                                     ]
                                 }
                             }
@@ -153,11 +157,13 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
             updatedAt: estudiante.updatedAt,
             casosAsignados: estudiante.AsignacionDeCasos.map(asignacion => {
                 const caso = asignacion.Caso.toJSON();
-
+                    
                 // Construir el objeto `Cliente` con el campo `nombreCompleto`
                 const cliente = caso.Cliente && {
                     id_cliente: caso.Cliente.id_cliente,
                     nombre_completo: getFullName(caso.Cliente.Persona),
+                    cedula: caso.Cliente.Persona.cedula,
+                    telefono: caso.Cliente.Persona.telefono,
                     sexo: caso.Cliente.sexo,
                     ingreso_economico: caso.Cliente.ingreso_economico,
                     createdAt: caso.Cliente.createdAt,
@@ -168,6 +174,8 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                 const contraparte = caso.Contraparte && {
                     id_contraparte: caso.Contraparte.id_contraparte,
                     nombre_completo: getFullName(caso.Contraparte.Persona),
+                    cedula: caso.Contraparte.Persona.cedula,
+                    telefono: caso.Contraparte.Persona.telefono,
                     sexo: caso.Contraparte.sexo,
                     detalles: caso.Contraparte.detalles,
                     createdAt: caso.Contraparte.createdAt,
