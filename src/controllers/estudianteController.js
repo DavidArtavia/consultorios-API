@@ -145,7 +145,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
 
         const estudianteInfo = {
             id: estudiante.id_estudiante,
-            nombreCompleto: getFullName(estudiante.Persona),
+            nombre_completo: getFullName(estudiante.Persona),
             carnet: estudiante.carnet,
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,
@@ -157,7 +157,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                 // Construir el objeto `Cliente` con el campo `nombreCompleto`
                 const cliente = caso.Cliente && {
                     id_cliente: caso.Cliente.id_cliente,
-                    nombreCompleto: getFullName(caso.Cliente.Persona),
+                    nombre_completo: getFullName(caso.Cliente.Persona),
                     sexo: caso.Cliente.sexo,
                     ingreso_economico: caso.Cliente.ingreso_economico,
                     createdAt: caso.Cliente.createdAt,
@@ -167,7 +167,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                 // Construir el objeto `Contraparte` con el campo `nombreCompleto`
                 const contraparte = caso.Contraparte && {
                     id_contraparte: caso.Contraparte.id_contraparte,
-                    nombreCompleto: getFullName(caso.Contraparte.Persona),
+                    nombre_completo: getFullName(caso.Contraparte.Persona),
                     sexo: caso.Contraparte.sexo,
                     detalles: caso.Contraparte.detalles,
                     createdAt: caso.Contraparte.createdAt,
