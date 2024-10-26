@@ -43,17 +43,15 @@ exports.mostrarEstudiantes = async (req, res) => {
 
         const estudiantesInfo = estudiantes.map(estudiante => ({
             id_estudiante: estudiante.id_estudiante,
-            primer_nombre: estudiante.Persona.primer_nombre,
-            segundo_nombre: estudiante.Persona.segundo_nombre,
-            primer_apellido: estudiante.Persona.primer_apellido,
-            segundo_apellido: estudiante.Persona.segundo_apellido,
             nombreCompleto: getFullName(estudiante.Persona),
             carnet: estudiante.carnet,
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,
-            direccion: estudiante.Persona.Direccion ? {
+            createdAt: estudiante.createdAt,
+            updatedAt: estudiante.updatedAt,
+            direccion: estudiante.Persona.Direccion && {
                 ...estudiante.Persona.Direccion.toJSON()
-            } : null,
+            },
             casosAsignados: estudiante.AsignacionDeCasos.length || 0
         }));
 
@@ -151,10 +149,40 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
             carnet: estudiante.carnet,
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,
-            casosAsignados: estudiante.AsignacionDeCasos.map(asignacion => ({
-                ...asignacion.Caso.toJSON(),
-            }))
+            createdAt: estudiante.createdAt,
+            updatedAt: estudiante.updatedAt,
+            casosAsignados: estudiante.AsignacionDeCasos.map(asignacion => {
+                const caso = asignacion.Caso.toJSON();
+
+                // Construir el objeto `Cliente` con el campo `nombreCompleto`
+                const cliente = caso.Cliente && {
+                    id_cliente: caso.Cliente.id_cliente,
+                    nombreCompleto: getFullName(caso.Cliente.Persona),
+                    sexo: caso.Cliente.sexo,
+                    ingreso_economico: caso.Cliente.ingreso_economico,
+                    createdAt: caso.Cliente.createdAt,
+                    updatedAt: caso.Cliente.updatedAt
+                };
+
+                // Construir el objeto `Contraparte` con el campo `nombreCompleto`
+                const contraparte = caso.Contraparte && {
+                    id_contraparte: caso.Contraparte.id_contraparte,
+                    nombreCompleto: getFullName(caso.Contraparte.Persona),
+                    sexo: caso.Contraparte.sexo,
+                    detalles: caso.Contraparte.detalles,
+                    createdAt: caso.Contraparte.createdAt,
+                    updatedAt: caso.Contraparte.updatedAt
+                };
+
+                // Retornar el caso con Cliente y Contraparte estructurados
+                return {
+                    ...caso,
+                    Cliente: cliente,
+                    Contraparte: contraparte
+                };
+            })
         };
+
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,

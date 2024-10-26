@@ -326,10 +326,6 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                 data: []
             });
         }
-        // Mapear los casos no asignados
-        // const resultado = casosNoAsignados.map(caso => ({
-        //     ...caso.get({ plain: true }),
-        // }));
 
         const resultado = casosNoAsignados.map(caso => {
 

@@ -12,11 +12,6 @@ const getFullName = (persona) => {
         segundo_apellido
     } = persona;
 
-    console.log('primer_nombre', primer_nombre);
-    console.log('segundo_nombre', segundo_nombre);
-    console.log('primer_apellido', primer_apellido);
-    console.log('segundo_apellido', segundo_apellido);    
-
     if (!primer_nombre || !primer_apellido || !segundo_apellido) return null;
 
     const fullName = [
