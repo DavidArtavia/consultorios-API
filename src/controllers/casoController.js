@@ -3,7 +3,7 @@ const { t } = require('i18next');
 const { HttpStatus, MESSAGE_SUCCESS, MESSAGE_ERROR, TABLE_FIELDS, FIELDS, STATES } = require('../constants/constants');
 const { CustomError, sendResponse } = require('../handlers/responseHandler');
 const { AsignacionDeCaso, Estudiante, Caso, Persona, Direccion, Contraparte, Cliente, Sequelize, Subsidiario, sequelize } = require('../../models');
-const { validateIfExists, validateInput, validateUniqueCedulas } = require('../utils/helpers');
+const { validateIfExists, validateInput, validateUniqueCedulas, getFullName } = require('../utils/helpers');
 const { Op } = require('sequelize');
 
 
@@ -327,9 +327,64 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
             });
         }
         // Mapear los casos no asignados
-        const resultado = casosNoAsignados.map(caso => ({
-            ...caso.get({ plain: true }),
-        }));
+        // const resultado = casosNoAsignados.map(caso => ({
+        //     ...caso.get({ plain: true }),
+        // }));
+
+        const resultado = casosNoAsignados.map(caso => {
+
+            const cliente = caso.Cliente && {
+                id_cliente: caso.Cliente.id_cliente,
+                nombre_completo: getFullName(caso.Cliente.Persona),
+                sexo: caso.Cliente.sexo,
+                ingreso_economico: caso.Cliente.ingreso_economico,
+                cedula: caso.Cliente.Persona.cedula,
+                telefono: caso.Cliente.Persona.telefono,
+                createdAt: caso.Cliente.Persona.createdAt,
+                updatedAt: caso.Cliente.Persona.updatedAt
+            };
+
+            const contraparte = caso.Contraparte && {
+                id_contraparte: caso.Contraparte.id_contraparte,
+                nombre_completo: getFullName(caso.Contraparte.Persona),
+                sexo: caso.Contraparte.sexo,
+                detalles: caso.Contraparte.detalles,
+                cedula: caso.Contraparte.Persona.cedula,
+                telefono: caso.Contraparte.Persona.telefono,
+                createdAt: caso.Contraparte.Persona.createdAt,
+                updatedAt: caso.Contraparte.Persona.updatedAt
+            };
+
+            const subsidiarios = caso.Subsidiarios.map(subsidiario => ({
+                id_subsidiario: subsidiario.id_subsidiario,
+                nombre_completo: getFullName(subsidiario.Persona),
+                sexo: subsidiario.sexo,
+                detalles: subsidiario.detalles,
+                cedula: subsidiario.Persona.cedula,
+                telefono: subsidiario.Persona.telefono,
+                createdAt: subsidiario.Persona.createdAt,
+                updatedAt: subsidiario.Persona.updatedAt
+            }));
+
+            return {
+                id_caso: caso.id_caso,
+                expediente: caso.expediente,
+                ley_7600: caso.ley_7600,
+                tipo_proceso: caso.tipo_proceso,
+                cuantia_proceso: caso.cuantia_proceso,
+                aporte_comunidad: caso.aporte_comunidad,
+                sintesis_hechos: caso.sintesis_hechos,
+                etapa_proceso: caso.etapa_proceso,
+                evidencia: caso.evidencia,
+                estado: caso.estado,
+                createdAt: caso.createdAt,
+                updatedAt: caso.updatedAt,
+                Cliente: cliente,
+                Contraparte: contraparte,
+                Subsidiarios: subsidiarios,
+                Asignaciones: caso.Asignaciones
+            };
+        });
 
         // Retornar la respuesta con los casos no asignados
         return sendResponse({
@@ -390,16 +445,81 @@ exports.mostrarCasosAsignados = async (req, res) => {
                 data: []
             });
         }
-        // Mapear los casos no asignados
-        const resultado = casosAsignados.map(caso => ({
-            ...caso.get({ plain: true }),
-        }));
+        // Mapear los casos asignados
+        const resultado = casosAsignados.map(caso => {
+            // Construir Cliente, Contraparte y Subsidiario con nombre_completo
+            const cliente = caso.Cliente && {
+                id_cliente: caso.Cliente.id_cliente,
+                nombre_completo: getFullName(caso.Cliente.Persona),
+                cedula: caso.Cliente.Persona.cedula,
+                sexo: caso.Cliente.sexo,
+                ingreso_economico: caso.Cliente.ingreso_economico,
+                telefono: caso.Cliente.Persona.telefono,
+                createdAt: caso.Cliente.Persona.createdAt,
+                updatedAt: caso.Cliente.Persona.updatedAt
+            };
+
+            const contraparte = caso.Contraparte && {
+                id_contraparte: caso.Contraparte.id_contraparte,
+                nombre_completo: getFullName(caso.Contraparte.Persona),
+                cedula: caso.Contraparte.Persona.cedula,
+                sexo: caso.Contraparte.sexo,
+                detalles: caso.Contraparte.detalles,
+                telefono: caso.Contraparte.Persona.telefono,
+                createdAt: caso.Contraparte.Persona.createdAt,
+                updatedAt: caso.Contraparte.Persona.updatedAt
+            };
+
+            const subsidiario = caso.Subsidiario && {
+                id_subsidiario: caso.Subsidiario.id_subsidiario,
+                nombre_completo: getFullName(caso.Subsidiario.Persona),
+                cedula: caso.Subsidiario.Persona.cedula,
+                sexo: caso.Subsidiario.sexo,
+                detalles: caso.Subsidiario.detalles,
+                telefono: caso.Subsidiario.Persona.telefono,
+                createdAt: caso.Subsidiario.Persona.createdAt,
+                updatedAt: caso.Subsidiario.Persona.updatedAt
+            };
+
+            // Construir asignaciones con estudiante y nombre_completo
+            const asignaciones = caso.Asignaciones.map(asignacion => ({
+                id_asignacion: asignacion.id_asignacion,
+                Estudiante: asignacion.Estudiante && {
+                    id_estudiante: asignacion.Estudiante.id_estudiante,
+                    nombre_completo: getFullName(asignacion.Estudiante.Persona),
+                    carnet: asignacion.Estudiante.carnet,
+                    cedula: asignacion.Estudiante.Persona.cedula,
+                    telefono: asignacion.Estudiante.Persona.telefono,
+                    createdAt: asignacion.Estudiante.Persona.createdAt,
+                    updatedAt: asignacion.Estudiante.Persona.updatedAt
+                }
+            }));
+
+            // Estructura del caso
+            return {
+                id_caso: caso.id_caso,
+                expediente: caso.expediente,
+                ley_7600: caso.ley_7600,
+                tipo_proceso: caso.tipo_proceso,
+                cuantia_proceso: caso.cuantia_proceso,
+                aporte_comunidad: caso.aporte_comunidad,
+                sintesis_hechos: caso.sintesis_hechos,
+                etapa_proceso: caso.etapa_proceso,
+                evidencia: caso.evidencia,
+                estado: caso.estado,
+                Asignacion: asignaciones,
+                Cliente: cliente,
+                Contraparte: contraparte,
+                Subsidiario: subsidiario,
+                createdAt: caso.createdAt,
+                updatedAt: caso.updatedAt
+            };
+        });
 
         // Retornar la respuesta con los casos no asignados
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            // message: MESSAGE_SUCCESS.ASSIGNED_CASES,
             message: req.t('success.ASSIGNED_CASES'),
             data: resultado
         });
