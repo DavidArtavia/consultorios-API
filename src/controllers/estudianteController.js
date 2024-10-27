@@ -43,7 +43,11 @@ exports.mostrarEstudiantes = async (req, res) => {
 
         const estudiantesInfo = estudiantes.map(estudiante => ({
             id_estudiante: estudiante.id_estudiante,
-            nombreCompleto: getFullName(estudiante.Persona),
+            nombre_completo: getFullName(estudiante.Persona),
+            primer_nombre: estudiante.Persona.primer_nombre,
+            segundo_nombre: estudiante.Persona.segundo_nombre || '',
+            primer_apellido: estudiante.Persona.primer_apellido,
+            segundo_apellido: estudiante.Persona.segundo_apellido,
             carnet: estudiante.carnet,
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,
