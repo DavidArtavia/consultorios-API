@@ -96,7 +96,7 @@ exports.crearCaso = async (req, res) => {
             value: contraparte.cedula,
             errorMessage: req.t(
                 'warning.PERSON_ALREADY_REGISTERED',
-                { person: req.t('person.COUNTERPART')},
+                { person: req.t('person.COUNTERPART') },
                 { data: contraparte.cedula }
             )
         });
@@ -290,7 +290,20 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                     include: [
                         {
                             model: Persona,
-                            attributes: { exclude: [TABLE_FIELDS.UID_PERSONA] }
+                            attributes: { exclude: [TABLE_FIELDS.UID_PERSONA] },
+                            include: [{
+                                model: Direccion,
+                                attributes: [
+                                    TABLE_FIELDS.DIRECCION_EXACTA,
+                                    TABLE_FIELDS.CANTON,
+                                    TABLE_FIELDS.DISTRITO,
+                                    TABLE_FIELDS.LOCALIDAD,
+                                    TABLE_FIELDS.PROVINCIA,
+                                    TABLE_FIELDS.CREATED_AT,
+                                    TABLE_FIELDS.UPDATED_AT
+                                ]
+                            }]
+
                         }
                     ]
                 },
@@ -299,7 +312,19 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                     include: [
                         {
                             model: Persona,
-                            attributes: { exclude: [TABLE_FIELDS.UID_PERSONA] }
+                            attributes: { exclude: [TABLE_FIELDS.UID_PERSONA] },
+                            include: [{
+                                model: Direccion,
+                                attributes: [
+                                    TABLE_FIELDS.DIRECCION_EXACTA,
+                                    TABLE_FIELDS.CANTON,
+                                    TABLE_FIELDS.DISTRITO,
+                                    TABLE_FIELDS.LOCALIDAD,
+                                    TABLE_FIELDS.PROVINCIA,
+                                    TABLE_FIELDS.CREATED_AT,
+                                    TABLE_FIELDS.UPDATED_AT
+                                ]
+                            }]
                         }
                     ]
                 },
@@ -308,7 +333,19 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                     include: [
                         {
                             model: Persona,
-                            attributes: { exclude: [TABLE_FIELDS.UID_PERSONA] }
+                            attributes: { exclude: [TABLE_FIELDS.UID_PERSONA] },
+                            include: [{
+                                model: Direccion,
+                                attributes: [
+                                    TABLE_FIELDS.DIRECCION_EXACTA,
+                                    TABLE_FIELDS.CANTON,
+                                    TABLE_FIELDS.DISTRITO,
+                                    TABLE_FIELDS.LOCALIDAD,
+                                    TABLE_FIELDS.PROVINCIA,
+                                    TABLE_FIELDS.CREATED_AT,
+                                    TABLE_FIELDS.UPDATED_AT
+                                ]
+                            }]
                         }
                     ]
                 }
@@ -326,10 +363,6 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                 data: []
             });
         }
-        // Mapear los casos no asignados
-        // const resultado = casosNoAsignados.map(caso => ({
-        //     ...caso.get({ plain: true }),
-        // }));
 
         const resultado = casosNoAsignados.map(caso => {
 
@@ -341,7 +374,13 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                 cedula: caso.Cliente.Persona.cedula,
                 telefono: caso.Cliente.Persona.telefono,
                 createdAt: caso.Cliente.Persona.createdAt,
-                updatedAt: caso.Cliente.Persona.updatedAt
+                updatedAt: caso.Cliente.Persona.updatedAt,
+                dirreccion_exacta: caso.Cliente.Persona.Direccion.direccion_exacta,
+                canton: caso.Cliente.Persona.Direccion.canton,
+                distrito: caso.Cliente.Persona.Direccion.distrito,
+                localidad: caso.Cliente.Persona.Direccion.localidad,
+                provincia: caso.Cliente.Persona.Direccion.provincia
+
             };
 
             const contraparte = caso.Contraparte && {
@@ -352,7 +391,13 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                 cedula: caso.Contraparte.Persona.cedula,
                 telefono: caso.Contraparte.Persona.telefono,
                 createdAt: caso.Contraparte.Persona.createdAt,
-                updatedAt: caso.Contraparte.Persona.updatedAt
+                updatedAt: caso.Contraparte.Persona.updatedAt,
+                dirreccion_exacta: caso.Contraparte.Persona.Direccion.direccion_exacta,
+                canton: caso.Contraparte.Persona.Direccion.canton,
+                distrito: caso.Contraparte.Persona.Direccion.distrito,
+                localidad: caso.Contraparte.Persona.Direccion.localidad,
+                provincia: caso.Contraparte.Persona.Direccion.provincia
+
             };
 
             const subsidiarios = caso.Subsidiarios.map(subsidiario => ({
@@ -363,7 +408,13 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                 cedula: subsidiario.Persona.cedula,
                 telefono: subsidiario.Persona.telefono,
                 createdAt: subsidiario.Persona.createdAt,
-                updatedAt: subsidiario.Persona.updatedAt
+                updatedAt: subsidiario.Persona.updatedAt,
+                dirreccion_exacta: subsidiario.Persona.Direccion.direccion_exacta,
+                canton: subsidiario.Persona.Direccion.canton,
+                distrito: subsidiario.Persona.Direccion.distrito,
+                localidad: subsidiario.Persona.Direccion.localidad,
+                provincia: subsidiario.Persona.Direccion.provincia
+
             }));
 
             return {
@@ -422,17 +473,59 @@ exports.mostrarCasosAsignados = async (req, res) => {
                     include: [
                         {
                             model: Estudiante,
-                            include: [{ model: Persona }]
+                            include: [{
+                                model: Persona,
+                                include: [{
+                                    model: Direccion,
+                                    attributes: [
+                                        TABLE_FIELDS.DIRECCION_EXACTA,
+                                        TABLE_FIELDS.CANTON,
+                                        TABLE_FIELDS.DISTRITO,
+                                        TABLE_FIELDS.LOCALIDAD,
+                                        TABLE_FIELDS.PROVINCIA,
+                                        TABLE_FIELDS.CREATED_AT,
+                                        TABLE_FIELDS.UPDATED_AT
+                                    ]
+                                }]
+                            }]
                         }
                     ]
                 },
                 {
                     model: Cliente,
-                    include: [{ model: Persona }]
+                    include: [{
+                        model: Persona,
+                        include: [{
+                            model: Direccion,
+                            attributes: [
+                                TABLE_FIELDS.DIRECCION_EXACTA,
+                                TABLE_FIELDS.CANTON,
+                                TABLE_FIELDS.DISTRITO,
+                                TABLE_FIELDS.LOCALIDAD,
+                                TABLE_FIELDS.PROVINCIA,
+                                TABLE_FIELDS.CREATED_AT,
+                                TABLE_FIELDS.UPDATED_AT
+                            ]
+                        }]
+                    }]
                 },
                 {
                     model: Contraparte,
-                    include: [{ model: Persona }]
+                    include: [{
+                        model: Persona,
+                        include: [{
+                            model: Direccion,
+                            attributes: [
+                                TABLE_FIELDS.DIRECCION_EXACTA,
+                                TABLE_FIELDS.CANTON,
+                                TABLE_FIELDS.DISTRITO,
+                                TABLE_FIELDS.LOCALIDAD,
+                                TABLE_FIELDS.PROVINCIA,
+                                TABLE_FIELDS.CREATED_AT,
+                                TABLE_FIELDS.UPDATED_AT
+                            ]
+                        }]
+                    }]
                 }
             ]
         });
@@ -456,7 +549,13 @@ exports.mostrarCasosAsignados = async (req, res) => {
                 ingreso_economico: caso.Cliente.ingreso_economico,
                 telefono: caso.Cliente.Persona.telefono,
                 createdAt: caso.Cliente.Persona.createdAt,
-                updatedAt: caso.Cliente.Persona.updatedAt
+                updatedAt: caso.Cliente.Persona.updatedAt,
+                direccion_exacta: caso.Cliente.Persona.Direccion.direccion_exacta,
+                canton: caso.Cliente.Persona.Direccion.canton,
+                distrito: caso.Cliente.Persona.Direccion.distrito,
+                localidad: caso.Cliente.Persona.Direccion.localidad,
+                provincia: caso.Cliente.Persona.Direccion.provincia
+
             };
 
             const contraparte = caso.Contraparte && {
@@ -467,7 +566,12 @@ exports.mostrarCasosAsignados = async (req, res) => {
                 detalles: caso.Contraparte.detalles,
                 telefono: caso.Contraparte.Persona.telefono,
                 createdAt: caso.Contraparte.Persona.createdAt,
-                updatedAt: caso.Contraparte.Persona.updatedAt
+                updatedAt: caso.Contraparte.Persona.updatedAt,
+                direccion_exacta: caso.Contraparte.Persona.Direccion.direccion_exacta,
+                canton: caso.Contraparte.Persona.Direccion.canton,
+                distrito: caso.Contraparte.Persona.Direccion.distrito,
+                localidad: caso.Contraparte.Persona.Direccion.localidad,
+                provincia: caso.Contraparte.Persona.Direccion.provincia
             };
 
             const subsidiario = caso.Subsidiario && {
@@ -478,7 +582,13 @@ exports.mostrarCasosAsignados = async (req, res) => {
                 detalles: caso.Subsidiario.detalles,
                 telefono: caso.Subsidiario.Persona.telefono,
                 createdAt: caso.Subsidiario.Persona.createdAt,
-                updatedAt: caso.Subsidiario.Persona.updatedAt
+                updatedAt: caso.Subsidiario.Persona.updatedAt,
+                direccion_exacta: caso.Subsidiario.Persona.Direccion.direccion_exacta,
+                canton: caso.Subsidiario.Persona.Direccion.canton,
+                distrito: caso.Subsidiario.Persona.Direccion.distrito,
+                localidad: caso.Subsidiario.Persona.Direccion.localidad,
+                provincia: caso.Subsidiario.Persona.Direccion.provincia
+
             };
 
             // Construir asignaciones con estudiante y nombre_completo

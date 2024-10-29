@@ -26,7 +26,9 @@ exports.mostrarEstudiantes = async (req, res) => {
                                 TABLE_FIELDS.CANTON,
                                 TABLE_FIELDS.DISTRITO,
                                 TABLE_FIELDS.LOCALIDAD,
-                                TABLE_FIELDS.PROVINCIA
+                                TABLE_FIELDS.PROVINCIA,
+                                TABLE_FIELDS.CREATED_AT,
+                                TABLE_FIELDS.UPDATED_AT
                             ]
                         }
                     ]
