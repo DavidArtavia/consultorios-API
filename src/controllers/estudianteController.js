@@ -45,17 +45,19 @@ exports.mostrarEstudiantes = async (req, res) => {
 
         const estudiantesInfo = estudiantes.map(estudiante => ({
             id_estudiante: estudiante.id_estudiante,
+            nombre_completo: getFullName(estudiante.Persona),
             primer_nombre: estudiante.Persona.primer_nombre,
-            segundo_nombre: estudiante.Persona.segundo_nombre,
+            segundo_nombre: estudiante.Persona.segundo_nombre || '',
             primer_apellido: estudiante.Persona.primer_apellido,
             segundo_apellido: estudiante.Persona.segundo_apellido,
-            nombreCompleto: getFullName(estudiante.Persona),
             carnet: estudiante.carnet,
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,
-            direccion: estudiante.Persona.Direccion ? {
+            createdAt: estudiante.createdAt,
+            updatedAt: estudiante.updatedAt,
+            direccion: estudiante.Persona.Direccion && {
                 ...estudiante.Persona.Direccion.toJSON()
-            } : null,
+            },
             casosAsignados: estudiante.AsignacionDeCasos.length || 0
         }));
 
@@ -109,7 +111,9 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                                         TABLE_FIELDS.PRIMER_NOMBRE,
                                         TABLE_FIELDS.SEGUNDO_NOMBRE,
                                         TABLE_FIELDS.PRIMER_APELLIDO,
-                                        TABLE_FIELDS.SEGUNDO_APELLIDO
+                                        TABLE_FIELDS.SEGUNDO_APELLIDO,
+                                        TABLE_FIELDS.CEDULA,
+                                        TABLE_FIELDS.TELEFONO
                                     ]
                                 }
                             },
@@ -121,7 +125,9 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                                         TABLE_FIELDS.PRIMER_NOMBRE,
                                         TABLE_FIELDS.SEGUNDO_NOMBRE,
                                         TABLE_FIELDS.PRIMER_APELLIDO,
-                                        TABLE_FIELDS.SEGUNDO_APELLIDO
+                                        TABLE_FIELDS.SEGUNDO_APELLIDO,
+                                        TABLE_FIELDS.CEDULA,
+                                        TABLE_FIELDS.TELEFONO
                                     ]
                                 }
                             }
@@ -149,14 +155,48 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
 
         const estudianteInfo = {
             id: estudiante.id_estudiante,
-            nombreCompleto: getFullName(estudiante.Persona),
+            nombre_completo: getFullName(estudiante.Persona),
             carnet: estudiante.carnet,
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,
-            casosAsignados: estudiante.AsignacionDeCasos.map(asignacion => ({
-                ...asignacion.Caso.toJSON(),
-            }))
+            createdAt: estudiante.createdAt,
+            updatedAt: estudiante.updatedAt,
+            casosAsignados: estudiante.AsignacionDeCasos.map(asignacion => {
+                const caso = asignacion.Caso.toJSON();
+                    
+                // Construir el objeto `Cliente` con el campo `nombreCompleto`
+                const cliente = caso.Cliente && {
+                    id_cliente: caso.Cliente.id_cliente,
+                    nombre_completo: getFullName(caso.Cliente.Persona),
+                    cedula: caso.Cliente.Persona.cedula,
+                    telefono: caso.Cliente.Persona.telefono,
+                    sexo: caso.Cliente.sexo,
+                    ingreso_economico: caso.Cliente.ingreso_economico,
+                    createdAt: caso.Cliente.createdAt,
+                    updatedAt: caso.Cliente.updatedAt
+                };
+
+                // Construir el objeto `Contraparte` con el campo `nombreCompleto`
+                const contraparte = caso.Contraparte && {
+                    id_contraparte: caso.Contraparte.id_contraparte,
+                    nombre_completo: getFullName(caso.Contraparte.Persona),
+                    cedula: caso.Contraparte.Persona.cedula,
+                    telefono: caso.Contraparte.Persona.telefono,
+                    sexo: caso.Contraparte.sexo,
+                    detalles: caso.Contraparte.detalles,
+                    createdAt: caso.Contraparte.createdAt,
+                    updatedAt: caso.Contraparte.updatedAt
+                };
+
+                // Retornar el caso con Cliente y Contraparte estructurados
+                return {
+                    ...caso,
+                    Cliente: cliente,
+                    Contraparte: contraparte
+                };
+            })
         };
+
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,

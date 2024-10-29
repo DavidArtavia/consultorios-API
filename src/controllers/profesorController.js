@@ -22,11 +22,14 @@ exports.mostrarProfesor = async (req, res) => {
                         {
                             model: Direccion,
                             attributes: [
+                                TABLE_FIELDS.UID_DIRECCION,
                                 TABLE_FIELDS.DIRECCION_EXACTA,
                                 TABLE_FIELDS.CANTON,
                                 TABLE_FIELDS.DISTRITO,
                                 TABLE_FIELDS.LOCALIDAD,
-                                TABLE_FIELDS.PROVINCIA
+                                TABLE_FIELDS.PROVINCIA,
+                                TABLE_FIELDS.CREATED_AT,
+                                TABLE_FIELDS.UPDATED_AT
                             ]
                         }
                     ]
@@ -40,19 +43,17 @@ exports.mostrarProfesor = async (req, res) => {
         }
 
         const profesoresInfo = profesor.map(profesor => ({
-            id: profesor.id_profesor,
-            primer_nombre: profesor.Persona.primer_nombre,
-            segundo_nombre: profesor.Persona.segundo_nombre,
-            primer_apellido: profesor.Persona.primer_apellido,
-            segundo_apellido: profesor.Persona.segundo_apellido,
-            nombreCompleto: getFullName(profesor.Persona),
+            id_profesor: profesor.id_profesor,
+            nombre_completo: getFullName(profesor.Persona),
             especialidad: profesor.especialidad,
             fecha_inscripcion: profesor.fecha_inscripcion,
             cedula: profesor.Persona.cedula,
             telefono: profesor.Persona.telefono,
-            direccion: profesor.Persona.Direccion ? {
+            createAt: profesor.createdAt,
+            updateAt: profesor.updatedAt,
+            direccion: profesor.Persona.Direccion && {
                 ...profesor.Persona.Direccion.toJSON()
-            } : null,
+            },
         }));
 
         return sendResponse({

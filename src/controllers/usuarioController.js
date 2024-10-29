@@ -14,13 +14,13 @@ exports.register = async (req, res) => {
         segundo_apellido,
         cedula,
         telefono,
-        direccion,
         username,
         email,
         password,
         rol,
         especialidad,
-        carnet
+        carnet,
+        direccion
     } = req.body;
 
     const transaction = await sequelize.transaction();

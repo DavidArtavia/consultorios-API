@@ -617,7 +617,7 @@ exports.mostrarCasosAsignados = async (req, res) => {
                 etapa_proceso: caso.etapa_proceso,
                 evidencia: caso.evidencia,
                 estado: caso.estado,
-                Asignacion: asignaciones,
+                Asignaciones: asignaciones,
                 Cliente: cliente,
                 Contraparte: contraparte,
                 Subsidiario: subsidiario,
