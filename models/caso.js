@@ -85,7 +85,7 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: TABLE_FIELDS.UID_CONTRAPARTE,
         });
         // Relación con Subsidiario (un cliente puede tener muchos subsidiarios)
-        Caso.hasMany(models.Subsidiario, { // Nota el uso correcto del nombre del modelo con mayúscula
+        Caso.belongsTo(models.Subsidiario, { // Nota el uso correcto del nombre del modelo con mayúscula
             foreignKey: TABLE_FIELDS.UID_SUBSIDIARIO, // Revisa que este campo exista en la tabla subsidiarios
         });
         Caso.hasMany(models.AsignacionDeCaso, {

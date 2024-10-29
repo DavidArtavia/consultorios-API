@@ -82,20 +82,20 @@
         "PERSON_ALREADY_REGISTERED": "{{person}} with ID {{data}} is already registered.",
         "IS_ALREADY_REGISTERED": "A person is already registered with the ID: {{data}}.",
         "CARNET_ALREADY_REGISTERED": "A student is already registered with the student ID: {{data}}.",
-        "RECORD_ALREADY_EXISTS": "The record with {{field}} {{value}} already exists.",
+        "RECORD_ALREADY_EXISTS": "The record with {{field}} {{data}} already exists.",
         "NO_CONFIRMATION_REQUESTS_FOUND": "No confirmation requests found."
     },
     "validation": {
-        "INVALID_TEXT_FORMAT": " --> {{value}} <-- Invalid text format. Only letters are allowed.",
-        "INVALID_TEXTBOX_FORMAT": "--> {{value}} <-- Invalid textbox format. Only text with spaces is allowed.",
-        "INVALID_ID_FORMAT": "--> {{value}} <-- Invalid ID format.",
-        "INVALID_EMAIL_FORMAT": "--> {{value}} <-- Invalid email format.",
-        "INVALID_PASSWORD_FORMAT": "--> {{value}} <-- Invalid password format. Password must be at least 8 characters long, contain one uppercase letter, one lowercase letter, one number, and one special character.",
-        "INVALID_NUMERIC_FORMAT": "--> {{value}} <-- Invalid numeric value.",
-        "INVALID_EXPEDIENTE_FORMAT": "--> {{value}} <-- Invalid expediente number format.",
-        "INVALID_PHONE_NUMBER_FORMAT": "--> {{value}} <-- Invalid phone number format. The number must be 8 digits and start with 2, 5, 6, 7, or 8.",
-        "INVALID_CARNET_FORMAT": "--> {{value}} <-- Invalid carnet format.",
-        "INVALID_INPUT": "--> {{value}} <-- Invalid input."
+        "INVALID_TEXT_FORMAT": " --> {{data}} <-- Invalid text format. Only letters are allowed.",
+        "INVALID_TEXTBOX_FORMAT": "--> {{data}} <-- Invalid textbox format. Only text with spaces is allowed.",
+        "INVALID_ID_FORMAT": "--> {{data}} <-- Invalid ID format.",
+        "INVALID_EMAIL_FORMAT": "--> {{data}} <-- Invalid email format.",
+        "INVALID_PASSWORD_FORMAT": "--> {{data}} <-- Invalid password format. Password must be at least 8 characters long, contain one uppercase letter, one lowercase letter, one number, and one special character.",
+        "INVALID_NUMERIC_FORMAT": "--> {{data}} <-- Invalid numeric value.",
+        "INVALID_EXPEDIENTE_FORMAT": "--> {{data}} <-- Invalid expediente number format.",
+        "INVALID_PHONE_NUMBER_FORMAT": "--> {{data}} <-- Invalid phone number format. The number must be 8 digits and start with 2, 5, 6, 7, or 8.",
+        "INVALID_CARNET_FORMAT": "--> {{data}} <-- Invalid carnet format.",
+        "INVALID_INPUT": "--> {{data}} <-- Invalid input."
     },
     "person": {
         "STUDENT": "Student",

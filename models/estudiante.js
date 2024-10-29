@@ -14,7 +14,6 @@ module.exports = (sequelize, DataTypes) => {
         },
     }, {
         tableName: TABLE_NAME.ESTUDIANTES,
-        timestamps: false,
     });
 
     // Definir asociaciones

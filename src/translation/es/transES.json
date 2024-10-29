@@ -82,20 +82,20 @@
         "PERSON_ALREADY_REGISTERED": "{{person}} con ID {{data}} ya está registrado.",
         "IS_ALREADY_REGISTERED": "Ya existe una persona registrado con la cédula: {{data}} .",
         "CARNET_ALREADY_REGISTERED": "Ya existe un estudiante registrado con el carnet: {{data}} .",
-        "RECORD_ALREADY_EXISTS": "El registro con {{field}} {{value}} ya existe.",
+        "RECORD_ALREADY_EXISTS": "El registro con {{field}} {{data}} ya existe.",
         "NO_CONFIRMATION_REQUESTS_FOUND": "No se encontraron solicitudes de confirmación."
     },
     "validation": {
-        "INVALID_TEXT_FORMAT": " --> {{value}} <-- Formato de texto inválido. Solo se permiten letras.",
-        "INVALID_TEXTBOX_FORMAT": "--> {{value}} <-- Formato de caja de texto inválido. Solo se permite texto con espacios.",
-        "INVALID_ID_FORMAT": "--> {{value}} <-- Formato de ID inválido.",
-        "INVALID_EMAIL_FORMAT": "--> {{value}} <-- Formato de correo electrónico inválido.",
-        "INVALID_PASSWORD_FORMAT": "--> {{value}} <-- Formato de contraseña inválido. La contraseña debe tener al menos 8 caracteres, contener una letra mayúscula, una letra minúscula, un número y un carácter especial.",
-        "INVALID_NUMERIC_FORMAT": "--> {{value}} <-- Valor numérico inválido.",
-        "INVALID_EXPEDIENTE_FORMAT": "--> {{value}} <-- Formato de número de expediente inválido.",
-        "INVALID_PHONE_NUMBER_FORMAT": "--> {{value}} <-- Formato de número de teléfono inválido. El número debe tener 8 dígitos y comenzar con 2, 5, 6, 7 o 8.",
-        "INVALID_CARNET_FORMAT": "--> {{value}} <-- Formato de carnet inválido.",
-        "INVALID_INPUT": "--> {{value}} <-- Entrada inválida."
+        "INVALID_TEXT_FORMAT": " --> {{data}} <-- Formato de texto inválido. Solo se permiten letras.",
+        "INVALID_TEXTBOX_FORMAT": "--> {{data}} <-- Formato de caja de texto inválido. Solo se permite texto con espacios.",
+        "INVALID_ID_FORMAT": "--> {{data}} <-- Formato de ID inválido.",
+        "INVALID_EMAIL_FORMAT": "--> {{data}} <-- Formato de correo electrónico inválido.",
+        "INVALID_PASSWORD_FORMAT": "--> {{data}} <-- Formato de contraseña inválido. La contraseña debe tener al menos 8 caracteres, contener una letra mayúscula, una letra minúscula, un número y un carácter especial.",
+        "INVALID_NUMERIC_FORMAT": "--> {{data}} <-- Valor numérico inválido.",
+        "INVALID_EXPEDIENTE_FORMAT": "--> {{data}} <-- Formato de número de expediente inválido.",
+        "INVALID_PHONE_NUMBER_FORMAT": "--> {{data}} <-- Formato de número de teléfono inválido. El número debe tener 8 dígitos y comenzar con 2, 5, 6, 7 o 8.",
+        "INVALID_CARNET_FORMAT": "--> {{data}} <-- Formato de carnet inválido.",
+        "INVALID_INPUT": "--> {{data}} <-- Entrada inválida."
     },
     "person": {
         "STUDENT": "Estudiante",

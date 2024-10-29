@@ -308,7 +308,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                     ]
                 },
                 {
-                    model: Contraparte,
+                    model: Subsidiario,
                     include: [
                         {
                             model: Persona,
@@ -329,7 +329,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                     ]
                 },
                 {
-                    model: Subsidiario,
+                    model: Contraparte,
                     include: [
                         {
                             model: Persona,
@@ -381,7 +381,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                 localidad: caso.Cliente.Persona.Direccion.localidad,
                 provincia: caso.Cliente.Persona.Direccion.provincia
 
-            };
+            };            
 
             const contraparte = caso.Contraparte && {
                 id_contraparte: caso.Contraparte.id_contraparte,
@@ -400,22 +400,22 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
 
             };
 
-            const subsidiarios = caso.Subsidiarios.map(subsidiario => ({
-                id_subsidiario: subsidiario.id_subsidiario,
-                nombre_completo: getFullName(subsidiario.Persona),
-                sexo: subsidiario.sexo,
-                detalles: subsidiario.detalles,
-                cedula: subsidiario.Persona.cedula,
-                telefono: subsidiario.Persona.telefono,
-                createdAt: subsidiario.Persona.createdAt,
-                updatedAt: subsidiario.Persona.updatedAt,
-                dirreccion_exacta: subsidiario.Persona.Direccion.direccion_exacta,
-                canton: subsidiario.Persona.Direccion.canton,
-                distrito: subsidiario.Persona.Direccion.distrito,
-                localidad: subsidiario.Persona.Direccion.localidad,
-                provincia: subsidiario.Persona.Direccion.provincia
+            const subsidiarios = caso.Subsidiario && {
+                id_subsidiario: caso.Subsidiario.id_subsidiario,
+                nombre_completo: getFullName(caso.Subsidiario.Persona),
+                sexo: caso.Subsidiario.sexo,
+                detalles: caso.Subsidiario.detalles,
+                cedula: caso.Subsidiario.Persona.cedula,
+                telefono: caso.Subsidiario.Persona.telefono,
+                createdAt: caso.Subsidiario.Persona.createdAt,
+                updatedAt: caso.Subsidiario.Persona.updatedAt,
+                dirreccion_exacta: caso.Subsidiario.Persona.Direccion.direccion_exacta,
+                canton: caso.Subsidiario.Persona.Direccion.canton,
+                distrito: caso.Subsidiario.Persona.Direccion.distrito,
+                localidad: caso.Subsidiario.Persona.Direccion.localidad,
+                provincia: caso.Subsidiario.Persona.Direccion.provincia
 
-            }));
+            };
 
             return {
                 id_caso: caso.id_caso,
@@ -446,6 +446,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
         });
 
     } catch (error) {
+        console.error(MESSAGE_ERROR.UNASSIGNED_CASES, error);
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -493,6 +494,24 @@ exports.mostrarCasosAsignados = async (req, res) => {
                 },
                 {
                     model: Cliente,
+                    include: [{
+                        model: Persona,
+                        include: [{
+                            model: Direccion,
+                            attributes: [
+                                TABLE_FIELDS.DIRECCION_EXACTA,
+                                TABLE_FIELDS.CANTON,
+                                TABLE_FIELDS.DISTRITO,
+                                TABLE_FIELDS.LOCALIDAD,
+                                TABLE_FIELDS.PROVINCIA,
+                                TABLE_FIELDS.CREATED_AT,
+                                TABLE_FIELDS.UPDATED_AT
+                            ]
+                        }]
+                    }]
+                },
+                {
+                    model: Subsidiario,
                     include: [{
                         model: Persona,
                         include: [{
@@ -573,7 +592,7 @@ exports.mostrarCasosAsignados = async (req, res) => {
                 localidad: caso.Contraparte.Persona.Direccion.localidad,
                 provincia: caso.Contraparte.Persona.Direccion.provincia
             };
-
+            
             const subsidiario = caso.Subsidiario && {
                 id_subsidiario: caso.Subsidiario.id_subsidiario,
                 nombre_completo: getFullName(caso.Subsidiario.Persona),
@@ -601,7 +620,13 @@ exports.mostrarCasosAsignados = async (req, res) => {
                     cedula: asignacion.Estudiante.Persona.cedula,
                     telefono: asignacion.Estudiante.Persona.telefono,
                     createdAt: asignacion.Estudiante.Persona.createdAt,
-                    updatedAt: asignacion.Estudiante.Persona.updatedAt
+                    updatedAt: asignacion.Estudiante.Persona.updatedAt,
+                    direccion_exacta: asignacion.Estudiante.Persona.Direccion.direccion_exacta,
+                    canton: asignacion.Estudiante.Persona.Direccion.canton,
+                    distrito: asignacion.Estudiante.Persona.Direccion.distrito,
+                    localidad: asignacion.Estudiante.Persona.Direccion.localidad,
+                    provincia: asignacion.Estudiante.Persona.Direccion.provincia
+
                 }
             }));
 
@@ -617,12 +642,12 @@ exports.mostrarCasosAsignados = async (req, res) => {
                 etapa_proceso: caso.etapa_proceso,
                 evidencia: caso.evidencia,
                 estado: caso.estado,
+                createdAt: caso.createdAt,
+                updatedAt: caso.updatedAt,
                 Asignaciones: asignaciones,
                 Cliente: cliente,
                 Contraparte: contraparte,
                 Subsidiario: subsidiario,
-                createdAt: caso.createdAt,
-                updatedAt: caso.updatedAt
             };
         });
 

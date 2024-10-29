@@ -23,8 +23,7 @@ module.exports = (sequelize, DataTypes) => {
 
     Subsidiario.associate = models => {
         Subsidiario.belongsTo(models.Persona, { // Un Subsidiario pertenece a una persona
-            foreignKey: TABLE_FIELDS.UID_PERSONA,  //tenia -> TABLE_FIELDS.UID_SUBSIDIARIO
-            targetKey: TABLE_FIELDS.UID_PERSONA,//
+            foreignKey: TABLE_FIELDS.UID_SUBSIDIARIO,
             onDelete: 'CASCADE',
         });
     };

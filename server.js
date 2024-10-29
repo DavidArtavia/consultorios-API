@@ -73,7 +73,7 @@ app.get('/api/v1/version', (req, res) => {
 const port = process.env.PORT || 3000;
 
 // Iniciar el servidor y conectar a la base de datos
-sequelize.sync()
+sequelize.sync({ force: true })
     .then(() => {
         app.listen(port, () => {
             console.log(`Servidor corriendo en el puerto ${port}`);

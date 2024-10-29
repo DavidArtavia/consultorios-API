@@ -37,14 +37,14 @@ exports.register = async (req, res) => {
             model: Persona,
             field: TABLE_FIELDS.CEDULA,
             value: cedula,
-            errorMessage: req.t('warning.IS_ALREADY_REGISTERED', { cedula })
+            errorMessage: req.t('warning.IS_ALREADY_REGISTERED', { data: cedula })
         });
 
         await validateIfExists({
             model: Estudiante,
             field: TABLE_FIELDS.CARNET,
             value: carnet,
-            errorMessage: req.t('warning.CARNET_ALREADY_REGISTERED', { carnet })
+            errorMessage: req.t('warning.CARNET_ALREADY_REGISTERED', { data: carnet })
         }, req);
 
         validateInput(primer_nombre, FIELDS.TEXT, req);

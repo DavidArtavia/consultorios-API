@@ -73,7 +73,7 @@ const checkStudentAssignmentsAndProgress = async (id_estudiante, transaction) =>
 const validateIfUserIsTeacher = (userRole, req) => {
 
     if (userRole !== ROL.PROFESSOR) {
-        throw new CustomError(HttpStatus.FORBIDDEN, req.t('warning.WITHOUT_PERMISSION'), { userRole });
+        throw new CustomError(HttpStatus.FORBIDDEN, req.t('warning.WITHOUT_PERMISSION', { userRole }));
     }
 };
 
@@ -130,7 +130,7 @@ const validateCaseAssignedToStudent = async (id_caso, id_estudiante, req) => {
 
 const validateRoleChange = (sessionRole, requestedRole, req) => {
     if (sessionRole === requestedRole) {
-        throw new CustomError(HttpStatus.FORBIDDEN, req.t('warning.WITHOUT_PERMISSION'), { userRole });
+        throw new CustomError(HttpStatus.FORBIDDEN, req.t('warning.WITHOUT_PERMISSION', { userRole }));
     }
 };
 
@@ -249,8 +249,13 @@ const validatePassword = (password) => {
 };
 
 const validateUniqueCedulas = (clienteCedula, contraparteCedula, subsidiarioCedula, req) => {
+
     if (subsidiarioCedula) {
         if (subsidiarioCedula === clienteCedula) {
+            console.log(req.t('warning.SAME_ID_ID_CONFLICT', {
+                entity1: req.t('person.CLIENT'),
+                entity2: req.t('person.SUBSIDIARY')
+            }));
             throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.SAME_ID_ID_CONFLICT', {
                 entity1: req.t('person.CLIENT'),
                 entity2: req.t('person.SUBSIDIARY')
@@ -275,48 +280,47 @@ const validateInput = (input, field, req) => {
     switch (field) {
         case FIELDS.TEXT:
             if (!validateText(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_TEXT_FORMAT'), {input} );
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_TEXT_FORMAT', { data: input }));
             }
             break;
         case FIELDS.TEXTBOX:
             if (!validateTextWithSpaces(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_TEXTBOX_FORMAT'), {input} );
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_TEXTBOX_FORMAT', { data: input }));
             }
             break;
         case FIELDS.ID:
             if (!validateID(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_ID_FORMAT'), {input} );
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_ID_FORMAT', { data: input }));
             }
             break;
         case FIELDS.EMAIL:
             if (!validateEmail(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST,  req.t('validation.INVALID_EMAIL_FORMAT'), {input} );
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_EMAIL_FORMAT', { data: input }));
             }
             break;
         case FIELDS.PASSWORD:
             if (!validatePassword(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_PASSWORD_FORMAT'), {input} );
-
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_PASSWORD_FORMAT', { data: input }));
             }
             break;
         case FIELDS.NUMERIC:
             if (!validateNumericInput(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_NUMERIC_FORMAT'), {input} );
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_NUMERIC_FORMAT', { data: input }));
             }
             break;
         case FIELDS.EXPEDIENTE:
             if (!validateExpediente(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_EXPEDIENTE_FORMAT'), {input} );
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_EXPEDIENTE_FORMAT', { data: input }));
             }
             break;
         case FIELDS.PHONE_NUMBER:
             if (!validatePhoneNumberCR(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_PHONE_NUMBER_FORMAT'), {input} );
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_PHONE_NUMBER_FORMAT', { data: input }));
             }
             break;
         case FIELDS.CARNET:
             if (!validateCarnet(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_CARNET_FORMAT'), {input} );
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_CARNET_FORMAT', { data: input }));
             }
             break;
     }
