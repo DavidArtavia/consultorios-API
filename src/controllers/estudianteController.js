@@ -323,9 +323,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                                         {
                                             model: Direccion,
                                             as: 'Direccion', // Alias explícito
-                                            // attributes: [
-                                            //     'id_direccion', 'direccion_exacta', 'canton', 'distrito', 'localidad', 'provincia', 'createdAt', 'updatedAt'
-                                            // ]
+                                           
                                         }
                                     ]
                                 }
@@ -342,9 +340,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                                             {
                                                 model: Direccion,
                                                 as: 'Direccion', // Alias explícito
-                                                // attributes: [
-                                                //     'id_direccion', 'direccion_exacta', 'canton', 'distrito', 'localidad', 'provincia', 'createdAt', 'updatedAt'
-                                                // ]
+                                               
                                             }
                                         ]
                                     }
@@ -368,9 +364,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                                         {
                                             model: Direccion,
                                             as: 'Direccion', // Alias explícito
-                                            // attributes: [
-                                            //     'id_direccion', 'direccion_exacta', 'canton', 'distrito', 'localidad', 'provincia', 'createdAt', 'updatedAt'
-                                            // ]
+                                            
                                         }
                                     ]
                                 }
@@ -399,9 +393,6 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
         if (!estudiante) {
             throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.STUDENT_NOT_FOUND'));
         }
-        console.log(JSON.stringify(estudiante.toJSON(), null, 2));
-
-        return 
 
         const estudianteInfo = {
             id: estudiante.id_estudiante,
@@ -413,11 +404,6 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
             updatedAt: estudiante.updatedAt,
             casosAsignados: estudiante.AsignacionDeCasos.map(asignacion => {
                 const caso = asignacion.Caso.toJSON();
-
-                console.log("cliente: ", caso.Cliente?.Persona?.Direccion);
-                console.log("contraparte: ", caso.Contraparte?.Persona?.Direccion);
-                console.log("subsidiario: ", caso.Subsidiario?.Persona?.Direccion);
-
                 // Construir el objeto `Cliente` con el campo `nombreCompleto`
                 const cliente = caso.Cliente && caso.Cliente.Persona && {
                     id_cliente: caso.Cliente.id_cliente,
@@ -428,12 +414,11 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                     ingreso_economico: caso.Cliente.ingreso_economico,
                     createdAt: caso.Cliente.createdAt,
                     updatedAt: caso.Cliente.updatedAt,
-                    // direccion_exacta: caso.Cliente.Persona.Direccion?.direccion_exacta,
-                    // canton: caso.Cliente.Persona.Direccion?.canton,
-                    // distrito: caso.Cliente.Persona.Direccion?.distrito,
-                    // localidad: caso.Cliente.Persona.Direccion?.localidad,
-                    // provincia: caso.Cliente.Persona.Direccion?.provincia,
-                    direccion: caso.Cliente.Persona.Direccion
+                    direccion_exacta: caso.Cliente.Persona.Direccion?.direccion_exac,
+                    canton: caso.Cliente.Persona.Direccion?.canton,
+                    distrito: caso.Cliente.Persona.Direccion?.distrito,
+                    localidad: caso.Cliente.Persona.Direccion?.localidad,
+                    provincia: caso.Cliente.Persona.Direccion?.provincia,
                 };
 
                 // Construir el objeto `Contraparte` con el campo `nombreCompleto`
@@ -446,7 +431,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                     detalles: caso.Contraparte.detalles,
                     createdAt: caso.Contraparte.createdAt,
                     updatedAt: caso.Contraparte.updatedAt,
-                    direccion_exacta: caso.Contraparte.Persona.Direccion?.direccion_exacta,
+                    direccion_exacta: caso.Contraparte.Persona.Direccion?.direccion_,
                     canton: caso.Contraparte.Persona.Direccion?.canton,
                     distrito: caso.Contraparte.Persona.Direccion?.distrito,
                     localidad: caso.Contraparte.Persona.Direccion?.localidad,
@@ -463,7 +448,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                     detalles: caso.Subsidiario.detalles,
                     createdAt: caso.Subsidiario.createdAt,
                     updatedAt: caso.Subsidiario.updatedAt,
-                    direccion_exacta: caso.Subsidiario.Persona.Direccion?.direccion_exacta,
+                    direccion_exacta: caso.Subsidiario.Persona.Direccion?.direccion_,
                     canton: caso.Subsidiario.Persona.Direccion?.canton,
                     distrito: caso.Subsidiario.Persona.Direccion?.distrito,
                     localidad: caso.Subsidiario.Persona.Direccion?.localidad,
