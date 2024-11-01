@@ -432,7 +432,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                 updatedAt: caso.updatedAt,
                 Cliente: cliente,
                 Contraparte: contraparte,
-                Subsidiarios: subsidiarios,
+                Subsidiario: subsidiarios,
                 Asignaciones: caso.Asignaciones
             };
         });
