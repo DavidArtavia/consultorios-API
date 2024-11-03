@@ -44,7 +44,6 @@ const TABLE_NAME = {
     SOLICITUD_CONFIRMACION: 'solicitud_confirmacion',
 
 };
-
 const TABLE_FIELDS = {
     UID_SUBSIDIARIO: 'id_subsidiario',
     UID_ASIGNACION: 'id_asignacion',
@@ -106,83 +105,6 @@ const TABLE_FIELDS = {
     CREATE_AT: 'createAt',
 
 }
-const MESSAGE_ERROR = {
-    CHANGING_LANGUAGE: 'Error changing language.',
-    INVALID_LANGUAGE: 'Invalid language. Must be "es" or "en".',
-    REQUEST_PENDING: 'A deletion request for this student is already pending. Please wait for it to be processed.',
-    INVALID_DECISION: 'Invalid decision. Must be "aceptado" o "denegado".',
-    RETRIEVING_PROGRESS: 'Error retrieving progress',
-    PROCESS_REQUEST: 'Error processing the request',
-    CREATING_PROGRESS: 'Error creating progress.',
-    NO_CASE_ASSIGNED: 'The case is not assigned to this student.',
-    NO_PROGRESS_FOUND: 'No progress recorded for this case.',
-    INVALID_EMAIL: 'Email does not exist.',
-    INVALID_PASSWORD: 'Invalid password.',
-    EMAIL_IS_REQUIRED: 'Email is required.',
-    PASSWORD_IS_REQUIRED: 'Password is required.',
-    USER_NOT_FOUND: 'User not found.',
-    FATAL_ERROR_LOGIN: 'Fatal error during login.',
-    FATAL_ERROR_LOGOUT: 'Fatal error during logout.',
-    NO_ACTIVATE: 'No active session.',
-    DESTROY_SESSION: 'Error destroying session.',
-    WITHOUT_PERMISSION: 'You do not have the necessary permissions.',
-    EMAIL_ALREADY_USED: 'Email is already used.',
-    USERNAME_ALREADY_USED: 'Username is already used.',
-    ID_ALREADY_USED: 'Cedula is already used.',
-    CARNE_ALREADY_USED: 'Carnet is already used.',
-    CREATE_STUDENT: 'Error creating student record.',
-    CREATE_PROFESSOR: 'Error creating professor record.',
-    CREATE_USER: 'Error creating user.',
-    STUDENT_NOT_FOUND: 'Student not found.',
-    NOT_STUDENTS_FOUND: 'No students found.',
-    NOT_PROFESORS_FOUND: 'No profesors found.',
-    UPDATE_STUDENT: 'Error updating student.',
-    UPDATING_PROGRESS: 'Error updating progress.',
-    DELETE_STUDENT: 'Error deleting student.',
-    CREATING_CASE: 'Error creating case.',
-    CASE_NOT_FOUND: 'Case not found.',
-    CASE_ALREADY_ASSIGNED: 'The case is already assigned to another student.',
-    ASSIGN_CASE: 'Error assigning case to student.',
-    RECOVERED_STUDENTS: 'Error retrieving list of students.',
-    RECOVERED_PROFESORS: 'Error retrieving list of profesors.',
-    DELETE_STUDENT: 'Error deleting student.',
-    MUST_LOGIN: 'You must login to access this resource.',
-    RETRIEVING: 'Error retrieving the information.',
-    NOT_PERSONS_FOUND: 'No persons found.',
-    PROGRESS_NOT_FOUND: 'Progress not found.',
-    UNASSIGNED_CASES: 'Error retrieving unassigned cases.',
-    ASSIGNED_CASES: 'Error retrieving assigned cases.',
-    SUBSIDIARY_CLIENT_SAME_ID: 'The subsidiary and client cannot have the same ID.',
-    CLIENT_COUNTERPART_SAME_ID: 'The client and counterpart cannot have the same ID.',
-    SUBSIDIARY_COUNTERPART_SAME_ID: 'The subsidiary and counterpart cannot have the same ID.',
-    REQUEST_NOT_FOUND: 'Request not found.',
-    REQUEST_PROCESSED: 'This request has already been processed.',
-}
-
-
-const MESSAGE_SUCCESS = {
-    LANGUAGE_CHANGED: 'Language changed successfully.',
-    LOGIN: 'Succesfully login.',
-    LOGOUT: 'Logout success.',
-    USER_REGISTERED: 'User registered successfully',
-    STUDENT_INFO: 'Student information',
-    STUDENT_UPDATED: 'Student updated successfully.',
-    CASE_CREATED: 'Case created successfully.',
-    CASE_ASSIGNED: 'Case assigned to student successfully.',
-    RECOVERED_STUDENTS: 'List of students retrieved successfully.',
-    RECOVERED_PROFESORS: 'List of profesors retrieved successfully.',
-    REQUEST_CREATED: 'Request sent to the administrator. The student will be deleted if approved.',
-    STUDENT_DELETED: 'Student deleted successfully.',
-    PERSONS_FOUND: 'Persons found.',
-    UNASSIGNED_CASES: 'Unassigned cases found.',
-    ASSIGNED_CASES: 'Assigned cases found.',
-    NO_UNASSIGNED_CASES: 'No unassigned cases found.',
-    NO_ASSIGNED_CASES: 'No assigned cases found.',
-    PROGRESS_CREATED: 'Progress created successfully.',
-    PROGRESS_FOUND: 'Progress found successfully.',
-    PROGRESS_UPDATED: 'Progress updated successfully.',
-
-}
 
 const TIME = {
     SECOND: 1000,                     // 1 segundo en milisegundos
@@ -193,7 +115,6 @@ const TIME = {
     MONTH: 30 * 24 * 60 * 60 * 1000,  // Aproximadamente 1 mes en milisegundos
     YEAR: 365 * 24 * 60 * 60 * 1000   // 1 año en milisegundos
 };
-
 
 
 const ROL = {
@@ -254,8 +175,6 @@ module.exports = {
     HttpStatus,
     KEYS,
     LANGUAGES,
-    MESSAGE_ERROR,
-    MESSAGE_SUCCESS,
     ORDER,
     ROL,
     ROUTES,

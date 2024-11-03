@@ -14,8 +14,8 @@ module.exports = {
             segundo_nombre: 'Nombre2',
             primer_apellido: 'Apellido1',
             segundo_apellido: 'Apellido2',
-            cedula: '0000000001',
-            telefono: '00000001',
+            cedula: '609990999',
+            telefono: '50124872',
           },
           direccionData: {
             direccion_exacta: 'Dirección1',
@@ -28,7 +28,7 @@ module.exports = {
             username : 'username1',
             email : 'Nombre1@gmail.com',
             password_hash: '12345678', // Se encripta en el hook beforeCreate
-            rol: 'administrador'
+            rol: 'administrador' // 'estudiante', 'profesor', 'administrador'
           },
           estudianteData: {
             carnet: 'B50555'

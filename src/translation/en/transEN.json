@@ -21,7 +21,8 @@
         "UNASSIGNED_CASES": "Error retrieving unassigned cases.",
         "ASSIGNED_CASES": "Error retrieving assigned cases.",
         "CHANGING_LANGUAGE": "Error changing language.",
-        "RETRIEVING_CONFIRMATION_REQUESTS": "Error retrieving confirmation requests."
+        "RETRIEVING_CONFIRMATION_REQUESTS": "Error retrieving confirmation requests.",
+        "SERVER_ERROR": "Could not connect to the database."
     },
     "success": {
         "LOGIN": "Login successful.",
@@ -44,7 +45,8 @@
         "PROGRESS_UPDATED": "Progress updated successfully.",
         "CHANGE_LANGUAGE": "Language changed successfully.",
         "CONFIRMATION_REQUESTS_FOUND": "Confirmation requests found successfully.",
-        "REQUEST_DETAILS": "The request was: {{data}}"
+        "REQUEST_DETAILS": "The request was: {{data}}",
+        "SERVER_RUNNING": "Server running on port {{port}}"
     },
     "warning": {
         "REQUEST_PENDING": "There is already a pending deletion request for this student. Please wait for it to be processed.",
