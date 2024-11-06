@@ -345,6 +345,10 @@ exports.actualizarProfesor = async (req, res) => {
             data: {
                 id_profesor: profesor.id_profesor,
                 nombre_completo: getFullName(profesor.Persona),
+                primer_nombre,
+                segundo_nombre,
+                primer_apellido,
+                segundo_apellido,
                 especialidad,
                 direccion_exacta,
                 canton,
