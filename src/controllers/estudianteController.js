@@ -560,6 +560,14 @@ exports.actualizarEstudiante = async (req, res) => {
                 { transaction });
         }
 
+        await registerAuditLog(
+            req.user.id_usuario,
+            'update',
+            'estudiante',
+            id_estudiante,
+            'Estudiante actualizado'
+        );
+
         const estudianteInfo = {
             ...estudiante.toJSON(),
             direccion: direccion ? {

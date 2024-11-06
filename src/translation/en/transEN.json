@@ -48,7 +48,8 @@
         "CONFIRMATION_REQUESTS_FOUND": "Confirmation requests found successfully.",
         "REQUEST_DETAILS": "The request was: {{data}}",
         "SERVER_RUNNING": "Server running on port {{port}}",
-        "PROFESSOR_DEACTIVATED": "Professor deactivated successfully."
+        "PROFESSOR_DEACTIVATED": "Professor deactivated successfully.",
+        "PROFESOR_UPDATED": "Professor updated successfully."
     },
     "warning": {
         "PROFESSOR_ALREADY_INACTIVE": "The professor is already inactive.",

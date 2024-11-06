@@ -270,3 +270,98 @@ exports.desactivarProfesor = async (req, res) => {
         });
     }
 };
+
+
+exports.actualizarProfesor = async (req, res) => {
+    const { id_profesor } = req.params;
+    const {
+        primer_nombre,
+        segundo_nombre,
+        primer_apellido,
+        segundo_apellido,
+        cedula,
+        telefono,
+        especialidad,
+        direccion_exacta,
+        canton,
+        distrito,
+        localidad,
+        provincia
+    } = req.body;
+
+    const transaction = await sequelize.transaction();
+    try {
+        // Buscar al profesor por ID
+        const profesor = await Profesor.findByPk(id_profesor, {
+            include: [
+                {
+                    model: Persona,
+                    as: 'Persona',
+                    include: {
+                        model: Direccion,
+                        as: 'Direccion'
+                    }
+                }
+            ]
+        });
+
+        if (!profesor || profesor.estado !== 'activo') {
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.PROFESOR_NOT_FOUND'));
+        }
+
+        // Actualizar los campos del profesor y de persona
+        await profesor.Persona.update({
+            primer_nombre,
+            segundo_nombre,
+            primer_apellido,
+            segundo_apellido,
+            cedula,
+            telefono
+        }, { transaction });
+
+        await profesor.Persona.Direccion.update({
+            direccion_exacta,
+            canton,
+            distrito,
+            localidad,
+            provincia
+        }, { transaction });
+
+        await profesor.update({ especialidad } , { transaction });
+
+        // Registrar en la tabla de auditoría
+        await AuditLog.create({
+            user_id: req.user.id_usuario,
+            action:'Actualización de Profesor',
+            descripcion: `El profesor con UID ${id_profesor} fue actualizado`,
+        } , { transaction });
+
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: req.t('success.PROFESOR_UPDATED'),
+            data: {
+                id_profesor: profesor.id_profesor,
+                nombre_completo: `${primer_nombre} ${primer_apellido}`,
+                especialidad,
+                direccion: {
+                    direccion_exacta,
+                    canton,
+                    distrito,
+                    localidad,
+                    provincia
+                }
+            }
+        });
+    } catch (error) {
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: req.t('error.UPDATING_PROFESOR'),
+                error: error.message,
+                stack: error.stack
+            }
+        });
+    }
+};

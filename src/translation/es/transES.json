@@ -48,7 +48,8 @@
         "CONFIRMATION_REQUESTS_FOUND": "Solicitudes de confirmación encontradas exitosamente.",
         "REQUEST_DETAILS": "La solicitud fue: {{data}}",
         "SERVER_RUNNING": "Servidor corriendo en el puerto {{port}}",
-        "PROFESSOR_DEACTIVATED": "Profesor desactivado exitosamente."
+        "PROFESSOR_DEACTIVATED": "Profesor desactivado exitosamente.",
+        "PROFESOR_UPDATED": "Profesor actualizado exitosamente."
     },
     "warning": {
         "PROFESSOR_ALREADY_INACTIVE": "El profesor ya está inactivo.",
