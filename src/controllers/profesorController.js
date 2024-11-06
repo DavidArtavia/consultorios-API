@@ -118,6 +118,10 @@ exports.mostrarProfesoresActivos = async (req, res) => {
         const profesoresInfo = profesoresActivos.map(profesor => ({
             id_profesor: profesor.id_profesor,
             nombre_completo: getFullName(profesor.Persona),
+            primer_nombre: profesor.Persona.primer_nombre,
+            segundo_nombre: profesor.Persona.segundo_nombre,
+            primer_apellido: profesor.Persona.primer_apellido,
+            segundo_apellido: profesor.Persona.segundo_apellido,
             especialidad: profesor.especialidad,
             fecha_inscripcion: profesor.fecha_inscripcion,
             cedula: profesor.Persona.cedula,
