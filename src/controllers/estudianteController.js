@@ -499,6 +499,7 @@ exports.actualizarEstudiante = async (req, res) => {
         carnet,
         direccion
     } = req.body;
+    const userId = req.session.user?.userId;
     const transaction = await sequelize.transaction(); // Inicia la transacción
 
     try {
@@ -560,13 +561,11 @@ exports.actualizarEstudiante = async (req, res) => {
                 { transaction });
         }
 
-        await registerAuditLog(
-            req.user.id_usuario,
-            'update',
-            'estudiante',
-            id_estudiante,
-            'Estudiante actualizado'
-        );
+        await AuditLog.create({
+            user_id: userId,
+            action: 'Actualización de Estudiante',
+            description: `Estudiante con UID ${id_estudiante} fue actualizado`,
+        }, { transaction });
 
         const estudianteInfo = {
             ...estudiante.toJSON(),

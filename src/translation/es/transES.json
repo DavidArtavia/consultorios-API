@@ -23,7 +23,8 @@
         "CHANGING_LANGUAGE": "Error al cambiar el idioma.",
         "RETRIEVING_CONFIRMATION_REQUESTS": "Error al recuperar las solicitudes de confirmación.",
         "SERVER_ERROR": "No se pudo conectar a la base de datos:",
-        "DEACTIVATING_PROFESSOR": "Error al desactivar al profesor."
+        "DEACTIVATING_PROFESSOR": "Error al desactivar al profesor.",
+        "UPDATING_PROFESOR": "Error al actualizar al profesor."
     },
     "success": {
         "LOGIN": "Inicio de sesión exitoso.",
@@ -50,6 +51,7 @@
         "SERVER_RUNNING": "Servidor corriendo en el puerto {{port}}",
         "PROFESSOR_DEACTIVATED": "Profesor desactivado exitosamente.",
         "PROFESOR_UPDATED": "Profesor actualizado exitosamente."
+        
     },
     "warning": {
         "PROFESSOR_ALREADY_INACTIVE": "El profesor ya está inactivo.",

@@ -23,7 +23,8 @@
         "CHANGING_LANGUAGE": "Error changing language.",
         "RETRIEVING_CONFIRMATION_REQUESTS": "Error retrieving confirmation requests.",
         "SERVER_ERROR": "Could not connect to the database.",
-        "DEACTIVATING_PROFESSOR": "Error deactivating professor."
+        "DEACTIVATING_PROFESSOR": "Error deactivating professor.",
+        "UPDATING_PROFESOR": "Error updating professor."
     },
     "success": {
         "LOGIN": "Login successful.",

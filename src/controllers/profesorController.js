@@ -1,6 +1,6 @@
 const { MESSAGE_ERROR, HttpStatus, TABLE_FIELDS, MESSAGE_SUCCESS, STATES } = require("../constants/constants");
 const { sendResponse, CustomError } = require("../handlers/responseHandler");
-const { Profesor, Persona, Direccion, AuditLog } = require("../../models");
+const { Profesor, Persona, Direccion, AuditLog, sequelize } = require("../../models");
 const { getFullName } = require("../utils/helpers");
 
 
@@ -38,7 +38,7 @@ exports.mostrarProfesor = async (req, res) => {
         });
 
         if (profesor.length == 0) {
- 
+
             throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.NOT_PROFESORS_FOUND'));
         }
 
@@ -250,7 +250,7 @@ exports.desactivarProfesor = async (req, res) => {
             description: `El profesor con UID ${id_profesor} fue desactivado`,
         });
 
-       return sendResponse({
+        return sendResponse({
             res,
             statusCode: HttpStatus.OK,
             message: req.t('success.PROFESSOR_DEACTIVATED'),
@@ -258,7 +258,7 @@ exports.desactivarProfesor = async (req, res) => {
 
     } catch (error) {
         console.error(req.t('error.DEACTIVATING_PROFESSOR'), error);
-      
+
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -273,8 +273,8 @@ exports.desactivarProfesor = async (req, res) => {
 
 
 exports.actualizarProfesor = async (req, res) => {
-    const { id_profesor } = req.params;
     const {
+        id_profesor,
         primer_nombre,
         segundo_nombre,
         primer_apellido,
@@ -288,7 +288,7 @@ exports.actualizarProfesor = async (req, res) => {
         localidad,
         provincia
     } = req.body;
-
+    const userId = req.session.user?.userId;
     const transaction = await sequelize.transaction();
     try {
         // Buscar al profesor por ID
@@ -327,14 +327,16 @@ exports.actualizarProfesor = async (req, res) => {
             provincia
         }, { transaction });
 
-        await profesor.update({ especialidad } , { transaction });
+        await profesor.update({ especialidad }, { transaction });
 
         // Registrar en la tabla de auditoría
         await AuditLog.create({
-            user_id: req.user.id_usuario,
-            action:'Actualización de Profesor',
-            descripcion: `El profesor con UID ${id_profesor} fue actualizado`,
-        } , { transaction });
+            user_id: userId,
+            action: 'Actualización de Profesor',
+            description: `Profesor con UID ${id_profesor} fue actualizado`,
+        }, { transaction });
+
+        await transaction.commit();
 
         return sendResponse({
             res,
@@ -342,18 +344,18 @@ exports.actualizarProfesor = async (req, res) => {
             message: req.t('success.PROFESOR_UPDATED'),
             data: {
                 id_profesor: profesor.id_profesor,
-                nombre_completo: `${primer_nombre} ${primer_apellido}`,
+                nombre_completo: getFullName(profesor.Persona),
                 especialidad,
-                direccion: {
-                    direccion_exacta,
-                    canton,
-                    distrito,
-                    localidad,
-                    provincia
-                }
+                direccion_exacta,
+                canton,
+                distrito,
+                localidad,
+                provincia
+
             }
         });
     } catch (error) {
+        await transaction.rollback();
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
