@@ -22,6 +22,11 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
+      estado: {
+        type: DataTypes.ENUM('activo', 'inactivo'),
+        allowNull: false,
+        defaultValue: 'activo',
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

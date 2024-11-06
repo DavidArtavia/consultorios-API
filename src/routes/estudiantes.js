@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const verifySession = require('../middlewares/auth');
 const { verifyRole } = require('../middlewares/verifyRole');
-const { ROL } = require('../constants/constants');
+const { ROL, ROUTES } = require('../constants/constants');
 const {
     mostrarInformacionEstudianteConCasos,
     actualizarEstudiante,
@@ -12,7 +12,7 @@ const {
 
 // Ruta para obtener la información del estudiante y sus casos
 router.post(
-    '/casos',
+    ROUTES.CASE,
     verifySession,
     verifyRole([
         ROL.SUPERADMIN,
@@ -22,7 +22,7 @@ router.post(
 );
 
 router.put(
-    '/actualizar',
+    ROUTES.UPDATE,
     verifySession,
     verifyRole([
         ROL.SUPERADMIN,
@@ -33,7 +33,7 @@ router.put(
 
 
 router.get(
-    '/mostrar',
+    ROUTES.SHOW,
     verifySession,
     verifyRole([
         ROL.SUPERADMIN,
@@ -44,7 +44,7 @@ router.get(
 
 
 router.post(
-    '/solicitar/eliminar',
+    ROUTES.REQUEST_DELETE,
     verifySession,
     verifyRole([
         ROL.SUPERADMIN,

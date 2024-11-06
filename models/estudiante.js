@@ -12,6 +12,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             unique: true,
         },
+        estado: {
+            type: DataTypes.ENUM('activo', 'inactivo'),
+            allowNull: false,
+            defaultValue: 'activo',
+        },
     }, {
         tableName: TABLE_NAME.ESTUDIANTES,
     });

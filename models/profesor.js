@@ -10,6 +10,11 @@ const Profesor = sequelize.define('Profesor', {
         type: DataTypes.STRING(50),
         allowNull: true,
     },
+    estado: {
+        type: DataTypes.ENUM('activo', 'inactivo'),
+        allowNull: false,
+        defaultValue: 'activo',
+    },
 }, {
     tableName: TABLE_NAME.PROFESORES,
 });

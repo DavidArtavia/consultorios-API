@@ -8,15 +8,7 @@ const i18next = require('./src/middlewares/i18nextConfig');
 const i18nextMiddleware = require('i18next-http-middleware');
 
 // rutas 
-const casosRoutes = require('./src/routes/casos');
-const usuarioRoutes = require('./src/routes/usuario');
-const estudiantesRoutes = require('./src/routes/estudiantes');
-const profesoresRoutes = require('./src/routes/profesores');
-const authRoutes = require('./src/routes/auth');
-const personasRoutes = require('./src/routes/persona');
-const avancesRoutes = require('./src/routes/avances');
-const solicitudRoutes = require('./src/routes/solicitud');
-const languageRoutes = require('./src/routes/language');
+const apiRoutes = require('./src/routes');
 
 const app = express();
 
@@ -54,20 +46,9 @@ app.use(i18nextMiddleware.handle(i18next));
 app.use(logger);
 
 // Rutas
-app.use('/api/v1/usuarios', usuarioRoutes);
-app.use('/api/v1/casos', casosRoutes);
-app.use('/api/v1/estudiantes', estudiantesRoutes);
-app.use('/api/v1/profesores', profesoresRoutes);
-app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/personas', personasRoutes);
-app.use('/api/v1/avances', avancesRoutes);
-app.use('/api/v1/solicitud', solicitudRoutes);
-app.use('/api/v1/language', languageRoutes);
+app.use('/api/v1', apiRoutes);
 
 
-app.get('/api/v1/version', (req, res) => {
-    res.send('v0.0.1');
-});
 
 
 const port = process.env.PORT || 3000;

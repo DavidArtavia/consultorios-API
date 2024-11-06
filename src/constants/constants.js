@@ -29,6 +29,7 @@ const FIELDS = {
 
 
 const TABLE_NAME = {
+    AUDIT_LOG: 'audit_logs',
     PERSONAS: 'personas',
     CLIENTES: 'clientes',
     ESTUDIANTES: 'estudiantes',
@@ -133,6 +134,8 @@ const STATES = {
     ACCEPTED: 'aceptado',
     DENIED: 'denegado',
     ASSIGNED: 'asignado',
+    ACTIVE: 'activo',
+    INACTIVE: 'inactivo',
 }
 
 const ACTION = {
@@ -163,8 +166,22 @@ const ENV = {
 }
 
 const ROUTES = {
+    CREATE: '/crear',
     SHOW: '/mostrar',
-    DELETE: '/eliminar'
+    UPDATE: '/actualizar',
+    DELETE: '/eliminar',
+    SHOW_ACTIVE: '/mostrar/activos',
+    SHOW_INACTIVE: '/mostrar/inactivos',
+    LOGIN: '/login',
+    LOGOUT: '/logout',
+    CASE: '/caso',
+    ASSIGN: '/asignar',
+    SHOW_UNASSIGNED: '/noAsignados',
+    ASSIGNED: '/asignados',
+    REQUEST_DELETE: '/solicitarEliminar',
+    CHANGE: '/cambiar',
+    USERS: '/usuarios',
+    REGISTER: '/register',
 }
 
 module.exports = {

@@ -1,17 +1,37 @@
 const express = require('express');
 const router = express.Router();
-const { mostrarProfesor } = require('../controllers/profesorController');
+const { mostrarProfesor, mostrarProfesoresActivos, mostrarProfesoresInactivos, desactivarProfesor } = require('../controllers/profesorController');
 const verifySession = require('../middlewares/auth');
 const { verifyRole } = require('../middlewares/verifyRole');
-const { ROL } = require('../constants/constants');
+const { ROL, ROUTES } = require('../constants/constants');
 
-// Ruta para obtener la información del estudiante y sus casos
 router.get(
-    '/mostrar',
+    ROUTES.SHOW,
     verifySession,
     verifyRole([
         ROL.SUPERADMIN]),
     mostrarProfesor
+);
+router.get(
+    ROUTES.SHOW_ACTIVE,
+    verifySession,
+    verifyRole([
+        ROL.SUPERADMIN]),
+    mostrarProfesoresActivos
+);
+router.get(
+    ROUTES.SHOW_INACTIVE,
+    verifySession,
+    verifyRole([
+        ROL.SUPERADMIN]),
+    mostrarProfesoresInactivos
+);
+router.post(
+    ROUTES.DELETE,
+    verifySession,
+    verifyRole([
+        ROL.SUPERADMIN]),
+    desactivarProfesor
 );
 
 module.exports = router;

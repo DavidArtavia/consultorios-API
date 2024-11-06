@@ -22,7 +22,8 @@
         "ASSIGNED_CASES": "Error al recuperar los casos asignados.",
         "CHANGING_LANGUAGE": "Error al cambiar el idioma.",
         "RETRIEVING_CONFIRMATION_REQUESTS": "Error al recuperar las solicitudes de confirmación.",
-        "SERVER_ERROR": "No se pudo conectar a la base de datos:"
+        "SERVER_ERROR": "No se pudo conectar a la base de datos:",
+        "DEACTIVATING_PROFESSOR": "Error al desactivar al profesor."
     },
     "success": {
         "LOGIN": "Inicio de sesión exitoso.",
@@ -46,9 +47,11 @@
         "CHANGE_LANGUAGE": "Idioma cambiado exitosamente.",
         "CONFIRMATION_REQUESTS_FOUND": "Solicitudes de confirmación encontradas exitosamente.",
         "REQUEST_DETAILS": "La solicitud fue: {{data}}",
-        "SERVER_RUNNING": "Servidor corriendo en el puerto {{port}}"
+        "SERVER_RUNNING": "Servidor corriendo en el puerto {{port}}",
+        "PROFESSOR_DEACTIVATED": "Profesor desactivado exitosamente."
     },
     "warning": {
+        "PROFESSOR_ALREADY_INACTIVE": "El profesor ya está inactivo.",
         "REQUEST_PENDING": "Ya hay una solicitud de eliminación pendiente para este estudiante. Por favor, espere a que se procese.",
         "INVALID_DECISION": "Decisión inválida. Debe ser 'aceptado' o 'denegado'.",
         "CREATING_PROGRESS": "Error al crear el avance.",

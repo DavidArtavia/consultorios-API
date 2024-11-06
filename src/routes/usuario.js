@@ -2,12 +2,12 @@
 const express = require('express');
 const router = express.Router();
 const verifySession = require('../middlewares/auth');
-const { ROL } = require('../constants/constants');
+const { ROL, ROUTES } = require('../constants/constants');
 const { verifyRole } = require('../middlewares/verifyRole');
 const {register} = require('../controllers/usuarioController');
 
 router.post(
-    '/register',
+    ROUTES.REGISTER,
     verifySession,
     verifyRole([
     ROL.SUPERADMIN,

@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const verifySession = require('../middlewares/auth');
 const { verifyRole } = require('../middlewares/verifyRole');
-const { ROL } = require('../constants/constants');
+const { ROL, ROUTES } = require('../constants/constants');
 const { mostrarPersonasConUsuarios } = require('../controllers/personaController');
 
 router.get(
-    '/usuarios',
+    ROUTES.USERS,
     verifySession,
     verifyRole([
         ROL.SUPERADMIN,

@@ -22,7 +22,8 @@
         "ASSIGNED_CASES": "Error retrieving assigned cases.",
         "CHANGING_LANGUAGE": "Error changing language.",
         "RETRIEVING_CONFIRMATION_REQUESTS": "Error retrieving confirmation requests.",
-        "SERVER_ERROR": "Could not connect to the database."
+        "SERVER_ERROR": "Could not connect to the database.",
+        "DEACTIVATING_PROFESSOR": "Error deactivating professor."
     },
     "success": {
         "LOGIN": "Login successful.",
@@ -46,9 +47,11 @@
         "CHANGE_LANGUAGE": "Language changed successfully.",
         "CONFIRMATION_REQUESTS_FOUND": "Confirmation requests found successfully.",
         "REQUEST_DETAILS": "The request was: {{data}}",
-        "SERVER_RUNNING": "Server running on port {{port}}"
+        "SERVER_RUNNING": "Server running on port {{port}}",
+        "PROFESSOR_DEACTIVATED": "Professor deactivated successfully."
     },
     "warning": {
+        "PROFESSOR_ALREADY_INACTIVE": "The professor is already inactive.",
         "REQUEST_PENDING": "There is already a pending deletion request for this student. Please wait for it to be processed.",
         "INVALID_DECISION": "Invalid decision. It must be 'accepted' or 'denied'.",
         "CREATING_PROGRESS": "Error creating progress.",

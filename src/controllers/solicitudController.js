@@ -47,7 +47,6 @@ exports.mostrarSolicitudes = async (req, res) => {
 
 exports.procesarSolicitudConfirmacion = async (req, res) => {
     const { id_solicitud, decision } = req.body; // decision puede ser 'aceptado' o 'denegado'
-    const adminId = req.session.user.userId; // Asumimos que el administrador está autenticado y tiene este ID
     const transaction = await sequelize.transaction();
 
     try {

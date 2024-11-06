@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const verifySession = require('../middlewares/auth');
 const { verifyRole } = require('../middlewares/verifyRole');
-const { ROL } = require('../constants/constants');
+const { ROL, ROUTES } = require('../constants/constants');
 const {
     asignarCasoAEstudiante,
     mostrarCasosAsignados,
@@ -13,28 +13,28 @@ const {
 
 // Ruta para crear un caso
 router.post(
-    '/crear',
+    ROUTES.CREATE,
     verifySession,
     verifyRole([ROL.PROFESSOR, ROL.SUPERADMIN]),
     crearCaso
 );
 
 router.post(
-    '/asignar',
+    ROUTES.ASSIGN,
     verifySession,
     verifyRole([ROL.SUPERADMIN, ROL.PROFESSOR]),
     asignarCasoAEstudiante
 );
 
 router.get(
-    '/noAsignados',
+   ROUTES.SHOW_UNASSIGNED,
     verifySession,
     verifyRole([ROL.SUPERADMIN, ROL.PROFESSOR]),
     mostrarCasosNoAsignados
 );
 
 router.get(
-    '/asignados',
+    ROUTES.ASSIGNED,
     verifySession,
     verifyRole([ROL.SUPERADMIN, ROL.PROFESSOR]),
     mostrarCasosAsignados
