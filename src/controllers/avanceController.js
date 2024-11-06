@@ -57,7 +57,7 @@ exports.mostrarAvancesPorCaso = async (req, res) => {
         });
 
         if (!avances || avances.length == 0) {
-            throw new CustomError(HttpStatus.NOT_FOUND, req.t('info.PROGRESS_NOT_FOUND'));
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.PROGRESS_NOT_FOUND'));
         }
 
         return sendResponse({
@@ -97,7 +97,7 @@ exports.actualizarAvance = async (req, res) => {
         const avance = await Avance.findByPk(id_avance);
 
         if (!avance) {
-            throw new CustomError(HttpStatus.NOT_FOUND, req.t('info.PROGRESS_NOT_FOUND'));
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.PROGRESS_NOT_FOUND'));
         }
 
         // Validar que el caso existe y está asignado al estudiante

@@ -148,7 +148,7 @@ const DECISION = {
     DENIED: 'denegado',
 }
 
-const KEYS = { 
+const KEYS = {
     USER_DATA: 'userData',
     CONNECT_SID: "connect.sid",
     LANGUAGE: 'language',
@@ -159,7 +159,7 @@ const LANGUAGES = {
     ENGLISH: 'en'
 }
 
-const ENV = { 
+const ENV = {
     QA: 'QA',
     PROD: "PROD",
     DEV: 'DEV'
@@ -174,7 +174,8 @@ const ROUTES = {
     SHOW_INACTIVE: '/mostrar/inactivos',
     LOGIN: '/login',
     LOGOUT: '/logout',
-    CASE: '/casos',
+    CASES: '/casos',
+    CASE: '/caso',
     ASSIGN: '/asignar',
     SHOW_UNASSIGNED: '/noAsignados',
     ASSIGNED: '/asignados',
