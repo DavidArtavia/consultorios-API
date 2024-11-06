@@ -12,7 +12,7 @@ const {
 
 // Ruta para obtener la información del estudiante y sus casos
 router.post(
-    ROUTES.CASE,
+    ROUTES.CASES,
     verifySession,
     verifyRole([
         ROL.SUPERADMIN,
