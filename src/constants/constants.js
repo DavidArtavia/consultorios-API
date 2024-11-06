@@ -179,7 +179,7 @@ const ROUTES = {
     ASSIGN: '/asignar',
     SHOW_UNASSIGNED: '/noAsignados',
     ASSIGNED: '/asignados',
-    REQUEST_DELETE: '/solicitarEliminar',
+    REQUEST_DELETE: '/solicitar/eliminar',
     CHANGE: '/cambiar',
     USERS: '/usuarios',
     REGISTER: '/register',
