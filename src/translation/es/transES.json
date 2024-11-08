@@ -91,7 +91,9 @@
         "IS_ALREADY_REGISTERED": "Ya existe una persona registrado con la cédula: {{data}} .",
         "CARNET_ALREADY_REGISTERED": "Ya existe un estudiante registrado con el carnet: {{data}} .",
         "RECORD_ALREADY_EXISTS": "El registro con {{field}} {{data}} ya existe.",
-        "NO_CONFIRMATION_REQUESTS_FOUND": "No se encontraron solicitudes de confirmación."
+        "NO_CONFIRMATION_REQUESTS_FOUND": "No se encontraron solicitudes de confirmación.",
+        "UID_IS_REQUIRED": "EL UID es requerido.",
+        "ENTITY_NOT_FOUND": "{{entity}} no esta registrado."
     },
     "validation": {
         "INVALID_TEXT_FORMAT": " --> {{data}} <-- Formato de texto inválido. Solo se permiten letras.",
@@ -103,7 +105,8 @@
         "INVALID_EXPEDIENTE_FORMAT": "--> {{data}} <-- Formato de número de expediente inválido.",
         "INVALID_PHONE_NUMBER_FORMAT": "--> {{data}} <-- Formato de número de teléfono inválido. El número debe tener 8 dígitos y comenzar con 2, 5, 6, 7 o 8.",
         "INVALID_CARNET_FORMAT": "--> {{data}} <-- Formato de carnet inválido.",
-        "INVALID_INPUT": "--> {{data}} <-- Entrada inválida."
+        "INVALID_INPUT": "--> {{data}} <-- Entrada inválida.",
+        "INVALID_GENDER_CHARACTER": "--> {{data}} <-- es un carácter inválido. Solo se permiten 'M' o 'F'."
     },
     "person": {
         "STUDENT": "Estudiante",

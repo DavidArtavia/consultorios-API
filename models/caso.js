@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         expediente: {
             type: DataTypes.STRING(50),
-            allowNull: false,
+            allowNull: true,
             unique: true,
         },
         ley_7600: {
@@ -60,10 +60,6 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
         },
         etapa_proceso: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-        },
-        evidencia: {
             type: DataTypes.TEXT,
             allowNull: true,
         },

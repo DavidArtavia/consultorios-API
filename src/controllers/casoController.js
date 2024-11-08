@@ -2,8 +2,8 @@
 const { t } = require('i18next');
 const { HttpStatus, MESSAGE_SUCCESS, MESSAGE_ERROR, TABLE_FIELDS, FIELDS, STATES } = require('../constants/constants');
 const { CustomError, sendResponse } = require('../handlers/responseHandler');
-const { AsignacionDeCaso, Estudiante, Caso, Persona, Direccion, Contraparte, Cliente, Sequelize, Subsidiario, sequelize } = require('../../models');
-const { validateIfExists, validateInput, validateUniqueCedulas, getFullName } = require('../utils/helpers');
+const { AsignacionDeCaso, Estudiante, Caso, Persona, Direccion, Contraparte, AuditLog, Cliente, Sequelize, Subsidiario, sequelize } = require('../../models');
+const { validateIfExists, validateInput, validateUniqueCedulas, getFullName, updateRelatedEntity, updatePersonAndAddress } = require('../utils/helpers');
 const { Op } = require('sequelize');
 
 
@@ -14,7 +14,6 @@ exports.crearCaso = async (req, res) => {
         contraparte,
         casoData
     } = req.body;
-
     const transaction = await sequelize.transaction(); // Inicia la transacción
 
     try {
@@ -27,7 +26,7 @@ exports.crearCaso = async (req, res) => {
         );
 
         // Verificar si ya existe un expediente
-        await validateIfExists({
+        casoData.expediente && await validateIfExists({
             model: Caso,
             field: TABLE_FIELDS.EXPEDIENTE,
             value: casoData.expediente,
@@ -36,11 +35,11 @@ exports.crearCaso = async (req, res) => {
 
         // Validar los campos de entrada
         validateInput(cliente.primer_nombre, FIELDS.TEXT, req);
-        cliente.segundo_nombre && validateInput(cliente.segundo_nombre, FIELDS.TEXT, req);
+        cliente.segundo_nombre && validateInput(cliente.segundo_nombre, FIELDS.TEXTBOX, req);
         validateInput(cliente.primer_apellido, FIELDS.TEXT, req);
         validateInput(cliente.segundo_apellido, FIELDS.TEXT, req);
         validateInput(contraparte.primer_nombre, FIELDS.TEXT, req);
-        contraparte.segundo_nombre && validateInput(contraparte.segundo_nombre, FIELDS.TEXT, req);
+        contraparte.segundo_nombre && validateInput(contraparte.segundo_nombre, FIELDS.TEXTBOX, req);
         validateInput(contraparte.primer_apellido, FIELDS.TEXT, req);
         validateInput(contraparte.segundo_apellido, FIELDS.TEXT, req);
         validateInput(cliente.cedula, FIELDS.ID, req);
@@ -51,6 +50,13 @@ exports.crearCaso = async (req, res) => {
         validateInput(casoData.aporte_comunidad, FIELDS.NUMERIC, req);
         validateInput(cliente.ingreso_economico, FIELDS.NUMERIC, req);
         validateInput(casoData.expediente, FIELDS.EXPEDIENTE, req);
+        validateInput(cliente.sexo, FIELDS.CHAR, req);
+        validateInput(contraparte.sexo, FIELDS.CHAR, req);
+        validateInput(casoData.tipo_proceso, FIELDS.TEXT, req);
+        validateInput(casoData.etapa_proceso, FIELDS.TEXT, req);
+        validateInput(casoData.sintesis_hechos, FIELDS.TEXTBOX, req);
+        casoData.expediente && validateInput(casoData.expediente, FIELDS.EXPEDIENTE, req);
+        
 
         // Validar si la cédula del cliente ya está registrada
         await validateIfExists({
@@ -62,7 +68,7 @@ exports.crearCaso = async (req, res) => {
                 { person: req.t('person.CLIENT') },
                 { data: cliente.cedula }
             )
-        });
+        }, { transaction });
 
         // Crear el cliente
         const clientePersona = await Persona.create({
@@ -99,7 +105,7 @@ exports.crearCaso = async (req, res) => {
                 { person: req.t('person.COUNTERPART') },
                 { data: contraparte.cedula }
             )
-        });
+        }, { transaction });
 
         // Crear la contraparte
         const contrapartePersona = await Persona.create({
@@ -138,16 +144,17 @@ exports.crearCaso = async (req, res) => {
                     { person: req.t('person.SUBSIDIARY') },
                     { data: subsidiario.cedula }
                 )
-            });
+            }, { transaction });
 
             // Validar los campos del subsidiario
             validateInput(subsidiario.primer_nombre, FIELDS.TEXT, req);
-            subsidiario.segundo_nombre && validateInput(subsidiario.segundo_nombre, FIELDS.TEXT, req);
+            subsidiario.segundo_nombre && validateInput(subsidiario.segundo_nombre, FIELDS.TEXTBOX, req);
             validateInput(subsidiario.segundo_nombre, FIELDS.TEXT, req);
             validateInput(subsidiario.primer_apellido, FIELDS.TEXT, req);
             validateInput(subsidiario.segundo_apellido, FIELDS.TEXT, req);
             validateInput(subsidiario.cedula, FIELDS.ID, req);
             validateInput(subsidiario.telefono, FIELDS.PHONE_NUMBER, req);
+            validateInput(subsidiario.sexo, FIELDS.CHAR, req);
 
             // Crear el subsidiario si está presente
             const subsidiarioPersona = await Persona.create({
@@ -381,7 +388,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                 localidad: caso.Cliente.Persona.Direccion.localidad,
                 provincia: caso.Cliente.Persona.Direccion.provincia
 
-            };            
+            };
 
             const contraparte = caso.Contraparte && {
                 id_contraparte: caso.Contraparte.id_contraparte,
@@ -592,7 +599,7 @@ exports.mostrarCasosAsignados = async (req, res) => {
                 localidad: caso.Contraparte.Persona.Direccion.localidad,
                 provincia: caso.Contraparte.Persona.Direccion.provincia
             };
-            
+
             const subsidiario = caso.Subsidiario && {
                 id_subsidiario: caso.Subsidiario.id_subsidiario,
                 nombre_completo: getFullName(caso.Subsidiario.Persona),
@@ -665,6 +672,208 @@ exports.mostrarCasosAsignados = async (req, res) => {
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
                 message: req.t('error.ASSIGNED_CASES'),
+                error: error.message,
+                stack: error.stack
+            }
+        });
+    }
+};
+
+exports.actualizarCaso = async (req, res) => {
+    const {
+        id_caso,
+        expediente,
+        ley_7600,
+        tipo_proceso,
+        cuantia_proceso,
+        aporte_comunidad,
+        sintesis_hechos,
+        etapa_proceso,
+        estado,
+        cliente,
+        contraparte,
+        subsidiario
+    } = req.body;
+
+    const transaction = await sequelize.transaction(); // Crear una transacción para asegurar atomicidad
+    const userId = req.session.user.userId; // ID del usuario que realiza la acción
+
+    try {
+        // Encontrar y actualizar el caso
+        const caso = await Caso.findByPk(id_caso, { transaction });
+        if (!caso) {
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.CASE_NOT_FOUND'));
+        }
+        validateInput(expediente, FIELDS.EXPEDIENTE, req);
+        validateInput(tipo_proceso, FIELDS.TEXT, req);
+        validateInput(cuantia_proceso, FIELDS.NUMERIC, req);
+        validateInput(aporte_comunidad, FIELDS.NUMERIC, req);
+        validateInput(sintesis_hechos, FIELDS.TEXTBOX, req);
+        validateInput(etapa_proceso, FIELDS.TEXT, req);
+        validateInput(estado, FIELDS.TEXT, req);
+        
+        await caso.update(
+            {
+                expediente,
+                ley_7600,
+                tipo_proceso,
+                cuantia_proceso,
+                aporte_comunidad,
+                sintesis_hechos,
+                etapa_proceso,
+                evidencia,
+                estado,
+            },
+            { transaction }
+        );
+        const id_cliente = caso?.id_cliente;
+        const id_contraparte = caso?.id_contraparte;
+        const id_subsidiario = caso?.id_subsidiario;
+
+        validateUniqueCedulas(
+            cliente.cedula,
+            contraparte.cedula,
+            subsidiario?.cedula,
+            req
+        );
+
+        // Actualizar datos relacionados si se proporcionan
+        if (cliente) {
+
+            validateInput(cliente.primer_nombre, FIELDS.TEXT, req);
+            cliente.segundo_nombre && validateInput(cliente.segundo_nombre, FIELDS.TEXTBOX, req);
+            validateInput(cliente.primer_apellido, FIELDS.TEXT, req);
+            validateInput(cliente.segundo_apellido, FIELDS.TEXT, req);
+            validateInput(cliente.cedula, FIELDS.ID, req);
+            validateInput(cliente.telefono, FIELDS.PHONE_NUMBER, req);
+            validateInput(cliente.ingreso_economico, FIELDS.NUMERIC, req);
+            validateInput(cliente.sexo, FIELDS.CHAR, req);
+
+            await validateIfExists({
+                model: Persona,
+                field: TABLE_FIELDS.CEDULA,
+                value: cliente.Persona.cedula,
+                errorMessage: req.t(
+                    'warning.PERSON_ALREADY_REGISTERED',
+                    { person: req.t('person.CLIENT') },
+                    { data: cliente.Persona.cedula }
+                )
+            }, { transaction });
+         
+            await updateRelatedEntity(
+                Cliente,
+                cliente,
+                transaction,
+                id_cliente,
+                req
+            );
+            
+            cliente.Persona && await updatePersonAndAddress(
+                cliente.Persona,
+                transaction,
+                id_cliente,
+                req
+            );
+        }
+
+        if (contraparte) {
+
+            validateInput(contraparte.Persona.primer_nombre, FIELDS.TEXT, req);
+            contraparte.Persona.segundo_nombre && validateInput(contraparte.segundo_nombre, FIELDS.TEXTBOX, req);
+            validateInput(contraparte.Persona.primer_apellido, FIELDS.TEXT, req);
+            validateInput(contraparte.Persona.segundo_apellido, FIELDS.TEXT, req);
+            validateInput(contraparte.Persona.cedula, FIELDS.ID, req);
+            validateInput(contraparte.Persona.Persona.telefono, FIELDS.PHONE_NUMBER, req);
+            validateInput(contraparte.Persona.sexo, FIELDS.CHAR, req);
+            validateInput(contraparte.Persona.detalles, FIELDS.TEXTBOX, req);
+
+
+            await validateIfExists({
+                model: Persona,
+                field: TABLE_FIELDS.CEDULA,
+                value: contraparte.Persona.cedula,
+                errorMessage: req.t(
+                    'warning.PERSON_ALREADY_REGISTERED',
+                    { person: req.t('person.COUNTERPART') },
+                    { data: contraparte.Persona.cedula }
+                )
+            }, { transaction });
+
+            await updateRelatedEntity(
+                Contraparte,
+                contraparte,
+                transaction,
+                id_contraparte,
+                req
+            );
+            contraparte.Persona && await updatePersonAndAddress(
+                contraparte.Persona,
+                transaction,
+                id_contraparte,
+                req
+            );
+        }
+
+        if (subsidiario) {
+
+            validateInput(subsidiario.Persona.primer_nombre, FIELDS.TEXT, req);
+            subsidiario.Persona.segundo_nombre && validateInput(subsidiario.segundo_nombre, FIELDS.TEXTBOX, req);
+            validateInput(subsidiario.Persona.primer_apellido, FIELDS.TEXT, req);
+            validateInput(subsidiario.Persona.segundo_apellido, FIELDS.TEXT, req);
+            validateInput(subsidiario.Persona.cedula, FIELDS.ID, req);
+            validateInput(subsidiario.Persona.telefono, FIELDS.PHONE_NUMBER, req);
+            validateInput(subsidiario.sexo, FIELDS.CHAR, req);
+            validateInput(subsidiario.detalles, FIELDS.TEXTBOX, req);
+
+            await validateIfExists({
+                model: Persona,
+                field: TABLE_FIELDS.CEDULA,
+                value: subsidiario.Persona.cedula,
+                errorMessage: req.t(
+                    'warning.PERSON_ALREADY_REGISTERED',
+                    { person: req.t('person.SUBSIDIARY') },
+                    { data: subsidiario.Persona.cedula }
+                )
+            }, { transaction });
+
+            await updateRelatedEntity(
+                Subsidiario,
+                subsidiario,
+                transaction,
+                id_subsidiario,
+                req
+            );
+            subsidiario.Persona && await updatePersonAndAddress(
+                subsidiario.Persona,
+                transaction,
+                id_subsidiario,
+                req
+            );
+        }
+
+        // Registrar la acción de actualización en la tabla de auditoría
+        await AuditLog.create({
+            user_id: userId,
+            action: 'Actualización de Caso',
+            description: `El caso con UID ${id_caso} fue actualizado`,
+        }, { transaction });
+
+        await transaction.commit(); // Confirmar la transacción
+
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: req.t('success.CASE_UPDATED'),
+            data: caso
+        });
+    } catch (error) {
+        await transaction.rollback(); // Revertir la transacción en caso de error
+        console.error('Error actualizando caso:', error);
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: req.t('error.UPDATING_CASE'),
                 error: error.message,
                 stack: error.stack
             }

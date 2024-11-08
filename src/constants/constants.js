@@ -24,7 +24,8 @@ const FIELDS = {
     EXPEDIENTE: 'expediente',
     PHONE_NUMBER: 'phone_number',
     CARNET: 'carnet',
-    PASSWORD: 'password'
+    PASSWORD: 'password',
+    CHAR: 'char',
 };
 
 

@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
 const { MESSAGE_ERROR, HttpStatus, FIELDS, ROL } = require("../constants/constants");
 const { CustomError } = require("../handlers/responseHandler");
-const { Usuario, Caso, AsignacionDeCaso, Avance, Estudiante, SolicitudConfirmacion, Persona } = require("../../models");
+const { Usuario, Caso, AsignacionDeCaso, Avance, Estudiante, SolicitudConfirmacion, Persona, Direccion } = require("../../models");
 const bcrypt = require("bcryptjs/dist/bcrypt");
 
 const getFullName = (persona) => {
@@ -24,6 +24,41 @@ const getFullName = (persona) => {
     return fullName.trim();
 };
 
+const updateRelatedEntity = async (Model, data, transaction, uid, req) => {
+
+
+
+    if (!uid) {
+        throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.UID_IS_REQUIRED'));
+    }
+    const entity = await Model.findByPk(uid, { transaction });
+    if (!entity) {
+        throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.ENTITY_NOT_FOUND'));
+    }
+    await entity.update(data, { transaction });
+};
+
+const updatePersonAndAddress = async (personData, transaction, id_persona, req) => {
+    if (!id_persona) {
+        throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.UID_IS_REQUIRED'));
+    }
+    const person = await Persona.findByPk(id_persona, { transaction });
+    if (!person) {
+        throw new CustomError(HttpStatus.NOT_FOUND, 'Person not found');
+    }
+    await person.update(personData, { transaction });
+
+    // Update the address if present
+    if (personData.Direccion) {
+        if (!person.id_persona) {
+            throw new CustomError(HttpStatus.BAD_REQUEST, 'Person ID is required');
+        }
+        await Direccion.update(
+            { ...personData.Direccion },
+            { where: { id_persona: person.id_persona } },
+            { transaction });
+    };
+};
 const findStudentByPk = async (id_estudiante, req) => {
 
     const estudiante = await Estudiante.findByPk(id_estudiante, {
@@ -148,7 +183,6 @@ const validateUpdatesInputs = async ({ currentValue, newValue, model, field, mes
         }
     }
 }
-
 
 const validatePasswordHash = async (password, userPasswordHash, req) => {
 
@@ -276,6 +310,11 @@ const validateUniqueCedulas = (clienteCedula, contraparteCedula, subsidiarioCedu
     }
 };
 
+const validateGenderCharacter = (character) => {
+    const allowedCharacters = /^[MF]$/;
+    return allowedCharacters.test(character);
+};
+
 const validateInput = (input, field, req) => {
     switch (field) {
         case FIELDS.TEXT:
@@ -286,6 +325,11 @@ const validateInput = (input, field, req) => {
         case FIELDS.TEXTBOX:
             if (!validateTextWithSpaces(input)) {
                 throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_TEXTBOX_FORMAT', { data: input }));
+            }
+            break;
+        case FIELDS.CHAR:
+            if (!validateGenderCharacter(input)) {
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_GENDER_CHARACTER', { data: input }));
             }
             break;
         case FIELDS.ID:
@@ -326,7 +370,6 @@ const validateInput = (input, field, req) => {
     }
 };
 
-
 module.exports = {
     findStudentByPk,
     validateInput,
@@ -341,5 +384,7 @@ module.exports = {
     validateCaseAssignedToStudent,
     validateIfUserIsTeacher,
     checkStudentAssignmentsAndProgress,
-    findConfirmationRequestById
+    findConfirmationRequestById,
+    updateRelatedEntity,
+    updatePersonAndAddress
 };

@@ -90,7 +90,9 @@
         "IS_ALREADY_REGISTERED": "A person is already registered with the ID: {{data}}.",
         "CARNET_ALREADY_REGISTERED": "A student is already registered with the student ID: {{data}}.",
         "RECORD_ALREADY_EXISTS": "The record with {{field}} {{data}} already exists.",
-        "NO_CONFIRMATION_REQUESTS_FOUND": "No confirmation requests found."
+        "NO_CONFIRMATION_REQUESTS_FOUND": "No confirmation requests found.",
+        "UID_IS_REQUIRED": "The UID is required.",
+        "ENTITY_NOT_FOUND": "The {{entity}} was not found."
     },
     "validation": {
         "INVALID_TEXT_FORMAT": " --> {{data}} <-- Invalid text format. Only letters are allowed.",
@@ -102,7 +104,8 @@
         "INVALID_EXPEDIENTE_FORMAT": "--> {{data}} <-- Invalid expediente number format.",
         "INVALID_PHONE_NUMBER_FORMAT": "--> {{data}} <-- Invalid phone number format. The number must be 8 digits and start with 2, 5, 6, 7, or 8.",
         "INVALID_CARNET_FORMAT": "--> {{data}} <-- Invalid carnet format.",
-        "INVALID_INPUT": "--> {{data}} <-- Invalid input."
+        "INVALID_INPUT": "--> {{data}} <-- Invalid input.",
+        "INVALID_GENDER_CHARACTER": "--> {{data}} <-- is an invalid character. Only 'M' or 'F' are allowed."
     },
     "person": {
         "STUDENT": "Student",
