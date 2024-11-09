@@ -9,7 +9,8 @@ const {
     mostrarCasosAsignados,
     crearCaso,
     mostrarCasosNoAsignados,
-    actualizarCaso,    
+    actualizarCaso,   
+    desasignarCasoDeEstudiante
 } = require('../controllers/casoController');
 
 // Ruta para crear un caso
@@ -25,6 +26,12 @@ router.post(
     verifySession,
     verifyRole([ROL.SUPERADMIN, ROL.PROFESSOR]),
     asignarCasoAEstudiante
+);
+router.post(
+    ROUTES.DEASSIGN,
+    verifySession,
+    verifyRole([ROL.SUPERADMIN, ROL.PROFESSOR]),
+    desasignarCasoDeEstudiante
 );
 
 router.get(

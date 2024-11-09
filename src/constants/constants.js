@@ -179,12 +179,14 @@ const ROUTES = {
     CASES: '/casos',
     CASE: '/caso',
     ASSIGN: '/asignar',
+    DEASSIGN: '/desasignar',
     SHOW_UNASSIGNED: '/noAsignados',
     ASSIGNED: '/asignados',
     REQUEST_DELETE: '/solicitar/eliminar',
     CHANGE: '/cambiar',
     USERS: '/usuarios',
     REGISTER: '/register',
+    ACTIVATE: '/activar',
 }
 
 module.exports = {

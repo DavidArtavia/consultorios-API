@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { actualizarProfesor, mostrarProfesor, mostrarProfesoresActivos, mostrarProfesoresInactivos, desactivarProfesor } = require('../controllers/profesorController');
+const { actualizarProfesor, mostrarProfesor, mostrarProfesoresActivos, mostrarProfesoresInactivos, activarProfesor, desactivarProfesor } = require('../controllers/profesorController');
 const verifySession = require('../middlewares/auth');
 const { verifyRole } = require('../middlewares/verifyRole');
 const { ROL, ROUTES } = require('../constants/constants');
@@ -39,6 +39,13 @@ router.post(
     verifyRole([
         ROL.SUPERADMIN]),
     desactivarProfesor
+);
+router.post(
+    ROUTES.ACTIVATE,
+    verifySession,
+    verifyRole([
+        ROL.SUPERADMIN]),
+    activarProfesor
 );
 
 module.exports = router;

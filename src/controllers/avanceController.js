@@ -6,9 +6,11 @@ const { validateUpdatesInputs, validateInput, getFullName, validateCaseAssignedT
 exports.crearAvance = async (req, res) => {
     const {
         id_estudiante,
-        id_caso, gestion,
+        id_caso,
+        gestion,
         resultado_concreto,
-        evidencia, observaciones
+        evidencia,
+        observaciones
     } = req.body;
 
     try {

@@ -2,7 +2,7 @@
 const { t } = require('i18next');
 const { HttpStatus, MESSAGE_SUCCESS, MESSAGE_ERROR, TABLE_FIELDS, FIELDS, STATES } = require('../constants/constants');
 const { CustomError, sendResponse } = require('../handlers/responseHandler');
-const { AsignacionDeCaso, Estudiante, Caso, Persona, Direccion, Contraparte, AuditLog, Cliente, Sequelize, Subsidiario, sequelize } = require('../../models');
+const { AsignacionDeCaso, Estudiante, Caso, Persona, Direccion, Contraparte, AuditLog, Cliente, Subsidiario, sequelize } = require('../../models');
 const { validateIfExists, validateInput, validateUniqueCedulas, getFullName, updateRelatedEntity, updatePersonAndAddress } = require('../utils/helpers');
 const { Op } = require('sequelize');
 
@@ -224,13 +224,13 @@ exports.crearCaso = async (req, res) => {
 };
 
 exports.asignarCasoAEstudiante = async (req, res) => {
-    const { idEstudiante, idCaso } = req.body;
+    const { id_estudiante, id_caso } = req.body;
     const transaction = await sequelize.transaction(); // Inicia la transacción
 
     try {
         // Verificar si el estudiante y el caso existen
-        const estudiante = await Estudiante.findByPk(idEstudiante);
-        const caso = await Caso.findByPk(idCaso);
+        const estudiante = await Estudiante.findByPk(id_estudiante);
+        const caso = await Caso.findByPk(id_caso);
 
         if (!estudiante) {
 
@@ -243,7 +243,7 @@ exports.asignarCasoAEstudiante = async (req, res) => {
 
         // Verificar si el caso ya está asignado a algún estudiante
         const asignacionExistente = await AsignacionDeCaso.findOne({
-            where: { id_caso: idCaso }
+            where: { id_caso }
         });
 
         if (asignacionExistente) {
@@ -253,14 +253,20 @@ exports.asignarCasoAEstudiante = async (req, res) => {
 
         // Crear la asignación
         const nuevaAsignacion = await AsignacionDeCaso.create({
-            id_caso: idCaso,
-            id_estudiante: idEstudiante,
+            id_caso,
+            id_estudiante,
         }, { transaction });
 
         await Caso.update({
             estado: STATES.ASSIGNED
         }, {
-            where: { id_caso: idCaso }
+            where: { id_caso }
+        }, { transaction });
+
+        await AuditLog.create({
+            user_id: userId,
+            action: 'Asisgnar caso a un Estudiante',
+            description: `Estudiante con UID ${id_estudiante} se le asigno el caso ${id_caso}`,
         }, { transaction });
 
         await transaction.commit();
@@ -287,6 +293,69 @@ exports.asignarCasoAEstudiante = async (req, res) => {
     }
 };
 
+exports.desasignarCasoDeEstudiante = async (req, res) => {
+    const { id_estudiante, id_caso } = req.body;
+    const transaction = await sequelize.transaction(); 
+    const userId = req.session.user?.userId;
+    try {
+        // Verificar si el estudiante y el caso existen
+        const estudiante = await Estudiante.findByPk(id_estudiante);
+        const caso = await Caso.findByPk(id_caso);
+
+        if (!estudiante) {
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.STUDENT_NOT_FOUND'));
+        }
+        if (!caso) {
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.CASE_NOT_FOUND'));
+        }
+
+        // Verificar si existe la asignación del caso al estudiante
+        const asignacionExistente = await AsignacionDeCaso.findOne({
+            where: {
+                id_caso,
+                id_estudiante
+            }
+        });
+
+        if (!asignacionExistente) {
+            throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.NO_CASE_ASSIGNED'));
+        }
+
+        // Eliminar la asignación del caso al estudiante
+        await asignacionExistente.destroy({ transaction });
+
+        // Actualizar el estado del caso a activo nuevamente
+        await caso.update({
+            estado: STATES.ACTIVE
+        }, { transaction });
+
+        await AuditLog.create({
+            user_id: userId,
+            action: 'Desasisgnar caso a un Estudiante',
+            description: `Estudiante con UID ${id_estudiante} se le desasigno el caso ${id_caso}`,
+        }, { transaction });
+
+        await transaction.commit();
+
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.CREATED,
+            message: req.t('success.CASE_UNASSIGNED'),
+            data: { id_caso: id_caso, id_estudiante: id_estudiante }
+        });
+    } catch (error) {
+        await transaction.rollback();
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: req.t('error.UNASSIGNING_CASE'),
+                error: error.message,
+                stack: error.stack
+            }
+        });
+    }
+};
 
 
 exports.mostrarCasosNoAsignados = async (req, res) => {

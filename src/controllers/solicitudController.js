@@ -1,35 +1,57 @@
 const { HttpStatus, ACTION, DECISION, STATES, TABLE_FIELDS, ORDER } = require("../constants/constants");
 const { sendResponse, CustomError } = require("../handlers/responseHandler");
-const { sequelize, Persona, Estudiante, Caso, SolicitudConfirmacion} = require("../../models");
-const { checkStudentAssignmentsAndProgress, findConfirmationRequestById, findStudentByPk } = require("../utils/helpers");
+const { sequelize, Persona, Estudiante, Caso, SolicitudConfirmacion } = require("../../models");
+const { checkStudentAssignmentsAndProgress, findConfirmationRequestById, findStudentByPk, getFullName } = require("../utils/helpers");
 
 exports.mostrarSolicitudes = async (req, res) => {
     try {
-        
+
         // Obtener todas las solicitudes de confirmación
         const solicitudes = await SolicitudConfirmacion.findAll({
             include: [
                 {
                     model: Estudiante,
-                    include: [Persona] 
-                },
-                {
-                    model: Caso 
+                    include: [Persona]
                 }
             ],
             order: [[TABLE_FIELDS.CREATED_AT, ORDER.DESC]] // Ordenar por fecha de creación, más recientes primero
         });
 
         if (!solicitudes || solicitudes.length === 0) {
-            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.NO_CONFIRMATION_REQUESTS_FOUND') );
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.NO_CONFIRMATION_REQUESTS_FOUND'));
         }
+
+        const solicitudInfo = solicitudes.map(solicitud => ({
+            id_solicitud: solicitud.id_solicitud,
+            id_caso: solicitud.id_caso,
+            accion: solicitud.accion,
+            estado: solicitud.estado,
+            detalles: solicitud.detalles,
+            Estudiante: {
+                id_estudiante: solicitud.id_estudiante,
+                nombre_completo: getFullName(solicitud.Estudiante.Persona),
+                primer_nombre: solicitud.Estudiante.Persona.primer_nombre,
+                segundo_nombre: solicitud.Estudiante.Persona.segundo_nombre || '',
+                primer_apellido: solicitud.Estudiante.Persona.primer_apellido,
+                segundo_apellido: solicitud.Estudiante.Persona.segundo_apellido,
+                carnet: solicitud.Estudiante.carnet,
+                cedula: solicitud.Estudiante.Persona.cedula,
+                telefono: solicitud.Estudiante.Persona.telefono,
+                telefono_adicional: solicitud.Estudiante.Persona.telefono_adicional,
+                createdAt: solicitud.Estudiante.createdAt,
+                updatedAt: solicitud.Estudiante.updatedAt,
+                direccion: solicitud.Estudiante.Persona.Direccion && {
+                    ...solicitud.Estudiante.Persona.Direccion.toJSON()
+                }
+            }
+        }));
 
         // Responder con las solicitudes
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
             message: req.t('success.CONFIRMATION_REQUESTS_FOUND'),
-            data: solicitudes
+            data: solicitudInfo
         });
     } catch (error) {
 

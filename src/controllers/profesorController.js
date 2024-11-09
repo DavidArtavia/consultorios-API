@@ -281,6 +281,55 @@ exports.desactivarProfesor = async (req, res) => {
     }
 };
 
+// Función para activar un profesor
+exports.activarProfesor = async (req, res) => {
+    const { id_profesor } = req.body;
+    const userId = req.session.user?.userId;
+
+    try {
+        const profesor = await Profesor.findByPk(id_profesor);
+
+        if (!profesor) {
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.NOT_PROFESORS_FOUND'));
+        }
+
+        // Verificar si el profesor ya está activado
+        if (profesor.estado == STATES.ACTIVE) {
+            throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.PROFESSOR_ALREADY_ACTIVE'));
+        }
+
+        // Cambiar el estado del profesor a inactivo
+        profesor.estado = STATES.ACTIVE;
+        await profesor.save();
+
+        // Registrar en la tabla de auditoría
+        await AuditLog.create({
+            user_id: userId,
+            action: 'Activación de Profesor',
+            description: `El profesor con UID ${id_profesor} fue activado`,
+        });
+
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: req.t('success.PROFESSOR_ACTIVATED'),
+        });
+
+    } catch (error) {
+        console.error(req.t('error.ACTIVATING_PROFESSOR'), error);
+
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: req.t('error.ACTIVATING_PROFESSOR'),
+                error: error.message,
+                stack: error.stack
+            }
+        });
+    }
+};
+
 
 exports.actualizarProfesor = async (req, res) => {
     const {

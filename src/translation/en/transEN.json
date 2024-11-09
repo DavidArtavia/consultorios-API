@@ -19,11 +19,13 @@
         "RETRIEVING": "Error retrieving {{data}} information.",
         "RETRIEVING_USERS": "Error retrieving user information.",
         "UNASSIGNED_CASES": "Error retrieving unassigned cases.",
+        "UNASSIGNING_CASE": "Error unassigning case.",
         "ASSIGNED_CASES": "Error retrieving assigned cases.",
         "CHANGING_LANGUAGE": "Error changing language.",
         "RETRIEVING_CONFIRMATION_REQUESTS": "Error retrieving confirmation requests.",
         "SERVER_ERROR": "Could not connect to the database.",
         "DEACTIVATING_PROFESSOR": "Error deactivating professor.",
+        "ACTIVATING_PROFESSOR": "Error activating professor.",
         "UPDATING_PROFESOR": "Error updating professor."
     },
     "success": {
@@ -34,6 +36,7 @@
         "STUDENT_UPDATED": "Student updated successfully.",
         "CASE_CREATED": "Case created successfully.",
         "CASE_ASSIGNED": "Case assigned to student successfully.",
+        "CASE_UNASSIGNED": "Case unassigned from student successfully.",
         "RECOVERED_STUDENTS": "Student list retrieved successfully.",
         "RECOVERED_PROFESORS": "Professor list retrieved successfully.",
         "REQUEST_CREATED": "Request sent to administrator successfully. The student will be deleted if approved.",
@@ -50,10 +53,13 @@
         "REQUEST_DETAILS": "The request was: {{data}}",
         "SERVER_RUNNING": "Server running on port {{port}}",
         "PROFESSOR_DEACTIVATED": "Professor deactivated successfully.",
+        "PROFESSOR_ACTIVATED": "Professor activated successfully.",
         "PROFESOR_UPDATED": "Professor updated successfully."
     },
     "warning": {
         "PROFESSOR_ALREADY_INACTIVE": "The professor is already inactive.",
+        "PROFESSOR_ALREADY_ACTIVE": "The professor is already active.",
+        "INACTIVE_PROFESSOR": "The professor is inactive and cannot log in.",
         "REQUEST_PENDING": "There is already a pending deletion request for this student. Please wait for it to be processed.",
         "INVALID_DECISION": "Invalid decision. It must be 'accepted' or 'denied'.",
         "CREATING_PROGRESS": "Error creating progress.",

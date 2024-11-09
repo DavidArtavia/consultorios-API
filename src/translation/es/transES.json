@@ -19,11 +19,13 @@
         "RETRIEVING": "Error al recuperar la información del {{data}}.",
         "RETRIEVING_USERS": "Error al recuperar la información de usuarios.",
         "UNASSIGNED_CASES": "Error al recuperar los casos no asignados.",
+        "UNASSIGNING_CASE": "Error al desasignar el caso.",
         "ASSIGNED_CASES": "Error al recuperar los casos asignados.",
         "CHANGING_LANGUAGE": "Error al cambiar el idioma.",
         "RETRIEVING_CONFIRMATION_REQUESTS": "Error al recuperar las solicitudes de confirmación.",
         "SERVER_ERROR": "No se pudo conectar a la base de datos:",
         "DEACTIVATING_PROFESSOR": "Error al desactivar al profesor.",
+        "ACTIVATING_PROFESSOR": "Error al activar al profesor.",
         "UPDATING_PROFESOR": "Error al actualizar al profesor."
     },
     "success": {
@@ -34,6 +36,7 @@
         "STUDENT_UPDATED": "Estudiante actualizado exitosamente.",
         "CASE_CREATED": "Caso creado exitosamente.",
         "CASE_ASSIGNED": "Caso asignado al estudiante exitosamente.",
+        "CASE_UNASSIGNED": "Caso desasignado al estudiante exitosamente.",
         "RECOVERED_STUDENTS": "Lista de estudiantes recuperada exitosamente.",
         "RECOVERED_PROFESORS": "Lista de profesores recuperada exitosamente.",
         "REQUEST_CREATED": "Solicitud enviada exitosamente al administrador. El estudiante será eliminado si se aprueba.",
@@ -50,11 +53,13 @@
         "REQUEST_DETAILS": "La solicitud fue: {{data}}",
         "SERVER_RUNNING": "Servidor corriendo en el puerto {{port}}",
         "PROFESSOR_DEACTIVATED": "Profesor desactivado exitosamente.",
+        "PROFESSOR_ACTIVATED": "Profesor activado exitosamente.",
         "PROFESOR_UPDATED": "Profesor actualizado exitosamente."
-        
     },
     "warning": {
         "PROFESSOR_ALREADY_INACTIVE": "El profesor ya está inactivo.",
+        "PROFESSOR_ALREADY_ACTIVE": "El profesor ya está activo.",
+        "PROFESSOR_INACTIVE": "El profesor está inactivo y no puede iniciar sesión.",
         "REQUEST_PENDING": "Ya hay una solicitud de eliminación pendiente para este estudiante. Por favor, espere a que se procese.",
         "INVALID_DECISION": "Decisión inválida. Debe ser 'aceptado' o 'denegado'.",
         "CREATING_PROGRESS": "Error al crear el avance.",
