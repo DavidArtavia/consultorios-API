@@ -23,23 +23,23 @@ module.exports = {
         onUpdate: 'CASCADE', 
       },
       direccion_exacta: {
-        type: Sequelize.STRING(200),
+        type: Sequelize.TEXT,
         allowNull: true,
       },
       canton: {
-        type: Sequelize.STRING(55),
+        type: Sequelize.TEXT,
         allowNull: false,
       },
       distrito: {
-        type: Sequelize.STRING(55),
+        type: Sequelize.TEXT,
         allowNull: false,
       },
       localidad: {
-        type: Sequelize.STRING(55),
+        type: Sequelize.TEXT,
         allowNull: false,
       },
       provincia: {
-        type: Sequelize.STRING(55),
+        type: Sequelize.TEXT,
         allowNull: false,
       },
       createdAt: {

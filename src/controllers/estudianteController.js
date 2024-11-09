@@ -16,7 +16,8 @@ exports.mostrarEstudiantes = async (req, res) => {
                         TABLE_FIELDS.PRIMER_APELLIDO,
                         TABLE_FIELDS.SEGUNDO_APELLIDO,
                         TABLE_FIELDS.CEDULA,
-                        TABLE_FIELDS.TELEFONO
+                        TABLE_FIELDS.TELEFONO,
+                        TABLE_FIELDS.TELEFONO_ADICIONAL
                     ],
                     include: [
                         {
@@ -53,6 +54,7 @@ exports.mostrarEstudiantes = async (req, res) => {
             carnet: estudiante.carnet,
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,
+            telefono_adicional: estudiante.Persona.telefono_adicional,
             createdAt: estudiante.createdAt,
             updatedAt: estudiante.updatedAt,
             direccion: estudiante.Persona.Direccion && {
@@ -294,6 +296,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                         TABLE_FIELDS.SEGUNDO_APELLIDO,
                         TABLE_FIELDS.CEDULA,
                         TABLE_FIELDS.TELEFONO,
+                        TABLE_FIELDS.TELEFONO_ADICIONAL,
                         TABLE_FIELDS.CREATED_AT,
                         TABLE_FIELDS.UPDATED_AT
                     ]
@@ -317,7 +320,8 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                                         TABLE_FIELDS.PRIMER_APELLIDO,
                                         TABLE_FIELDS.SEGUNDO_APELLIDO,
                                         TABLE_FIELDS.CEDULA,
-                                        TABLE_FIELDS.TELEFONO
+                                        TABLE_FIELDS.TELEFONO,
+                                        TABLE_FIELDS.TELEFONO_ADICIONAL
                                     ],
                                     include: [
                                         {
@@ -358,7 +362,8 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                                         TABLE_FIELDS.PRIMER_APELLIDO,
                                         TABLE_FIELDS.SEGUNDO_APELLIDO,
                                         TABLE_FIELDS.CEDULA,
-                                        TABLE_FIELDS.TELEFONO
+                                        TABLE_FIELDS.TELEFONO,
+                                        TABLE_FIELDS.TELEFONO_ADICIONAL
                                     ],
                                     include: [
                                         {
@@ -400,6 +405,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
             carnet: estudiante.carnet,
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,
+            telefono_adicional: estudiante.Persona.telefono_adicional,
             createdAt: estudiante.createdAt,
             updatedAt: estudiante.updatedAt,
             casosAsignados: estudiante.AsignacionDeCasos.map(asignacion => {
@@ -410,6 +416,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                     nombre_completo: getFullName(caso.Cliente.Persona),
                     cedula: caso.Cliente.Persona.cedula,
                     telefono: caso.Cliente.Persona.telefono,
+                    telefono_adicional: caso.Cliente.Persona.telefono_adicional,
                     sexo: caso.Cliente.sexo,
                     ingreso_economico: caso.Cliente.ingreso_economico,
                     createdAt: caso.Cliente.createdAt,
@@ -427,6 +434,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                     nombre_completo: getFullName(caso.Contraparte.Persona),
                     cedula: caso.Contraparte.Persona.cedula,
                     telefono: caso.Contraparte.Persona.telefono,
+                    telefono_adicional: caso.Contraparte.Persona.telefono_adicional,
                     sexo: caso.Contraparte.sexo,
                     detalles: caso.Contraparte.detalles,
                     createdAt: caso.Contraparte.createdAt,
@@ -444,6 +452,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                     nombre_completo: getFullName(caso.Subsidiario.Persona),
                     cedula: caso.Subsidiario.Persona.cedula,
                     telefono: caso.Subsidiario.Persona.telefono,
+                    telefono_adicional: caso.Subsidiario.Persona.telefono_adicional,
                     sexo: caso.Subsidiario.sexo,
                     detalles: caso.Subsidiario.detalles,
                     createdAt: caso.Subsidiario.createdAt,
@@ -496,6 +505,7 @@ exports.actualizarEstudiante = async (req, res) => {
         segundo_apellido,
         cedula,
         telefono,
+        telefono_adicional,
         carnet,
         direccion
     } = req.body;
@@ -517,6 +527,7 @@ exports.actualizarEstudiante = async (req, res) => {
         validateInput(cedula, FIELDS.ID, req);
         validateInput(telefono, FIELDS.PHONE_NUMBER, req);
         validateInput(carnet, FIELDS.CARNET, req);
+        telefono_adicional && validateInput(telefono_adicional, FIELDS.PHONE_NUMBER, req);
 
         await validateUpdatesInputs({
             currentValue: estudiante.Persona.cedula,
@@ -540,7 +551,8 @@ exports.actualizarEstudiante = async (req, res) => {
             primer_apellido,
             segundo_apellido,
             cedula,
-            telefono
+            telefono,
+            telefono_adicional
         }, { transaction });
 
         await estudiante.update({
@@ -616,7 +628,8 @@ exports.solicitarEliminarEstudiante = async (req, res) => {
                         TABLE_FIELDS.PRIMER_APELLIDO,
                         TABLE_FIELDS.SEGUNDO_APELLIDO,
                         TABLE_FIELDS.CEDULA,
-                        TABLE_FIELDS.TELEFONO
+                        TABLE_FIELDS.TELEFONO,
+                        TABLE_FIELDS.TELEFONO_ADICIONAL
                     ],
                     include: [Direccion, Usuario]
                 },

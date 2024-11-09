@@ -16,12 +16,12 @@ const Usuario = sequelize.define('Usuario', {
         allowNull: false,
     },
     username: {
-        type: DataTypes.STRING(50),
+        type: DataTypes.TEXT,
         allowNull: false,
         unique: true,
     },
     email: {
-        type: DataTypes.STRING(50),
+        type: DataTypes.TEXT,
         allowNull: false,
         unique: true,
         validate: {

@@ -18,7 +18,7 @@ module.exports = {
         onUpdate: 'CASCADE',
       },
       especialidad: {
-        type: Sequelize.STRING(50),
+        type: Sequelize.TEXT,
         allowNull: true,
       },
       estado: {

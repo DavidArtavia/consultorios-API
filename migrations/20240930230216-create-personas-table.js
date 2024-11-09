@@ -13,27 +13,31 @@ module.exports = {
         allowNull: false,
       },
       primer_nombre: {
-        type: Sequelize.STRING(50),
+        type: Sequelize.TEXT,
         allowNull: false,
       },
       segundo_nombre: {
-        type: Sequelize.STRING(50),
+        type: Sequelize.TEXT,
         allowNull: true,
       },
       primer_apellido: {
-        type: Sequelize.STRING(50),
+        type: Sequelize.TEXT,
         allowNull: false,
       },
       segundo_apellido: {
-        type: Sequelize.STRING(50),
+        type: Sequelize.TEXT,
         allowNull: false,
       },
       cedula: {
-        type: Sequelize.STRING(20),
+        type: Sequelize.TEXT,
         allowNull: false,
       },
       telefono: {
-        type: Sequelize.STRING(20),
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
+      telefono_adicional: {
+        type: Sequelize.TEXT,
         allowNull: true,
       },
       createdAt: {

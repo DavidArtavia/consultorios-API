@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
             onDelete: 'SET NULL'
         },
         expediente: {
-            type: DataTypes.STRING(50),
+            type: DataTypes.TEXT,
             allowNull: true,
             unique: true,
         },
@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: false,
         },
         tipo_proceso: {
-            type: DataTypes.STRING(255),
+            type: DataTypes.TEXT,
             allowNull: true,
         },
         cuantia_proceso: {

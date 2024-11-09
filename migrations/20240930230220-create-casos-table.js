@@ -42,7 +42,7 @@ module.exports = {
 
       },
       expediente: {
-        type: Sequelize.STRING(50),
+        type: Sequelize.TEXT,
         allowNull: true,
         unique: true,
       },
@@ -51,7 +51,7 @@ module.exports = {
         defaultValue: false,
       },
       tipo_proceso: {
-        type: Sequelize.STRING(255),
+        type: Sequelize.TEXT,
         allowNull: true,
       },
       cuantia_proceso: {

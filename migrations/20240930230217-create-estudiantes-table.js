@@ -18,7 +18,7 @@ module.exports = {
         onUpdate: 'CASCADE',
       },
       carnet: {
-        type: Sequelize.STRING(20),
+        type: Sequelize.TEXT,
         allowNull: false,
         unique: true,
       },

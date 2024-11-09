@@ -14,6 +14,7 @@ exports.register = async (req, res) => {
         segundo_apellido,
         cedula,
         telefono,
+        telefono_adicional,
         username,
         email,
         password,
@@ -54,6 +55,7 @@ exports.register = async (req, res) => {
         validateInput(rol, FIELDS.TEXT, req);
         validateInput(cedula, FIELDS.ID, req);
         validateInput(telefono, FIELDS.PHONE_NUMBER, req);
+        telefono_adicional && validateInput(telefono_adicional, FIELDS.PHONE_NUMBER, req);
         validateInput(email, FIELDS.EMAIL, req);
 
         if (rol == ROL.STUDENT) {
@@ -71,6 +73,7 @@ exports.register = async (req, res) => {
             segundo_apellido,
             cedula,
             telefono,
+            telefono_adicional
         }, { transaction });
 
         // Crear la dirección si se proporciona

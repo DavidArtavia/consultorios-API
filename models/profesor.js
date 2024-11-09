@@ -7,7 +7,7 @@ const Profesor = sequelize.define('Profesor', {
         allowNull: false,
     },
     especialidad: {
-        type: DataTypes.STRING(50),
+        type: DataTypes.TEXT,
         allowNull: true,
     },
     estado: {

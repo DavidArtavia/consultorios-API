@@ -97,6 +97,7 @@ const TABLE_FIELDS = {
     SEGUNDO_APELLIDO: 'segundo_apellido',
     CEDULA: 'cedula',
     TELEFONO: 'telefono',
+    TELEFONO_ADICIONAL: 'telefono_adicional',
     CREATED_AT: 'createdAt',
     UPDATED_AT: 'updatedAt',
     ESPECIALIDAD: 'especialidad',

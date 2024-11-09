@@ -8,27 +8,31 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
         },
         primer_nombre: {
-            type: DataTypes.STRING(50),
+            type: DataTypes.TEXT,
             allowNull: false,
         },
         segundo_nombre: {
-            type: DataTypes.STRING(50),
+            type: DataTypes.TEXT,
             allowNull: true,
         },
         primer_apellido: {
-            type: DataTypes.STRING(50),
+            type: DataTypes.TEXT,
             allowNull: false,
         },
         segundo_apellido: {
-            type: DataTypes.STRING(50),
+            type: DataTypes.TEXT,
             allowNull: false,
         },
         cedula: {
-            type: DataTypes.STRING(20),
+            type: DataTypes.TEXT,
             allowNull: false,
         },
         telefono: {
-            type: DataTypes.STRING(20),
+            type: DataTypes.TEXT,
+            allowNull: true,
+        },
+        telefono_adicional: {
+            type: DataTypes.TEXT,
             allowNull: true,
         },
     }, {

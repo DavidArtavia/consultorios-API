@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
         },
         carnet: {
-            type: DataTypes.STRING(20),
+            type: DataTypes.TEXT,
             allowNull: false,
             unique: true,
         },

@@ -35,28 +35,33 @@ exports.crearCaso = async (req, res) => {
 
         // Validar los campos de entrada
         validateInput(cliente.primer_nombre, FIELDS.TEXT, req);
-        cliente.segundo_nombre && validateInput(cliente.segundo_nombre, FIELDS.TEXTBOX, req);
         validateInput(cliente.primer_apellido, FIELDS.TEXT, req);
         validateInput(cliente.segundo_apellido, FIELDS.TEXT, req);
+        validateInput(cliente.cedula, FIELDS.ID, req);
+        validateInput(cliente.telefono, FIELDS.PHONE_NUMBER, req);
+        validateInput(cliente.ingreso_economico, FIELDS.NUMERIC, req);
+        validateInput(cliente.sexo, FIELDS.CHAR, req);
+        cliente.segundo_nombre && validateInput(cliente.segundo_nombre, FIELDS.TEXTBOX, req);
+        cliente.telefono_adicional && validateInput(cliente.telefono_adicional, FIELDS.PHONE_NUMBER, req);
+
         validateInput(contraparte.primer_nombre, FIELDS.TEXT, req);
-        contraparte.segundo_nombre && validateInput(contraparte.segundo_nombre, FIELDS.TEXTBOX, req);
         validateInput(contraparte.primer_apellido, FIELDS.TEXT, req);
         validateInput(contraparte.segundo_apellido, FIELDS.TEXT, req);
-        validateInput(cliente.cedula, FIELDS.ID, req);
         validateInput(contraparte.cedula, FIELDS.ID, req);
-        validateInput(cliente.telefono, FIELDS.PHONE_NUMBER, req);
         validateInput(contraparte.telefono, FIELDS.PHONE_NUMBER, req);
+        validateInput(contraparte.sexo, FIELDS.CHAR, req);
+        contraparte.detalles && validateInput(contraparte.detalles, FIELDS.TEXTBOX, req);
+        contraparte.segundo_nombre && validateInput(contraparte.segundo_nombre, FIELDS.TEXTBOX, req);
+        contraparte.telefono_adicional && validateInput(contraparte.telefono_adicional, FIELDS.PHONE_NUMBER, req);
+
         validateInput(casoData.cuantia_proceso, FIELDS.NUMERIC, req);
         validateInput(casoData.aporte_comunidad, FIELDS.NUMERIC, req);
-        validateInput(cliente.ingreso_economico, FIELDS.NUMERIC, req);
         validateInput(casoData.expediente, FIELDS.EXPEDIENTE, req);
-        validateInput(cliente.sexo, FIELDS.CHAR, req);
-        validateInput(contraparte.sexo, FIELDS.CHAR, req);
         validateInput(casoData.tipo_proceso, FIELDS.TEXT, req);
         validateInput(casoData.etapa_proceso, FIELDS.TEXT, req);
         validateInput(casoData.sintesis_hechos, FIELDS.TEXTBOX, req);
         casoData.expediente && validateInput(casoData.expediente, FIELDS.EXPEDIENTE, req);
-        
+
 
         // Validar si la cédula del cliente ya está registrada
         await validateIfExists({
@@ -148,13 +153,15 @@ exports.crearCaso = async (req, res) => {
 
             // Validar los campos del subsidiario
             validateInput(subsidiario.primer_nombre, FIELDS.TEXT, req);
-            subsidiario.segundo_nombre && validateInput(subsidiario.segundo_nombre, FIELDS.TEXTBOX, req);
             validateInput(subsidiario.segundo_nombre, FIELDS.TEXT, req);
             validateInput(subsidiario.primer_apellido, FIELDS.TEXT, req);
             validateInput(subsidiario.segundo_apellido, FIELDS.TEXT, req);
             validateInput(subsidiario.cedula, FIELDS.ID, req);
             validateInput(subsidiario.telefono, FIELDS.PHONE_NUMBER, req);
             validateInput(subsidiario.sexo, FIELDS.CHAR, req);
+            subsidiario.detalles && validateInput(subsidiario.detalles, FIELDS.TEXTBOX, req);
+            subsidiario.segundo_nombre && validateInput(subsidiario.segundo_nombre, FIELDS.TEXTBOX, req);
+            subsidiario.telefono_adicional && validateInput(subsidiario.telefono_adicional, FIELDS.PHONE_NUMBER, req);
 
             // Crear el subsidiario si está presente
             const subsidiarioPersona = await Persona.create({
@@ -380,6 +387,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                 ingreso_economico: caso.Cliente.ingreso_economico,
                 cedula: caso.Cliente.Persona.cedula,
                 telefono: caso.Cliente.Persona.telefono,
+                telefono_adicional: caso.Cliente.Persona.telefono_adicional,
                 createdAt: caso.Cliente.Persona.createdAt,
                 updatedAt: caso.Cliente.Persona.updatedAt,
                 dirreccion_exacta: caso.Cliente.Persona.Direccion.direccion_exacta,
@@ -397,6 +405,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                 detalles: caso.Contraparte.detalles,
                 cedula: caso.Contraparte.Persona.cedula,
                 telefono: caso.Contraparte.Persona.telefono,
+                telefono_adicional: caso.Contraparte.Persona.telefono_adicional,
                 createdAt: caso.Contraparte.Persona.createdAt,
                 updatedAt: caso.Contraparte.Persona.updatedAt,
                 dirreccion_exacta: caso.Contraparte.Persona.Direccion.direccion_exacta,
@@ -414,6 +423,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                 detalles: caso.Subsidiario.detalles,
                 cedula: caso.Subsidiario.Persona.cedula,
                 telefono: caso.Subsidiario.Persona.telefono,
+                telefono_adicional: caso.Subsidiario.Persona.telefono_adicional,
                 createdAt: caso.Subsidiario.Persona.createdAt,
                 updatedAt: caso.Subsidiario.Persona.updatedAt,
                 dirreccion_exacta: caso.Subsidiario.Persona.Direccion.direccion_exacta,
@@ -574,6 +584,7 @@ exports.mostrarCasosAsignados = async (req, res) => {
                 sexo: caso.Cliente.sexo,
                 ingreso_economico: caso.Cliente.ingreso_economico,
                 telefono: caso.Cliente.Persona.telefono,
+                telefono_adicional: caso.Cliente.Persona.telefono_adicional,
                 createdAt: caso.Cliente.Persona.createdAt,
                 updatedAt: caso.Cliente.Persona.updatedAt,
                 direccion_exacta: caso.Cliente.Persona.Direccion.direccion_exacta,
@@ -591,6 +602,7 @@ exports.mostrarCasosAsignados = async (req, res) => {
                 sexo: caso.Contraparte.sexo,
                 detalles: caso.Contraparte.detalles,
                 telefono: caso.Contraparte.Persona.telefono,
+                telefono_adicional: caso.Contraparte.Persona.telefono_adicional,
                 createdAt: caso.Contraparte.Persona.createdAt,
                 updatedAt: caso.Contraparte.Persona.updatedAt,
                 direccion_exacta: caso.Contraparte.Persona.Direccion.direccion_exacta,
@@ -607,6 +619,7 @@ exports.mostrarCasosAsignados = async (req, res) => {
                 sexo: caso.Subsidiario.sexo,
                 detalles: caso.Subsidiario.detalles,
                 telefono: caso.Subsidiario.Persona.telefono,
+                telefono_adicional: caso.Subsidiario.Persona.telefono_adicional,
                 createdAt: caso.Subsidiario.Persona.createdAt,
                 updatedAt: caso.Subsidiario.Persona.updatedAt,
                 direccion_exacta: caso.Subsidiario.Persona.Direccion.direccion_exacta,
@@ -626,6 +639,7 @@ exports.mostrarCasosAsignados = async (req, res) => {
                     carnet: asignacion.Estudiante.carnet,
                     cedula: asignacion.Estudiante.Persona.cedula,
                     telefono: asignacion.Estudiante.Persona.telefono,
+                    telefono_adicional: asignacion.Estudiante.Persona.telefono_adicional,
                     createdAt: asignacion.Estudiante.Persona.createdAt,
                     updatedAt: asignacion.Estudiante.Persona.updatedAt,
                     direccion_exacta: asignacion.Estudiante.Persona.Direccion.direccion_exacta,
@@ -711,7 +725,7 @@ exports.actualizarCaso = async (req, res) => {
         validateInput(sintesis_hechos, FIELDS.TEXTBOX, req);
         validateInput(etapa_proceso, FIELDS.TEXT, req);
         validateInput(estado, FIELDS.TEXT, req);
-        
+
         await caso.update(
             {
                 expediente,
@@ -741,13 +755,14 @@ exports.actualizarCaso = async (req, res) => {
         if (cliente) {
 
             validateInput(cliente.primer_nombre, FIELDS.TEXT, req);
-            cliente.segundo_nombre && validateInput(cliente.segundo_nombre, FIELDS.TEXTBOX, req);
             validateInput(cliente.primer_apellido, FIELDS.TEXT, req);
             validateInput(cliente.segundo_apellido, FIELDS.TEXT, req);
             validateInput(cliente.cedula, FIELDS.ID, req);
             validateInput(cliente.telefono, FIELDS.PHONE_NUMBER, req);
             validateInput(cliente.ingreso_economico, FIELDS.NUMERIC, req);
             validateInput(cliente.sexo, FIELDS.CHAR, req);
+            cliente.telefono_adicional && validateInput(cliente.telefono_adicional, FIELDS.PHONE_NUMBER, req);
+            cliente.segundo_nombre && validateInput(cliente.segundo_nombre, FIELDS.TEXTBOX, req);
 
             await validateIfExists({
                 model: Persona,
@@ -759,7 +774,7 @@ exports.actualizarCaso = async (req, res) => {
                     { data: cliente.Persona.cedula }
                 )
             }, { transaction });
-         
+
             await updateRelatedEntity(
                 Cliente,
                 cliente,
@@ -767,7 +782,7 @@ exports.actualizarCaso = async (req, res) => {
                 id_cliente,
                 req
             );
-            
+
             cliente.Persona && await updatePersonAndAddress(
                 cliente.Persona,
                 transaction,
@@ -779,13 +794,14 @@ exports.actualizarCaso = async (req, res) => {
         if (contraparte) {
 
             validateInput(contraparte.Persona.primer_nombre, FIELDS.TEXT, req);
-            contraparte.Persona.segundo_nombre && validateInput(contraparte.segundo_nombre, FIELDS.TEXTBOX, req);
             validateInput(contraparte.Persona.primer_apellido, FIELDS.TEXT, req);
             validateInput(contraparte.Persona.segundo_apellido, FIELDS.TEXT, req);
             validateInput(contraparte.Persona.cedula, FIELDS.ID, req);
-            validateInput(contraparte.Persona.Persona.telefono, FIELDS.PHONE_NUMBER, req);
+            validateInput(contraparte.Persona.telefono, FIELDS.PHONE_NUMBER, req);
             validateInput(contraparte.Persona.sexo, FIELDS.CHAR, req);
             validateInput(contraparte.Persona.detalles, FIELDS.TEXTBOX, req);
+            contraparte.Persona.telefono_adicional && validateInput(contraparte.Persona.telefono_adicional, FIELDS.PHONE_NUMBER, req);
+            contraparte.Persona.segundo_nombre && validateInput(contraparte.segundo_nombre, FIELDS.TEXTBOX, req);
 
 
             await validateIfExists({
@@ -817,13 +833,14 @@ exports.actualizarCaso = async (req, res) => {
         if (subsidiario) {
 
             validateInput(subsidiario.Persona.primer_nombre, FIELDS.TEXT, req);
-            subsidiario.Persona.segundo_nombre && validateInput(subsidiario.segundo_nombre, FIELDS.TEXTBOX, req);
             validateInput(subsidiario.Persona.primer_apellido, FIELDS.TEXT, req);
             validateInput(subsidiario.Persona.segundo_apellido, FIELDS.TEXT, req);
             validateInput(subsidiario.Persona.cedula, FIELDS.ID, req);
             validateInput(subsidiario.Persona.telefono, FIELDS.PHONE_NUMBER, req);
             validateInput(subsidiario.sexo, FIELDS.CHAR, req);
             validateInput(subsidiario.detalles, FIELDS.TEXTBOX, req);
+            subsidiario.Persona.telefono_adicional && validateInput(subsidiario.Persona.telefono_adicional, FIELDS.PHONE_NUMBER, req);
+            subsidiario.Persona.segundo_nombre && validateInput(subsidiario.segundo_nombre, FIELDS.TEXTBOX, req);
 
             await validateIfExists({
                 model: Persona,

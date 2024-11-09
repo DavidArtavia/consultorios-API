@@ -24,12 +24,12 @@ module.exports = {
        onUpdate: 'CASCADE', 
      },
      username: {
-       type: Sequelize.STRING(50),
+       type: Sequelize.TEXT,
        allowNull: false,
        unique: true,
      },
      email: {
-       type: Sequelize.STRING(50),
+       type: Sequelize.TEXT,
        allowNull: false,
        unique: true,
        validate: {
