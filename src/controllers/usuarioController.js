@@ -31,7 +31,6 @@ exports.register = async (req, res) => {
         const userRole = req.session.user.userRole;
         
         validateRoleChange(userRole, rol, req);
-
         await validateExistingUser(username, email, req);
 
         await validateIfExists({
@@ -41,13 +40,7 @@ exports.register = async (req, res) => {
             errorMessage: req.t('warning.IS_ALREADY_REGISTERED', { data: cedula })
         });
 
-        await validateIfExists({
-            model: Estudiante,
-            field: TABLE_FIELDS.CARNET,
-            value: carnet,
-            errorMessage: req.t('warning.CARNET_ALREADY_REGISTERED', { data: carnet })
-        }, req);
-
+        
         validateInput(primer_nombre, FIELDS.TEXT, req);
         segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT, req);
         validateInput(primer_apellido, FIELDS.TEXT, req);
@@ -60,6 +53,12 @@ exports.register = async (req, res) => {
 
         if (rol == ROL.STUDENT) {
             validateInput(carnet, FIELDS.CARNET, req);
+            await validateIfExists({
+                model: Estudiante,
+                field: TABLE_FIELDS.CARNET,
+                value: carnet,
+                errorMessage: req.t('warning.CARNET_ALREADY_REGISTERED', { data: carnet })
+            }, req);
 
         } else if (rol == ROL.PROFESSOR) {
             validateInput(especialidad, FIELDS.TEXT, req);

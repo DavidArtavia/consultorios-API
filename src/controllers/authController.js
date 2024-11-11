@@ -3,20 +3,21 @@ const bcrypt = require('bcryptjs');
 const { HttpStatus, MESSAGE_ERROR, MESSAGE_SUCCESS, FIELDS, TABLE_FIELDS, ENV, KEYS, TIME, ROL, STATES } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
 const { validateInput, validateIfUserExists, validatePasswordHash } = require('../utils/helpers');
-const i18next = require('i18next');
+const { t } = require('i18next');
+
 
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        validateInput(email, FIELDS.EMAIL);
+        validateInput(email, FIELDS.EMAIL, req);
 
         // Buscar al usuario por email
         const user = await validateIfUserExists({
             model: Usuario,
             field: TABLE_FIELDS.EMAIL,
             value: email,
-            errorMessage: req.t('info.USER_NOT_FOUND')
+            errorMessage: req.t('warning.USER_NOT_FOUND')
         });
 
         // Validar la contraseña
@@ -63,6 +64,7 @@ exports.login = async (req, res) => {
         });
 
     } catch (error) {
+        console.log('error -->>>', error, error.message, error.stack, error.statusCode);
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -82,7 +84,7 @@ exports.logout = (req, res) => {
 
     try {
         if (!req.session) {
-            throw new CustomError(HttpStatus.FORBIDDEN, req.t('info.NO_ACTIVATE'));
+            throw new CustomError(HttpStatus.FORBIDDEN, req.t('warning.NO_ACTIVATE'));
 
         }
 

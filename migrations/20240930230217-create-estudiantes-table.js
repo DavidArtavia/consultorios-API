@@ -23,7 +23,7 @@ module.exports = {
         unique: true,
       },
       estado: {
-        type: DataTypes.ENUM('activo', 'inactivo'),
+        type: Sequelize.ENUM('activo', 'inactivo'),
         allowNull: false,
         defaultValue: 'activo',
       },

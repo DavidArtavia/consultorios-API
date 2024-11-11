@@ -25,8 +25,10 @@ exports.mostrarSolicitudes = async (req, res) => {
             id_solicitud: solicitud.id_solicitud,
             id_caso: solicitud.id_caso,
             accion: solicitud.accion,
-            estado: solicitud.estado,
             detalles: solicitud.detalles,
+            estado: solicitud.estado,
+            createdBy: solicitud.createdBy,
+            createdAt: solicitud.createdAt,
             Estudiante: {
                 id_estudiante: solicitud.id_estudiante,
                 nombre_completo: getFullName(solicitud.Estudiante.Persona),
@@ -99,7 +101,7 @@ exports.procesarSolicitudConfirmacion = async (req, res) => {
                 // Actualizar el estado de la solicitud a 'aceptado'
                 await solicitud.update({ estado: DECISION.ACCEPTED }, { transaction });
             }
-        } else if (decision === DECISION.DENIED) {
+        } else if (decision == DECISION.DENIED) {
             // Marcar la solicitud como denegada
             await solicitud.update({ estado: DECISION.DENIED }, { transaction });
         } else {
