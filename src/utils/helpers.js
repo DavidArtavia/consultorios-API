@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const { MESSAGE_ERROR, HttpStatus, FIELDS, ROL } = require("../constants/constants");
+const { MESSAGE_ERROR, HttpStatus, FIELDS, ROL, STATES } = require("../constants/constants");
 const { CustomError } = require("../handlers/responseHandler");
 const { Usuario, Caso, AsignacionDeCaso, Avance, Estudiante, SolicitudConfirmacion, Persona, Direccion } = require("../../models");
 const bcrypt = require("bcryptjs/dist/bcrypt");
@@ -90,6 +90,11 @@ const checkStudentAssignments = async (id_estudiante, transaction) => {
     const asignacion = await AsignacionDeCaso.findAll({ where: { id_estudiante: id_estudiante }, transaction });
     if (asignacion.length > 0) {
         for (const asignacion of asignacion) {
+
+            const caso = await Caso.findByPk(asignacion.id_caso, { transaction });
+            if (caso) {
+                await caso.update({ estado: STATES.ACTIVE }, { transaction }); 
+            }
             await asignacion.destroy({ transaction });
         }
     }
