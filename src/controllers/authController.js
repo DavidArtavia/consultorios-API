@@ -1,9 +1,9 @@
-const { Usuario, Profesor } = require('../../models');
+const { Usuario, Profesor, Estudiante } = require('../../models');
 const bcrypt = require('bcryptjs');
 const { HttpStatus, MESSAGE_ERROR, MESSAGE_SUCCESS, FIELDS, TABLE_FIELDS, ENV, KEYS, TIME, ROL, STATES } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
 const { validateInput, validateIfUserExists, validatePasswordHash } = require('../utils/helpers');
-const { t } = require('i18next');
+
 
 
 exports.login = async (req, res) => {
@@ -34,6 +34,18 @@ exports.login = async (req, res) => {
             // Verificar si el profesor está inactivo
             if (profesor.estado !== STATES.ACTIVE) {
                 throw new CustomError(HttpStatus.FORBIDDEN, req.t('warning.INACTIVE_PROFESSOR'));
+            }
+        }
+        if (user.rol == ROL.STUDENT) {
+            const estudiante = await Estudiante.findOne({ where: { id_estudiante: user.id_persona } });
+
+            if (!estudiante) {
+                throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.STUDENT_NOT_FOUND'));
+            }
+
+            // Verificar si el profesor está inactivo
+            if (estudiante.estado !== STATES.ACTIVE) {
+                throw new CustomError(HttpStatus.FORBIDDEN, req.t('warning.INACTIVE_STUDENT'));
             }
         }
 

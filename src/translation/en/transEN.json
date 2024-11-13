@@ -60,6 +60,7 @@
         "PROFESSOR_ALREADY_INACTIVE": "The professor is already inactive.",
         "PROFESSOR_ALREADY_ACTIVE": "The professor is already active.",
         "INACTIVE_PROFESSOR": "The professor is inactive and cannot log in.",
+        "INACTIVE_STUDENT": "The student is inactive and cannot log in.",
         "REQUEST_PENDING": "There is already a pending deletion request for this student. Please wait for it to be processed.",
         "INVALID_DECISION": "Invalid decision. It must be 'accepted' or 'denied'.",
         "CREATING_PROGRESS": "Error creating progress.",

@@ -59,7 +59,8 @@
     "warning": {
         "PROFESSOR_ALREADY_INACTIVE": "El profesor ya está inactivo.",
         "PROFESSOR_ALREADY_ACTIVE": "El profesor ya está activo.",
-        "PROFESSOR_INACTIVE": "El profesor está inactivo y no puede iniciar sesión.",
+        "INACTIVE_PROFESSOR": "El profesor está inactivo y no puede iniciar sesión.",
+        "INACTIVE_STUDENT": "El estudiante está inactivo y no puede iniciar sesión.",
         "REQUEST_PENDING": "Ya hay una solicitud de eliminación pendiente para este estudiante. Por favor, espere a que se procese.",
         "INVALID_DECISION": "Decisión inválida. Debe ser 'aceptado' o 'denegado'.",
         "CREATING_PROGRESS": "Error al crear el avance.",
