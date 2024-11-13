@@ -84,16 +84,7 @@ const findConfirmationRequestById = async (id_solicitud, req) => {
     return solicitud;
 };
 
-const checkStudentAssignmentsAndProgress = async (id_estudiante, transaction) => {
-
-    // Check if the student has associated progress
-    const avance = await Avance.findAll({ where: { id_estudiante: id_estudiante }, transaction });
-    if (avance.length > 0) {
-        console.log('Desarrollar la logica para ver que hacer con los avances');
-
-        // se puiede eliminar un estudiante que no haya hecho ningun avance 
-        //Agregar un enum de activo inactivo Finalisado en estudiante
-    }
+const checkStudentAssignments = async (id_estudiante, transaction) => {
 
     // Check if the student has case assignments
     const asignacion = await AsignacionDeCaso.findAll({ where: { id_estudiante: id_estudiante }, transaction });
@@ -384,7 +375,7 @@ module.exports = {
     validateUniqueCedulas,
     validateCaseAssignedToStudent,
     validateIfUserIsTeacher,
-    checkStudentAssignmentsAndProgress,
+    checkStudentAssignmentsAndProgress: checkStudentAssignments,
     findConfirmationRequestById,
     updateRelatedEntity,
     updatePersonAndAddress

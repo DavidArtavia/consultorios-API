@@ -88,21 +88,13 @@ exports.procesarSolicitudConfirmacion = async (req, res) => {
         // Procesar la solicitud
         if (decision == DECISION.ACCEPTED) {
             const id_estudiante = solicitud.id_estudiante;
-            // Si es una solicitud para eliminar un estudiante
-            if (solicitud.accion === ACTION.DELETE && id_estudiante) {
-
-                const estudiante = await findStudentByPk(id_estudiante);
-                // Verificar si el estudiante tiene asociados
-                await checkStudentAssignmentsAndProgress(id_estudiante, transaction);
-
-                // Eliminar al estudiante y su persona asociada
-                await estudiante.Persona.destroy({ transaction });
-
-                // Actualizar el estado de la solicitud a 'aceptado'
-                await solicitud.update({ estado: DECISION.ACCEPTED }, { transaction });
+            if (solicitud.accion == ACTION.DELETE && id_estudiante) {
+            const estudiante = await findStudentByPk(id_estudiante);
+            await checkStudentAssignmentsAndProgress(id_estudiante, transaction);
+            await estudiante.estado.update({ estado: STATES.INACTIVE }, { transaction });
+            await solicitud.update({ estado: DECISION.ACCEPTED }, { transaction });
             }
         } else if (decision == DECISION.DENIED) {
-            // Marcar la solicitud como denegada
             await solicitud.update({ estado: DECISION.DENIED }, { transaction });
         } else {
             throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.INVALID_DECISION'));
@@ -113,7 +105,7 @@ exports.procesarSolicitudConfirmacion = async (req, res) => {
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: req.t('success.REQUEST_DETAILS', { decision }),
+            message: req.t('success.REQUEST_DETAILS', { data: decision }),
             data: solicitud
         });
     } catch (error) {
