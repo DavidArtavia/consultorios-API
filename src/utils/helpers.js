@@ -87,15 +87,17 @@ const findConfirmationRequestById = async (id_solicitud, req) => {
 const checkStudentAssignments = async (id_estudiante, transaction) => {
 
     // Check if the student has case assignments
-    const asignacion = await AsignacionDeCaso.findAll({ where: { id_estudiante: id_estudiante }, transaction });
-    if (asignacion.length > 0) {
-        for (const asignacion of asignacion) {
+    const asignaciones = await AsignacionDeCaso.findAll({ where: { id_estudiante: id_estudiante }, transaction });
+    if (asignaciones && asignaciones.length > 0) {
+        for (const asign of asignaciones) {
+            // Lógica de eliminación de asignaciones
+            await asign.destroy({ transaction });
 
-            const caso = await Caso.findByPk(asignacion.id_caso, { transaction });
+            // Actualiza el estado del caso si es necesario
+            const caso = await Caso.findByPk(asign.id_caso, { transaction });
             if (caso) {
-                await caso.update({ estado: STATES.ACTIVE }, { transaction }); 
+                await caso.update({ estado: 'activo' }, { transaction });
             }
-            await asignacion.destroy({ transaction });
         }
     }
 };
