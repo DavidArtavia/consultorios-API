@@ -199,7 +199,8 @@ const validateText = (text) => {
 };
 
 const validateTextWithSpaces = (text) => {
-    const textRegex = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,'()-]+$/;
+    const textRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9.,'"?*¿¡!/:;&=#)(\s-]+$/;
+
     return textRegex.test(text);
 };
 
