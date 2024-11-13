@@ -51,6 +51,7 @@ exports.mostrarEstudiantes = async (req, res) => {
             segundo_nombre: estudiante.Persona.segundo_nombre || '',
             primer_apellido: estudiante.Persona.primer_apellido,
             segundo_apellido: estudiante.Persona.segundo_apellido,
+            estado: estudiante.estado,
             carnet: estudiante.carnet,
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,

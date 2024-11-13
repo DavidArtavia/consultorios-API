@@ -1,7 +1,7 @@
 const { HttpStatus, ACTION, DECISION, STATES, TABLE_FIELDS, ORDER } = require("../constants/constants");
 const { sendResponse, CustomError } = require("../handlers/responseHandler");
 const { sequelize, Persona, Estudiante, Caso, SolicitudConfirmacion } = require("../../models");
-const { checkStudentAssignmentsAndProgress, findConfirmationRequestById, findStudentByPk, getFullName } = require("../utils/helpers");
+const { checkStudentAssignments, findConfirmationRequestById, findStudentByPk, getFullName } = require("../utils/helpers");
 
 exports.mostrarSolicitudes = async (req, res) => {
     try {
@@ -87,16 +87,21 @@ exports.procesarSolicitudConfirmacion = async (req, res) => {
 
         // Procesar la solicitud
         if (decision == DECISION.ACCEPTED) {
+
             const id_estudiante = solicitud.id_estudiante;
             if (solicitud.accion == ACTION.DELETE && id_estudiante) {
-            const estudiante = await findStudentByPk(id_estudiante);
-            await checkStudentAssignmentsAndProgress(id_estudiante, transaction);
-            await estudiante.estado.update({ estado: STATES.INACTIVE }, { transaction });
-            await solicitud.update({ estado: DECISION.ACCEPTED }, { transaction });
+
+                const estudiante = await findStudentByPk(id_estudiante);
+                await checkStudentAssignments(id_estudiante, transaction);
+                await estudiante.update({ estado: STATES.INACTIVE }, { transaction });
+                await solicitud.update({ estado: DECISION.ACCEPTED }, { transaction });
+
             }
         } else if (decision == DECISION.DENIED) {
+
             await solicitud.update({ estado: DECISION.DENIED }, { transaction });
         } else {
+
             throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.INVALID_DECISION'));
         }
 

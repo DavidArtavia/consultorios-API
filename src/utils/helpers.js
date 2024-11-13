@@ -375,7 +375,7 @@ module.exports = {
     validateUniqueCedulas,
     validateCaseAssignedToStudent,
     validateIfUserIsTeacher,
-    checkStudentAssignmentsAndProgress: checkStudentAssignments,
+    checkStudentAssignments,
     findConfirmationRequestById,
     updateRelatedEntity,
     updatePersonAndAddress
