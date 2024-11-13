@@ -33,7 +33,7 @@ exports.login = async (req, res) => {
 
             // Verificar si el profesor está inactivo
             if (profesor.estado !== STATES.ACTIVE) {
-                throw new CustomError(HttpStatus.FORBIDDEN, req.t('warning.INACTIVE_PROFESSOR'));
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.INACTIVE_PROFESSOR'));
             }
         }
         if (user.rol == ROL.STUDENT) {
@@ -45,7 +45,7 @@ exports.login = async (req, res) => {
 
             // Verificar si el profesor está inactivo
             if (estudiante.estado !== STATES.ACTIVE) {
-                throw new CustomError(HttpStatus.FORBIDDEN, req.t('warning.INACTIVE_STUDENT'));
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.INACTIVE_STUDENT'));
             }
         }
 

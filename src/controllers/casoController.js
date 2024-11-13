@@ -240,6 +240,11 @@ exports.asignarCasoAEstudiante = async (req, res) => {
 
             throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.CASE_NOT_FOUND'));
         }
+        if (estudiante.estado !== STATES.ACTIVE) {
+
+            throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.INACTIVE_STUDENT'));
+            
+        }
 
         // Verificar si el caso ya está asignado a algún estudiante
         const asignacionExistente = await AsignacionDeCaso.findOne({
