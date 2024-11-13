@@ -226,7 +226,7 @@ exports.crearCaso = async (req, res) => {
 exports.asignarCasoAEstudiante = async (req, res) => {
     const { id_estudiante, id_caso } = req.body;
     const transaction = await sequelize.transaction(); // Inicia la transacción
-
+    const userId = req.session.user?.userId;
     try {
         // Verificar si el estudiante y el caso existen
         const estudiante = await Estudiante.findByPk(id_estudiante);

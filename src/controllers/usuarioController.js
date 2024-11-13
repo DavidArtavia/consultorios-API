@@ -158,6 +158,85 @@ exports.register = async (req, res) => {
 
 
 
+exports.editarUsuario = async (req, res) => {
+    const {
+        id_usuario,
+        primer_nombre,
+        segundo_nombre,
+        primer_apellido,
+        segundo_apellido,
+        cedula,
+        telefono,
+        telefono_adicional,
+        Direccion
+    } = req.body;
+    const userRole = req.session.user.userRole;
+    const personaId = req.session.user.personaId;
+    
+    const transaction = await sequelize.transaction(); // Iniciar transacción
+
+    try {
+        // Buscar al usuario
+        const usuario = await Usuario.findByPk(id_usuario, {
+            include: {
+                model: Persona,
+                include: {
+                    model: Direccion
+                }
+            }
+        });
+
+        if (!usuario) {
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.USER_NOT_FOUND'));
+        }
+
+        // Actualizar campos de Persona
+        if (usuario.Persona) {
+            await usuario.Persona.update({
+                primer_nombre,
+                segundo_nombre,
+                primer_apellido,
+                segundo_apellido,
+                cedula,
+                telefono,
+                telefono_adicional
+            }, { transaction });
+        }
+
+        // Actualizar campos de Dirección si existen
+        if (usuario.Persona && usuario.Persona.Direccion) {
+            await usuario.Persona.Direccion.update({
+                direccion_exacta: Direccion.direccion_exacta,
+                canton: Direccion.canton,
+                distrito: Direccion.distrito,
+                localidad: Direccion.localidad,
+                provincia: Direccion.provincia
+            }, { transaction });
+        }
+
+        // Registrar la acción de actualización en la tabla de auditoría
+        await registerAuditLog(
+            req.user.id_usuario,
+            'update',
+            'usuario',
+            id_usuario,
+            'Usuario actualizado'
+        );
+
+        await transaction.commit(); // Confirmar la transacción
+
+        return res.status(HttpStatus.OK).json({
+            message: 'Usuario actualizado correctamente',
+            data: usuario // Puedes retornar el usuario actualizado si es necesario
+        });
+    } catch (error) {
+        await transaction.rollback(); // Revertir la transacción en caso de error
+        return res.status(error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR).json({
+            message: error?.message || 'Error al actualizar usuario',
+            error: error.message
+        });
+    }
+};
 
 
 
