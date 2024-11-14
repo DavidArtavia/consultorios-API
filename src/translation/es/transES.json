@@ -87,7 +87,7 @@
         "NOT_STUDENTS_FOUND": "No se encontraron estudiantes.",
         "NOT_PROFESORS_FOUND": "No se encontraron profesores.",
         "INVALID_LANGUAGE": "Idioma inválido. Debe ser 'es' o 'en'.",
-        "SAME_ID_ID_CONFLICT ": "{{entity1}} y {{entity2}} no pueden tener la misma identificación.",
+        "SAME_ID_ID_CONFLICT ": "{{entity1}} y {{entity2}} no pueden tener la misma cédula.",
         "REQUEST_NOT_FOUND": "Solicitud no encontrada.",
         "REQUEST_PROCESSED": "Esta solicitud ya ha sido procesada.",
         "NOT_USERS_FOUND": "No se encontraron usuarios.",

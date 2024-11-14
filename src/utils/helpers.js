@@ -284,24 +284,20 @@ const validatePassword = (password) => {
 const validateUniqueCedulas = (clienteCedula, contraparteCedula, subsidiarioCedula, req) => {
 
     if (subsidiarioCedula) {
-        if (subsidiarioCedula === clienteCedula) {
-            console.log(req.t('warning.SAME_ID_ID_CONFLICT', {
-                entity1: req.t('person.CLIENT'),
-                entity2: req.t('person.SUBSIDIARY')
-            }));
+        if (subsidiarioCedula == clienteCedula) {
             throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.SAME_ID_ID_CONFLICT', {
                 entity1: req.t('person.CLIENT'),
                 entity2: req.t('person.SUBSIDIARY')
             }));
         }
-        if (subsidiarioCedula === contraparteCedula) {
+        if (subsidiarioCedula == contraparteCedula) {
             throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.SAME_ID_ID_CONFLICT', {
                 entity1: req.t('person.COUNTERPART'),
                 entity2: req.t('person.SUBSIDIARY')
             }));
         }
     }
-    if (clienteCedula === contraparteCedula) {
+    if (clienteCedula == contraparteCedula) {
         throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.SAME_ID_ID_CONFLICT', {
             entity1: req.t('person.CLIENT'),
             entity2: req.t('person.COUNTERPART')

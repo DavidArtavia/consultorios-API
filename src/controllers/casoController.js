@@ -841,14 +841,19 @@ exports.actualizarCaso = async (req, res) => {
         const id_contraparte = caso?.id_contraparte;
         const id_subsidiario = caso?.id_subsidiario;
 
-         
+
+        if (
+            (cliente?.cedula && contraparte?.cedula) ||
+            (cliente?.cedula && subsidiario?.cedula) ||
+            (contraparte?.cedula && subsidiario?.cedula)
+        ) {
             validateUniqueCedulas(
                 cliente?.cedula,
                 contraparte?.cedula,
                 subsidiario?.cedula,
                 req
             );
-
+        }
         // Actualizar datos relacionados si se proporcionan
         if (cliente) {
 
