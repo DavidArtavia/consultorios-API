@@ -861,10 +861,10 @@ exports.actualizarCaso = async (req, res) => {
             validateInput(cliente.primer_apellido, FIELDS.TEXT, req);
             validateInput(cliente.segundo_apellido, FIELDS.TEXT, req);
             validateInput(cliente.cedula, FIELDS.ID, req);
-            validateInput(cliente.telefono, FIELDS.PHONE_NUMBER, req);
+            validateInput(cliente.Persona.telefono, FIELDS.PHONE_NUMBER, req);
             validateInput(cliente.ingreso_economico, FIELDS.NUMERIC, req);
             validateInput(cliente.sexo, FIELDS.CHAR, req);
-            cliente.telefono_adicional && validateInput(cliente.telefono_adicional, FIELDS.PHONE_NUMBER, req);
+            cliente.Persona.telefono_adicional && validateInput(cliente.Persona.telefono_adicional, FIELDS.PHONE_NUMBER, req);
             cliente.segundo_nombre && validateInput(cliente.segundo_nombre, FIELDS.TEXTBOX, req);
 
             await validateIfExists({
