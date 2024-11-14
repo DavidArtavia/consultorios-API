@@ -23,7 +23,7 @@ router.post(
         ROL.STUDENT]),
     mostrarInformacionEstudianteConCasos
 );
-router.delete(
+router.post(
     ROUTES.DELETE,
     verifySession,
     verifyRole([ROL.SUPERADMIN,]),
