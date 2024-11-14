@@ -70,8 +70,11 @@ exports.crearCaso = async (req, res) => {
             value: cliente.cedula,
             errorMessage: req.t(
                 'warning.PERSON_ALREADY_REGISTERED',
-                { person: req.t('person.CLIENT') },
-                { data: cliente.cedula }
+                {
+                    person: req.t('person.CLIENT'),
+                    data: cliente.cedula
+                },
+
             )
         }, { transaction });
 
@@ -107,8 +110,10 @@ exports.crearCaso = async (req, res) => {
             value: contraparte.cedula,
             errorMessage: req.t(
                 'warning.PERSON_ALREADY_REGISTERED',
-                { person: req.t('person.COUNTERPART') },
-                { data: contraparte.cedula }
+                {
+                    person: req.t('person.COUNTERPART'),
+                    data: contraparte.cedula
+                },
             )
         }, { transaction });
 
@@ -146,8 +151,10 @@ exports.crearCaso = async (req, res) => {
                 value: subsidiario.cedula,
                 errorMessage: req.t(
                     'warning.PERSON_ALREADY_REGISTERED',
-                    { person: req.t('person.SUBSIDIARY') },
-                    { data: subsidiario.cedula }
+                    {
+                        person: req.t('person.SUBSIDIARY'),
+                        data: subsidiario.cedula
+                    },
                 )
             }, { transaction });
 
@@ -188,19 +195,32 @@ exports.crearCaso = async (req, res) => {
                 detalles: subsidiario.detalles
             }, { transaction });
         }
-
         // Crear el caso
-        const nuevoCaso = await Caso.create({
-            ...casoData,
+        await Caso.create({
+            expediente: casoData.expediente && casoData.expediente.trim() !== '' ? casoData.expediente : null,
+            ley_7600: casoData.ley_7600,
+            tipo_proceso: casoData.tipo_proceso,
+            cuantia_proceso: casoData.cuantia_proceso,
+            aporte_comunidad: casoData.aporte_comunidad,
+            sintesis_hechos: casoData.sintesis_hechos,
+            etapa_proceso: casoData.etapa_proceso,
+            estado: casoData.estado || STATES.ACTIVE,
             id_cliente: nuevoCliente.id_cliente,
+            id_contraparte: nuevaContraparte.id_contraparte,
+            id_subsidiario: nuevoSubsidiario && nuevoSubsidiario.id_subsidiario,
+        }, { transaction });
+
+        const nuevoCaso = {
+            ...casoData,
             cliente: {
                 id_cliente: nuevoCliente.id_cliente,
                 nombre_completo: getFullName(clientePersona),
                 cedula: clientePersona.cedula,
             },
             id_contraparte: nuevaContraparte.id_contraparte,
-            id_subsidiario: nuevoSubsidiario ? nuevoSubsidiario.id_subsidiario : null,
-        }, { transaction });
+            id_subsidiario: nuevoSubsidiario && nuevoSubsidiario.id_subsidiario
+
+        };
 
         // Confirmar la transacción
         await transaction.commit();
