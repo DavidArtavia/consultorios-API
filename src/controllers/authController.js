@@ -2,7 +2,7 @@ const { Usuario, Profesor, Estudiante } = require('../../models');
 const bcrypt = require('bcryptjs');
 const { HttpStatus, MESSAGE_ERROR, MESSAGE_SUCCESS, FIELDS, TABLE_FIELDS, ENV, KEYS, TIME, ROL, STATES } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
-const { validateInput, validateIfUserExists, validatePasswordHash } = require('../utils/helpers');
+const { validateInput, validateIfUserExists, validatePasswordHash, checkUserStatus } = require('../utils/helpers');
 
 
 
@@ -23,31 +23,8 @@ exports.login = async (req, res) => {
         // Validar la contraseña
         await validatePasswordHash(password, user.password_hash, req);
 
-        // Verificar si el usuario es un profesor y está inactivo
-        if (user.rol == ROL.PROFESSOR) {
-            const profesor = await Profesor.findOne({ where: { id_profesor: user.id_persona } });
-
-            if (!profesor) {
-                throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.PROFESSOR_NOT_FOUND'));
-            }
-
-            // Verificar si el profesor está inactivo
-            if (profesor.estado !== STATES.ACTIVE) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.INACTIVE_PROFESSOR'));
-            }
-        }
-        if (user.rol == ROL.STUDENT) {
-            const estudiante = await Estudiante.findOne({ where: { id_estudiante: user.id_persona } });
-
-            if (!estudiante) {
-                throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.STUDENT_NOT_FOUND'));
-            }
-
-            // Verificar si el profesor está inactivo
-            if (estudiante.estado !== STATES.ACTIVE) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.INACTIVE_STUDENT'));
-            }
-        }
+        // Verificar si el usuario es un profesor o estudiante y está inactivo
+        await checkUserStatus(user, req);
 
         // Crear la sesión del usuario
         const userData = {

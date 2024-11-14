@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
-const { MESSAGE_ERROR, HttpStatus, FIELDS, ROL, STATES } = require("../constants/constants");
+const { MESSAGE_ERROR, HttpStatus, FIELDS, ROL, STATES, TABLE_FIELDS } = require("../constants/constants");
 const { CustomError } = require("../handlers/responseHandler");
-const { Usuario, Caso, AsignacionDeCaso, Avance, Estudiante, SolicitudConfirmacion, Persona, Direccion } = require("../../models");
+const { Usuario, Caso, AsignacionDeCaso, Estudiante, SolicitudConfirmacion, Persona, Direccion } = require("../../models");
 const bcrypt = require("bcryptjs/dist/bcrypt");
 
 const getFullName = (persona) => {
@@ -369,7 +369,39 @@ const validateInput = (input, field, req) => {
     }
 };
 
+const checkUserStatus = async (user, req) => {
+    let model, idField, notFoundMessage, inactiveMessage;
+
+    switch (user.rol) {
+        case ROL.PROFESSOR:
+            model = Profesor;
+            idField = TABLE_FIELDS.UID_PROFESOR;
+            notFoundMessage = req.t('warning.PROFESSOR_NOT_FOUND');
+            inactiveMessage = req.t('warning.INACTIVE_PROFESSOR');
+            break;
+        case ROL.STUDENT:
+            model = Estudiante;
+            idField = TABLE_FIELDS.UID_ESTUDIANTE;
+            notFoundMessage = req.t('warning.STUDENT_NOT_FOUND');
+            inactiveMessage = req.t('warning.INACTIVE_STUDENT');
+            break;
+        default:
+            throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.INVALID_ROLE'));
+    }
+
+    const userData = await model.findOne({ where: { [idField]: user.id_persona } });
+
+    if (!userData) {
+        throw new CustomError(HttpStatus.NOT_FOUND, notFoundMessage);
+    }
+
+    if (userData.estado !== STATES.ACTIVE) {
+        throw new CustomError(HttpStatus.BAD_REQUEST, inactiveMessage);
+    }
+};
+
 module.exports = {
+    checkUserStatus,
     findStudentByPk,
     validateInput,
     getFullName,
