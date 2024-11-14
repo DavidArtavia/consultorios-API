@@ -193,6 +193,11 @@ exports.crearCaso = async (req, res) => {
         const nuevoCaso = await Caso.create({
             ...casoData,
             id_cliente: nuevoCliente.id_cliente,
+            cliente: {
+                id_cliente: nuevoCliente.id_cliente,
+                nombre_completo: getFullName(clientePersona),
+                cedula: clientePersona.cedula,
+            },
             id_contraparte: nuevaContraparte.id_contraparte,
             id_subsidiario: nuevoSubsidiario ? nuevoSubsidiario.id_subsidiario : null,
         }, { transaction });
