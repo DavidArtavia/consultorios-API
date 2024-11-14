@@ -56,7 +56,7 @@ exports.crearCaso = async (req, res) => {
 
         validateInput(casoData.cuantia_proceso, FIELDS.NUMERIC, req);
         validateInput(casoData.aporte_comunidad, FIELDS.NUMERIC, req);
-        validateInput(casoData.expediente, FIELDS.EXPEDIENTE, req);
+        casoData.expediente && validateInput(casoData.expediente, FIELDS.EXPEDIENTE, req);
         validateInput(casoData.tipo_proceso, FIELDS.TEXT, req);
         validateInput(casoData.etapa_proceso, FIELDS.TEXT, req);
         validateInput(casoData.sintesis_hechos, FIELDS.TEXTBOX, req);
