@@ -243,7 +243,7 @@ exports.asignarCasoAEstudiante = async (req, res) => {
         if (estudiante.estado !== STATES.ACTIVE) {
 
             throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.INACTIVE_STUDENT'));
-            
+
         }
 
         // Verificar si el caso ya está asignado a algún estudiante
@@ -300,7 +300,7 @@ exports.asignarCasoAEstudiante = async (req, res) => {
 
 exports.desasignarCasoDeEstudiante = async (req, res) => {
     const { id_estudiante, id_caso } = req.body;
-    const transaction = await sequelize.transaction(); 
+    const transaction = await sequelize.transaction();
     const userId = req.session.user?.userId;
     try {
         // Verificar si el estudiante y el caso existen
@@ -841,12 +841,13 @@ exports.actualizarCaso = async (req, res) => {
         const id_contraparte = caso?.id_contraparte;
         const id_subsidiario = caso?.id_subsidiario;
 
-        validateUniqueCedulas(
-            cliente.cedula,
-            contraparte.cedula,
-            subsidiario?.cedula,
-            req
-        );
+         
+            validateUniqueCedulas(
+                cliente?.cedula,
+                contraparte?.cedula,
+                subsidiario?.cedula,
+                req
+            );
 
         // Actualizar datos relacionados si se proporcionan
         if (cliente) {
