@@ -84,202 +84,148 @@ exports.mostrarEstudiantes = async (req, res) => {
     }
 };
 
-// exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
-//     const { idEstudiante } = req.body;
+exports.mostrarEstudiantesActivos = async (req, res) => {
+    try {
+        const estudiantesActivos = await Estudiante.findAll({
+            where: { estado: STATES.ACTIVE },
+            include: [
+                {
+                    model: Persona,
+                    attributes: [
+                        TABLE_FIELDS.PRIMER_NOMBRE,
+                        TABLE_FIELDS.SEGUNDO_NOMBRE,
+                        TABLE_FIELDS.PRIMER_APELLIDO,
+                        TABLE_FIELDS.SEGUNDO_APELLIDO,
+                        TABLE_FIELDS.CEDULA,
+                        TABLE_FIELDS.TELEFONO,
+                        TABLE_FIELDS.TELEFONO_ADICIONAL
+                    ],
+                    include: [
+                        {
+                            model: Direccion,
+                        }
+                    ]
+                },
+                {
+                    model: AsignacionDeCaso
+                }
+            ]
+        });
 
-//     try {
-//         const estudiante = await Estudiante.findByPk(idEstudiante, {
-//             include: [
-//                 {
-//                     model: Persona,
-//                     attributes: [
-//                         TABLE_FIELDS.PRIMER_NOMBRE,
-//                         TABLE_FIELDS.SEGUNDO_NOMBRE,
-//                         TABLE_FIELDS.PRIMER_APELLIDO,
-//                         TABLE_FIELDS.SEGUNDO_APELLIDO,
-//                         TABLE_FIELDS.CEDULA,
-//                         TABLE_FIELDS.TELEFONO,
-//                         TABLE_FIELDS.CREATED_AT,
-//                         TABLE_FIELDS.UPDATED_AT
-//                     ]
-//                 },
-//                 {
-//                     model: AsignacionDeCaso,
-//                     include: {
-//                         model: Caso,
-//                         include: [
-//                             {
-//                                 model: Cliente,
-//                                 include: {
-//                                     model: Persona,
-//                                     attributes: [
-//                                         TABLE_FIELDS.PRIMER_NOMBRE,
-//                                         TABLE_FIELDS.SEGUNDO_NOMBRE,
-//                                         TABLE_FIELDS.PRIMER_APELLIDO,
-//                                         TABLE_FIELDS.SEGUNDO_APELLIDO,
-//                                         TABLE_FIELDS.CEDULA,
-//                                         TABLE_FIELDS.TELEFONO
-//                                     ],
-//                                     include: [{
-//                                         model: Direccion,
-//                                     }]
-//                                 }
-//                             },
-//                             {
-//                                 model: Contraparte,
-//                                 include: [
-//                                     {
-//                                         model: Persona,
-//                                         attributes: { exclude: [TABLE_FIELDS.UID_PERSONA] },
-//                                         include: [{
-//                                             model: Direccion,
+        if (estudiantesActivos.length == 0) {
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.NO_ACTIVE_STUDENTS_FOUND'));
+        }
 
-//                                         }]
-//                                     }
-//                                 ]
-//                             },
-//                             {
-//                                 model: Subsidiario,
-//                                 include: {
-//                                     model: Persona,
-//                                     attributes: [
-//                                         TABLE_FIELDS.PRIMER_NOMBRE,
-//                                         TABLE_FIELDS.SEGUNDO_NOMBRE,
-//                                         TABLE_FIELDS.PRIMER_APELLIDO,
-//                                         TABLE_FIELDS.SEGUNDO_APELLIDO,
-//                                         TABLE_FIELDS.CEDULA,
-//                                         TABLE_FIELDS.TELEFONO
-//                                     ],
-//                                     include: [{
-//                                         model: Direccion,
-//                                     }]
-//                                 }
-//                             }
-//                         ],
-//                         attributes: [
-//                             TABLE_FIELDS.UID_CASO,
-//                             TABLE_FIELDS.EXPEDIENTE,
-//                             TABLE_FIELDS.LEY_7600,
-//                             TABLE_FIELDS.TIPO_PROCESO,
-//                             TABLE_FIELDS.CUANTIA_PROCESO,
-//                             TABLE_FIELDS.APORTE_CUMUNIDAD,
-//                             TABLE_FIELDS.SINTESIS_HECHOS,
-//                             TABLE_FIELDS.ETAPA_PROCESO,
-//                             TABLE_FIELDS.EVIDENCIA,
-//                             TABLE_FIELDS.ESTADO,
-//                             TABLE_FIELDS.CREATED_AT,
-//                             TABLE_FIELDS.UPDATED_AT
-//                         ]
-//                     }
-//                 }
-//             ],
-//             // logging: console.log
-//         });
+        const estudiantesActivosInfo = estudiantesActivos.map(estudiante => ({
+            id_estudiante: estudiante.id_estudiante,
+            nombre_completo: getFullName(estudiante.Persona),
+            primer_nombre: estudiante.Persona.primer_nombre,
+            segundo_nombre: estudiante.Persona.segundo_nombre || '',
+            primer_apellido: estudiante.Persona.primer_apellido,
+            segundo_apellido: estudiante.Persona.segundo_apellido,
+            estado: estudiante.estado,
+            carnet: estudiante.carnet,
+            cedula: estudiante.Persona.cedula,
+            telefono: estudiante.Persona.telefono,
+            telefono_adicional: estudiante.Persona.telefono_adicional,
+            createdAt: estudiante.createdAt,
+            updatedAt: estudiante.updatedAt,
+            direccion: estudiante.Persona.Direccion && {
+                ...estudiante.Persona.Direccion.toJSON()
+            },
+            casosAsignados: estudiante.AsignacionDeCasos.length || 0
+        }));
 
-//         if (!estudiante) {
-//             throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.STUDENT_NOT_FOUND'));
-//         }
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: req.t('success.RECOVERED_ACTIVE_STUDENTS'),
+            data: estudiantesActivosInfo
+        });
+    } catch (error) {
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: req.t('error.RECOVERED_ACTIVE_STUDENTS'),
+                error: error.message,
+                stack: error.stack
+            }
+        });
+    }
+};
 
-//         const estudianteInfo = {
-//             id: estudiante.id_estudiante,
-//             nombre_completo: getFullName(estudiante.Persona),
-//             carnet: estudiante.carnet,
-//             cedula: estudiante.Persona.cedula,
-//             telefono: estudiante.Persona.telefono,
-//             createdAt: estudiante.createdAt,
-//             updatedAt: estudiante.updatedAt,
-//             casosAsignados: estudiante.AsignacionDeCasos.map(asignacion => {
+exports.mostrarEstudiantesInactivos = async (req, res) => {
+    try {
+        const estudiantesInactivos = await Estudiante.findAll({
+            where: { estado: STATES.INACTIVE },
+            include: [
+                {
+                    model: Persona,
+                    attributes: [
+                        TABLE_FIELDS.PRIMER_NOMBRE,
+                        TABLE_FIELDS.SEGUNDO_NOMBRE,
+                        TABLE_FIELDS.PRIMER_APELLIDO,
+                        TABLE_FIELDS.SEGUNDO_APELLIDO,
+                        TABLE_FIELDS.CEDULA,
+                        TABLE_FIELDS.TELEFONO,
+                        TABLE_FIELDS.TELEFONO_ADICIONAL
+                    ],
+                    include: [
+                        {
+                            model: Direccion,
 
-//                 const caso = asignacion.Caso.toJSON();
+                        }
+                    ]
+                },
+                {
+                    model: AsignacionDeCaso
+                }
+            ]
+        });
 
-//                 console.log("cliente: ", caso.Cliente.Persona.Direccion);
+        if (estudiantesInactivos.length == 0) {
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.NO_INACTIVE_STUDENTS_FOUND'));
+        }
 
-//                 // Construir el objeto `Cliente` con el campo `nombreCompleto`
-//                 const cliente = caso.Cliente && {
-//                     id_cliente: caso.Cliente.id_cliente,
-//                     nombre_completo: getFullName(caso.Cliente.Persona),
-//                     cedula: caso.Cliente.Persona.cedula,
-//                     telefono: caso.Cliente.Persona.telefono,
-//                     sexo: caso.Cliente.sexo,
-//                     ingreso_economico: caso.Cliente.ingreso_economico,
-//                     createdAt: caso.Cliente.createdAt,
-//                     updatedAt: caso.Cliente.updatedAt,
-//                     direccion_exacta: caso.Cliente.Persona.Direccion.direccion_exac,
-//                     canton: caso.Cliente.Persona.Direccion.canton,
-//                     distrito: caso.Cliente.Persona.Direccion.distrito,
-//                     localidad: caso.Cliente.Persona.Direccion.localidad,
-//                     provincia: caso.Cliente.Persona.Direccion.provincia,
+        const estudiantesInactivosInfo = estudiantesInactivos.map(estudiante => ({
+            id_estudiante: estudiante.id_estudiante,
+            nombre_completo: getFullName(estudiante.Persona),
+            primer_nombre: estudiante.Persona.primer_nombre,
+            segundo_nombre: estudiante.Persona.segundo_nombre || '',
+            primer_apellido: estudiante.Persona.primer_apellido,
+            segundo_apellido: estudiante.Persona.segundo_apellido,
+            estado: estudiante.estado,
+            carnet: estudiante.carnet,
+            cedula: estudiante.Persona.cedula,
+            telefono: estudiante.Persona.telefono,
+            telefono_adicional: estudiante.Persona.telefono_adicional,
+            createdAt: estudiante.createdAt,
+            updatedAt: estudiante.updatedAt,
+            direccion: estudiante.Persona.Direccion && {
+                ...estudiante.Persona.Direccion.toJSON()
+            },
+            casosAsignados: estudiante.AsignacionDeCasos.length || 0
+        }));
 
-//                 };
-//                 console.log("contraparte ",caso.Contraparte.Persona.Direccion);
-
-
-//                 // Construir el objeto `Contraparte` con el campo `nombreCompleto`
-//                 const contraparte = caso.Contraparte && {
-//                     id_contraparte: caso.Contraparte.id_contraparte,
-//                     nombre_completo: getFullName(caso.Contraparte.Persona),
-//                     cedula: caso.Contraparte.Persona.cedula,
-//                     telefono: caso.Contraparte.Persona.telefono,
-//                     sexo: caso.Contraparte.sexo,
-//                     detalles: caso.Contraparte.detalles,
-//                     createdAt: caso.Contraparte.createdAt,
-//                     updatedAt: caso.Contraparte.updatedAt,
-//                     direccion_exacta: caso.Contraparte.Persona.Direccion.direccion_exac,
-//                     canton: caso.Contraparte.Persona.Direccion.canton,
-//                     distrito: caso.Contraparte.Persona.Direccion.distrito,
-//                     localidad: caso.Contraparte.Persona.Direccion.localidad,
-//                     provincia: caso.Contraparte.Persona.Direccion.provincia
-
-//                 };
-
-//                 console?.log("subsidiario",caso.Subsidiario ?  caso.Subsidiario.Persona.Direccion : null);
-
-
-//                 const subsidiario = caso.Subsidiario ? {
-//                     id_contraparte: caso.Subsidiario.id_contraparte,
-//                     nombre_completo: getFullName(caso.Subsidiario.Persona),
-//                     cedula: caso.Subsidiario.Persona.cedula,
-//                     telefono: caso.Subsidiario.Persona.telefono,
-//                     sexo: caso.Subsidiario.sexo,
-//                     detalles: caso.Subsidiario.detalles,
-//                     createdAt: caso.Subsidiario.createdAt,
-//                     updatedAt: caso.Subsidiario.updatedAt,
-//                     direccion_exacta: caso.Subsidiario.Persona.Direccion.direccion_exac,
-//                     canton: caso.Subsidiario.Persona.Direccion.canton,
-//                     distrito: caso.Subsidiario.Persona.Direccion.distrito,
-//                     localidad: caso.Subsidiario.Persona.Direccion.localidad,
-//                     provincia: caso.Subsidiario.Persona.Direccion.provincia
-//                 } : null;
-
-//                 // Retornar el caso con Cliente y Contraparte estructurados
-//                 return {
-//                     ...caso,
-//                     Cliente: cliente,
-//                     Contraparte: contraparte,
-//                     Subsidiario: subsidiario
-//                 };
-//             })
-//         };
-
-//         return sendResponse({
-//             res,
-//             statusCode: HttpStatus.OK,
-//             message: req.t('success.STUDENT_INFO'),
-//             data: estudianteInfo
-//         });
-//     } catch (error) {
-//         console.error(MESSAGE_ERROR.RETRIEVING_STUDENT_INFO, error, error.stack);
-//         return sendResponse({
-//             res,
-//             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-//             message: error?.message || {
-//                 message: req.t('error.RETRIEVING', { data: req.t('person.STUDENTS') }),
-//                 error: error.message,
-//                 stack: error.stack
-//             }
-//         });
-//     }
-// };
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: req.t('success.RECOVERED_INACTIVE_STUDENTS'),
+            data: estudiantesInactivosInfo
+        });
+    } catch (error) {
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: req.t('error.RECOVERED_INACTIVE_STUDENTS'),
+                error: error.message,
+                stack: error.stack
+            }
+        });
+    }
+};
 
 exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
     const { idEstudiante } = req.body;
@@ -328,7 +274,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                                         {
                                             model: Direccion,
                                             as: 'Direccion', // Alias explícito
-                                           
+
                                         }
                                     ]
                                 }
@@ -345,7 +291,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                                             {
                                                 model: Direccion,
                                                 as: 'Direccion', // Alias explícito
-                                               
+
                                             }
                                         ]
                                     }
@@ -370,7 +316,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                                         {
                                             model: Direccion,
                                             as: 'Direccion', // Alias explícito
-                                            
+
                                         }
                                     ]
                                 }
@@ -576,8 +522,8 @@ exports.actualizarEstudiante = async (req, res) => {
 
         await AuditLog.create({
             user_id: userId,
-            action: 'Actualización de Estudiante',
-            description: `Estudiante con UID ${id_estudiante} fue actualizado`,
+            action: req.t('action.UPDATE_STUDENT'),
+            description: req.t('description.UPDATE_STUDENT', { data: id_estudiante })
         }, { transaction });
 
         const estudianteInfo = {
@@ -659,7 +605,7 @@ exports.solicitarEliminarEstudiante = async (req, res) => {
 
         // Crear una solicitud de confirmación
         const solicitud = await SolicitudConfirmacion.create({
-            id_estudiante: id_estudiante,
+            id_estudiante,
             accion: ACTION.DELETE,
             detalles: req.t('request.DELETE_STUDENT',
                 {
@@ -692,50 +638,3 @@ exports.solicitarEliminarEstudiante = async (req, res) => {
         });
     }
 };
-
-// exports.eliminarEstudiante = async (req, res) => {
-//     const { id_estudiante } = req.body;
-
-//     try {
-//         // Buscar el estudiante y la persona asociada
-//         const estudiante = await Estudiante.findByPk(id_estudiante, {
-//             include: [
-//                 {
-//                     model: Persona,
-//                     include: [Direccion, Usuario]
-//                 },
-//                 {
-//                     model: AsignacionDeCaso
-//                 }
-//             ]
-//         });
-
-
-//         if (!estudiante) {
-//             throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
-//         }
-//         // Buscar la persona asociada al estudiante
-//         const persona = estudiante.Persona;
-
-//         await persona.destroy();
-
-//         return sendResponse({
-//             res,
-//             statusCode: HttpStatus.OK,
-//             message: MESSAGE_SUCCESS.STUDENT_DELETED,
-//             data: { estudiante }
-//         });
-//     } catch (error) {
-//         console.error(MESSAGE_ERROR.DELETE_STUDENT, error);
-//         return sendResponse({
-//             res,
-//             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-//             message: error?.message || {
-//                 message: MESSAGE_ERROR.RECOVERED_PROFESORS,
-//                 error: error.message,
-//                 stack: error.stack
-//             }
-//         });
-//     }
-// };
-

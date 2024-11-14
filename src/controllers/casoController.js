@@ -270,8 +270,8 @@ exports.asignarCasoAEstudiante = async (req, res) => {
 
         await AuditLog.create({
             user_id: userId,
-            action: 'Asisgnar caso a un Estudiante',
-            description: `Estudiante con UID ${id_estudiante} se le asigno el caso ${id_caso}`,
+            action: req.t('action.ASSIGN_CASE'),
+            description: req.t('description.ASSIGN_CASE', { data: id_caso, data: id_estudiante }),
         }, { transaction });
 
         await transaction.commit();
@@ -336,8 +336,8 @@ exports.desasignarCasoDeEstudiante = async (req, res) => {
 
         await AuditLog.create({
             user_id: userId,
-            action: 'Desasisgnar caso a un Estudiante',
-            description: `Estudiante con UID ${id_estudiante} se le desasigno el caso ${id_caso}`,
+            action: req.t('action.UNASSIGN_CASE'),
+            description: req.t('description.UNASSIGN_CASE', { data: id_caso, data: id_estudiante }),
         }, { transaction });
 
         await transaction.commit();
@@ -969,8 +969,8 @@ exports.actualizarCaso = async (req, res) => {
         // Registrar la acción de actualización en la tabla de auditoría
         await AuditLog.create({
             user_id: userId,
-            action: 'Actualización de Caso',
-            description: `El caso con UID ${id_caso} fue actualizado`,
+            action: req.t('action.UPDATE_CASE'),
+            description: req.t('description.UPDATE_CASE', { data: id_caso }),
         }, { transaction });
 
         await transaction.commit(); // Confirmar la transacción

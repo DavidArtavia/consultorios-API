@@ -8,6 +8,8 @@ const {
     actualizarEstudiante,
     mostrarEstudiantes,
     solicitarEliminarEstudiante,
+    mostrarEstudiantesActivos,
+    mostrarEstudiantesInactivos
 } = require('../controllers/estudianteController');
 
 // Ruta para obtener la información del estudiante y sus casos
@@ -21,17 +23,6 @@ router.post(
     mostrarInformacionEstudianteConCasos
 );
 
-router.put(
-    ROUTES.UPDATE,
-    verifySession,
-    verifyRole([
-        ROL.SUPERADMIN,
-        ROL.PROFESSOR
-    ]),
-    actualizarEstudiante
-);
-
-
 router.get(
     ROUTES.SHOW,
     verifySession,
@@ -42,6 +33,35 @@ router.get(
     mostrarEstudiantes
 );
 
+router.get(
+    ROUTES.SHOW_ACTIVE,
+    verifySession,
+    verifyRole([
+        ROL.SUPERADMIN,
+        ROL.PROFESSOR
+    ]),
+    mostrarEstudiantesActivos
+);
+
+router.get(
+    ROUTES.SHOW_INACTIVE,
+    verifySession,
+    verifyRole([
+        ROL.SUPERADMIN,
+        ROL.PROFESSOR
+    ]),
+    mostrarEstudiantesInactivos
+);
+
+router.put(
+    ROUTES.UPDATE,
+    verifySession,
+    verifyRole([
+        ROL.SUPERADMIN,
+        ROL.PROFESSOR
+    ]),
+    actualizarEstudiante
+);
 
 router.post(
     ROUTES.REQUEST_DELETE,

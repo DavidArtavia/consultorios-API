@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
 const { MESSAGE_ERROR, HttpStatus, FIELDS, ROL, STATES, TABLE_FIELDS } = require("../constants/constants");
 const { CustomError } = require("../handlers/responseHandler");
-const { Usuario, Caso, AsignacionDeCaso, Estudiante, SolicitudConfirmacion, Persona, Direccion } = require("../../models");
+const { Usuario, Caso, AsignacionDeCaso, Estudiante, Profesor, SolicitudConfirmacion, Persona, Direccion } = require("../../models");
 const bcrypt = require("bcryptjs/dist/bcrypt");
 
 const getFullName = (persona) => {
@@ -369,7 +369,7 @@ const validateInput = (input, field, req) => {
     }
 };
 
-const checkUserStatus = async (user, req) => {
+const checkUserStatus = async (user, req, next) => {
     let model, idField, notFoundMessage, inactiveMessage;
 
     switch (user.rol) {
@@ -386,7 +386,7 @@ const checkUserStatus = async (user, req) => {
             inactiveMessage = req.t('warning.INACTIVE_STUDENT');
             break;
         default:
-            throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.INVALID_ROLE'));
+           return next(); 
     }
 
     const userData = await model.findOne({ where: { [idField]: user.id_persona } });

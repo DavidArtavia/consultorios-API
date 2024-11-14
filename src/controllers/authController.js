@@ -6,7 +6,7 @@ const { validateInput, validateIfUserExists, validatePasswordHash, checkUserStat
 
 
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
@@ -24,7 +24,7 @@ exports.login = async (req, res) => {
         await validatePasswordHash(password, user.password_hash, req);
 
         // Verificar si el usuario es un profesor o estudiante y está inactivo
-        await checkUserStatus(user, req);
+        await checkUserStatus(user, req, next);
 
         // Crear la sesión del usuario
         const userData = {

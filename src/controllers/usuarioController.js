@@ -1,6 +1,6 @@
 
 const { Usuario, Persona, Direccion, Estudiante, Profesor, Sequelize, sequelize } = require('../../models');
-const { HttpStatus, ROL, MESSAGE_ERROR, MESSAGE_SUCCESS, TABLE_FIELDS, FIELDS } = require('../constants/constants');
+const { HttpStatus, ROL, MESSAGE_ERROR, MESSAGE_SUCCESS, TABLE_FIELDS, FIELDS, TABLE_NAME, ACTION } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
 const { validateIfExists, validateExistingUser, validateRoleChange, validateInput } = require('../utils/helpers');
 
@@ -165,13 +165,14 @@ exports.editarUsuario = async (req, res) => {
         segundo_nombre,
         primer_apellido,
         segundo_apellido,
+        nombre_usuario,
+        email,
         cedula,
         telefono,
         telefono_adicional,
         Direccion
     } = req.body;
-    const userRole = req.session.user.userRole;
-    const personaId = req.session.user.personaId;
+    const userId = req.session.user.userId;
     
     const transaction = await sequelize.transaction(); // Iniciar transacción
 
@@ -192,6 +193,23 @@ exports.editarUsuario = async (req, res) => {
 
         // Actualizar campos de Persona
         if (usuario.Persona) {
+
+            validateInput(primer_nombre, FIELDS.TEXT, req);
+            segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT, req);
+            validateInput(primer_apellido, FIELDS.TEXT, req);
+            validateInput(segundo_apellido, FIELDS.TEXT, req);
+            validateInput(cedula, FIELDS.ID, req);
+            validateInput(telefono, FIELDS.PHONE_NUMBER, req);
+            telefono_adicional && validateInput(telefono_adicional, FIELDS.PHONE_NUMBER, req);
+
+            await validateUpdatesInputs({
+                currentValue: usuario.Persona.cedula,
+                newValue: cedula,
+                model: Persona,
+                field: TABLE_FIELDS.CEDULA,
+                message: req.t('warning.CEDULA_ALREADY_USED')
+            });
+
             await usuario.Persona.update({
                 primer_nombre,
                 segundo_nombre,
@@ -205,6 +223,13 @@ exports.editarUsuario = async (req, res) => {
 
         // Actualizar campos de Dirección si existen
         if (usuario.Persona && usuario.Persona.Direccion) {
+            
+            validateInput(Direccion.direccion_exacta, FIELDS.TEXTBOX, req);
+            validateInput(Direccion.canton, FIELDS.TEXT, req);
+            validateInput(Direccion.distrito, FIELDS.TEXT, req);
+            validateInput(Direccion.localidad, FIELDS.TEXT, req);
+            validateInput(Direccion.provincia, FIELDS.TEXT, req);
+
             await usuario.Persona.Direccion.update({
                 direccion_exacta: Direccion.direccion_exacta,
                 canton: Direccion.canton,
@@ -214,26 +239,28 @@ exports.editarUsuario = async (req, res) => {
             }, { transaction });
         }
 
-        // Registrar la acción de actualización en la tabla de auditoría
-        await registerAuditLog(
-            req.user.id_usuario,
-            'update',
-            'usuario',
-            id_usuario,
-            'Usuario actualizado'
-        );
+        await AuditLog.create({
+            user_id: userId,
+            action: req.t('action.UPDATE_USER'),
+            description: req.t('description.UPDATE_USER', { data: id_usuario })
+        }, { transaction });
 
         await transaction.commit(); // Confirmar la transacción
 
-        return res.status(HttpStatus.OK).json({
-            message: 'Usuario actualizado correctamente',
-            data: usuario // Puedes retornar el usuario actualizado si es necesario
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: req.t('success.USER_UPDATED'),
+            data: { usuario }
         });
     } catch (error) {
         await transaction.rollback(); // Revertir la transacción en caso de error
-        return res.status(error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR).json({
-            message: error?.message || 'Error al actualizar usuario',
-            error: error.message
+     
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || req.t('error.UPDATE_USER'),
+            error: error.stack
         });
     }
 };

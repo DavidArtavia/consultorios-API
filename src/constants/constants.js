@@ -28,7 +28,6 @@ const FIELDS = {
     CHAR: 'char',
 };
 
-
 const TABLE_NAME = {
     AUDIT_LOG: 'audit_logs',
     PERSONAS: 'personas',

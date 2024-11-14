@@ -26,7 +26,10 @@
         "SERVER_ERROR": "No se pudo conectar a la base de datos:",
         "DEACTIVATING_PROFESSOR": "Error al desactivar al profesor.",
         "ACTIVATING_PROFESSOR": "Error al activar al profesor.",
-        "UPDATING_PROFESOR": "Error al actualizar al profesor."
+        "UPDATING_PROFESOR": "Error al actualizar al profesor.",
+        "UPDATE_USER": "Error al actualizar al usuario.",
+        "RECOVERED_ACTIVE_STUDENTS": "Error al recuperar estudiantes activos.",
+        "RECOVERED_INACTIVE_STUDENTS": "Error al recuperar estudiantes inactivos."
     },
     "success": {
         "LOGIN": "Inicio de sesión exitoso.",
@@ -54,7 +57,10 @@
         "SERVER_RUNNING": "Servidor corriendo en el puerto {{port}}",
         "PROFESSOR_DEACTIVATED": "Profesor desactivado exitosamente.",
         "PROFESSOR_ACTIVATED": "Profesor activado exitosamente.",
-        "PROFESOR_UPDATED": "Profesor actualizado exitosamente."
+        "PROFESOR_UPDATED": "Profesor actualizado exitosamente.",
+        "USER_UPDATED": "Usuario actualizado exitosamente.",
+        "RECOVERED_ACTIVE_STUDENTS": "Estudiantes activos recuperados con éxito.",
+        "RECOVERED_INACTIVE_STUDENTS": "Estudiantes inactivos recuperados con éxito."
     },
     "warning": {
         "PROFESSOR_ALREADY_INACTIVE": "El profesor ya está inactivo.",
@@ -99,7 +105,9 @@
         "RECORD_ALREADY_EXISTS": "El registro con {{field}} {{data}} ya existe.",
         "NO_CONFIRMATION_REQUESTS_FOUND": "No se encontraron solicitudes de confirmación.",
         "UID_IS_REQUIRED": "EL UID es requerido.",
-        "ENTITY_NOT_FOUND": "{{entity}} no esta registrado."
+        "ENTITY_NOT_FOUND": "{{entity}} no esta registrado.",
+        "NO_ACTIVE_STUDENTS_FOUND": "No se encontraron estudiantes activos.",
+        "NO_INACTIVE_STUDENTS_FOUND": "No se encontraron estudiantes inactivos."
     },
     "validation": {
         "INVALID_TEXT_FORMAT": " --> {{data}} <-- Formato de texto inválido. Solo se permiten letras.",
@@ -124,5 +132,19 @@
     },
     "request": {
         "DELETE_STUDENT": "Solicitud para eliminar al estudiante {{fullName}} con cédula: {{ID}}"
+    },
+    "action": {
+        "UPDATE_STUDENT": "Actualizar Estudiante",
+        "UPDATE_USER": "Actualizar Usuario",
+        "UPDATE_CASE": "Actualizar Caso",
+        "ASSIGN_CASE": "Asignar caso a un Estudiante",
+        "UNASSIGN_CASE": "Desasignar caso de un Estudiante"
+    },
+    "description": {
+        "UPDATE_STUDENT": "Actualizando datos del estudiante con UID: {{data}}",
+        "UPDATE_USER": "Actualizando datos del usuario con UID: {{data}}",
+        "UPDATE_CASE": "Actualizando caso con UID: {{data}}",
+        "ASSIGN_CASE": "Asignando caso con UID: {{data}} a un estudiante con UID: {{data}}",
+        "UNASSIGN_CASE": "Desasignando caso con UID: {{data}} de un estudiante con UID: {{data}}"
     }
 }

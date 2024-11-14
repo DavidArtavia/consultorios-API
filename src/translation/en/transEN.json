@@ -26,7 +26,10 @@
         "SERVER_ERROR": "Could not connect to the database.",
         "DEACTIVATING_PROFESSOR": "Error deactivating professor.",
         "ACTIVATING_PROFESSOR": "Error activating professor.",
-        "UPDATING_PROFESOR": "Error updating professor."
+        "UPDATING_PROFESOR": "Error updating professor.",
+        "UPDATE_USER": "Error updating user.",
+        "RECOVERED_ACTIVE_STUDENTS": "Error retrieving active students.",
+        "RECOVERED_INACTIVE_STUDENTS": "Error retrieving inactive students."
     },
     "success": {
         "LOGIN": "Login successful.",
@@ -54,7 +57,10 @@
         "SERVER_RUNNING": "Server running on port {{port}}",
         "PROFESSOR_DEACTIVATED": "Professor deactivated successfully.",
         "PROFESSOR_ACTIVATED": "Professor activated successfully.",
-        "PROFESOR_UPDATED": "Professor updated successfully."
+        "PROFESOR_UPDATED": "Professor updated successfully.",
+        "USER_UPDATED": "User updated successfully.",
+        "RECOVERED_ACTIVE_STUDENTS": "Active students retrieved successfully.",
+        "RECOVERED_INACTIVE_STUDENTS": "Inactive students retrieved successfully."
     },
     "warning": {
         "PROFESSOR_ALREADY_INACTIVE": "The professor is already inactive.",
@@ -99,7 +105,9 @@
         "RECORD_ALREADY_EXISTS": "The record with {{field}} {{data}} already exists.",
         "NO_CONFIRMATION_REQUESTS_FOUND": "No confirmation requests found.",
         "UID_IS_REQUIRED": "The UID is required.",
-        "ENTITY_NOT_FOUND": "The {{entity}} was not found."
+        "ENTITY_NOT_FOUND": "The {{entity}} was not found.",
+        "NO_ACTIVE_STUDENTS_FOUND": "No active students found.",
+        "NO_INACTIVE_STUDENTS_FOUND": "No inactive students found."
     },
     "validation": {
         "INVALID_TEXT_FORMAT": " --> {{data}} <-- Invalid text format. Only letters are allowed.",
@@ -124,5 +132,19 @@
     },
     "request": {
         "DELETE_STUDENT": "Request to delete student {{fullName}} with ID: {{ID}}"
+    },
+    "action": {
+        "UPDATE_STUDENT": "Update Student",
+        "UPDATE_USER": "Update User",
+        "UPDATE_CASE": "Update Case",
+        "ASSIGN_CASE": "Assign case to a Student",
+        "UNASSIGN_CASE": "Unassign case from a Student"
+    },
+    "description": {
+        "UPDATE_STUDENT": "Updating student data with UID: {{data}}",
+        "UPDATE_USER": "Updating user data with UID: {{data}}",
+        "UPDATE_CASE": "Updating case with UID: {{data}}",
+        "ASSIGN_CASE": "Assigning case with UID: {{data}} to a student with UID: {{data}}",
+        "UNASSIGN_CASE": "Unassigning case with UID: {{data}} from a student with UID: {{data}}"
     }
 }
