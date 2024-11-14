@@ -29,7 +29,8 @@
         "UPDATING_PROFESOR": "Error al actualizar al profesor.",
         "UPDATE_USER": "Error al actualizar al usuario.",
         "RECOVERED_ACTIVE_STUDENTS": "Error al recuperar estudiantes activos.",
-        "RECOVERED_INACTIVE_STUDENTS": "Error al recuperar estudiantes inactivos."
+        "RECOVERED_INACTIVE_STUDENTS": "Error al recuperar estudiantes inactivos.",
+        "UPDATING_CASE": "Error al actualizar el caso."
     },
     "success": {
         "LOGIN": "Inicio de sesión exitoso.",
@@ -60,7 +61,8 @@
         "PROFESOR_UPDATED": "Profesor actualizado exitosamente.",
         "USER_UPDATED": "Usuario actualizado exitosamente.",
         "RECOVERED_ACTIVE_STUDENTS": "Estudiantes activos recuperados con éxito.",
-        "RECOVERED_INACTIVE_STUDENTS": "Estudiantes inactivos recuperados con éxito."
+        "RECOVERED_INACTIVE_STUDENTS": "Estudiantes inactivos recuperados con éxito.",
+        "CASE_UPDATED": "Caso actualizado exitosamente."
     },
     "warning": {
         "PROFESSOR_ALREADY_INACTIVE": "El profesor ya está inactivo.",

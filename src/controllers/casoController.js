@@ -988,7 +988,6 @@ exports.actualizarCaso = async (req, res) => {
         });
     } catch (error) {
         await transaction.rollback(); // Revertir la transacción en caso de error
-        console.error('Error actualizando caso:', error);
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
