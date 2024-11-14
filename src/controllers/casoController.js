@@ -833,7 +833,6 @@ exports.actualizarCaso = async (req, res) => {
                 aporte_comunidad,
                 sintesis_hechos,
                 etapa_proceso,
-                evidencia,
                 estado,
             },
             { transaction }
