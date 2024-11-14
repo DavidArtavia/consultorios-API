@@ -901,7 +901,7 @@ exports.actualizarCaso = async (req, res) => {
             validateInput(contraparte.Persona.segundo_apellido, FIELDS.TEXT, req);
             validateInput(contraparte.Persona.cedula, FIELDS.ID, req);
             validateInput(contraparte.Persona.telefono, FIELDS.PHONE_NUMBER, req);
-            validateInput(contraparte.Persona.sexo, FIELDS.CHAR, req);
+            validateInput(contraparte.sexo, FIELDS.CHAR, req);
             validateInput(contraparte.Persona.detalles, FIELDS.TEXTBOX, req);
             contraparte.Persona.telefono_adicional && validateInput(contraparte.Persona.telefono_adicional, FIELDS.PHONE_NUMBER, req);
             contraparte.Persona.segundo_nombre && validateInput(contraparte.segundo_nombre, FIELDS.TEXTBOX, req);
