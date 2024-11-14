@@ -30,7 +30,8 @@
         "UPDATE_USER": "Error updating user.",
         "RECOVERED_ACTIVE_STUDENTS": "Error retrieving active students.",
         "RECOVERED_INACTIVE_STUDENTS": "Error retrieving inactive students.",
-        "UPDATING_CASE": "Error updating case."
+        "UPDATING_CASE": "Error updating case.",
+        "DEACTIVATING_STUDENT": "Error deactivating student."
     },
     "success": {
         "LOGIN": "Login successful.",
@@ -141,13 +142,15 @@
         "UPDATE_USER": "Update User",
         "UPDATE_CASE": "Update Case",
         "ASSIGN_CASE": "Assign case to a Student",
-        "UNASSIGN_CASE": "Unassign case from a Student"
+        "UNASSIGN_CASE": "Unassign case from a Student",
+        "DEACTIVATE_STUDENT": "Deactivate Student"
     },
     "description": {
         "UPDATE_STUDENT": "Updating student data with UID: {{data}}",
         "UPDATE_USER": "Updating user data with UID: {{data}}",
         "UPDATE_CASE": "Updating case with UID: {{data}}",
         "ASSIGN_CASE": "Assigning case with UID: {{data}} to a student with UID: {{data}}",
-        "UNASSIGN_CASE": "Unassigning case with UID: {{data}} from a student with UID: {{data}}"
+        "UNASSIGN_CASE": "Unassigning case with UID: {{data}} from a student with UID: {{data}}",
+        "DEACTIVATE_STUDENT": "Deactivating student with UID: {{data}}"
     }
 }

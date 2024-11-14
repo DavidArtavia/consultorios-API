@@ -1,7 +1,7 @@
 const { AuditLog, Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Subsidiario, Direccion, Usuario, sequelize, SolicitudConfirmacion } = require('../../models');
-const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL, FIELDS, ACTION, STATES } = require("../constants/constants");
+const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL, FIELDS, ACTION, STATES, DECISION } = require("../constants/constants");
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
-const { validateUpdatesInputs, validateInput, getFullName, validateIfExists, validateIfUserExists, validateIfUserIsTeacher } = require('../utils/helpers');
+const { validateUpdatesInputs, validateInput, getFullName, validateIfExists, validateIfUserExists, validateIfUserIsTeacher, checkStudentAssignments, findStudentByPk } = require('../utils/helpers');
 
 
 exports.mostrarEstudiantes = async (req, res) => {
@@ -638,3 +638,53 @@ exports.solicitarEliminarEstudiante = async (req, res) => {
         });
     }
 };
+
+exports.desactivarEstudiante = async (req, res) => {
+
+    const { id_estudiante } = req.body;
+    const userId = req.session.user?.userId;
+    const transaction = await sequelize.transaction();
+
+    try {
+        const estudiante = await findStudentByPk(id_estudiante, req);
+        await checkStudentAssignments(id_estudiante, transaction);
+        await estudiante.update({ estado: STATES.INACTIVE }, { transaction });
+
+        const estudianteInfo = {
+            nombre_completo: getFullName(estudiante.Persona),
+            carnet: estudiante.carnet,
+            cedula: estudiante.Persona.cedula,
+            telefono: estudiante.Persona.telefono,
+            telefono_adicional: estudiante.Persona.telefono_adicional,
+            estado: estudiante.estado,
+        };
+
+        await AuditLog.create({
+            user_id: userId,
+            action: req.t('action.DEACTIVATE_STUDENT'),
+            description: req.t('description.DEACTIVATE_STUDENT', { data: id_estudiante })
+        }, { transaction });
+
+        await transaction.commit();
+
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: req.t('success.REQUEST_DETAILS', { data: DECISION.ACCEPTED }),
+            data: estudianteInfo
+        });
+
+    } catch (error) {
+
+        await transaction.rollback();
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: req.t('error.DEACTIVATING_STUDENT'),
+                error: error.message,
+                stack: error.stack
+            }
+        });
+    }
+}; 

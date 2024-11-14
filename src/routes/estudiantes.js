@@ -9,7 +9,8 @@ const {
     mostrarEstudiantes,
     solicitarEliminarEstudiante,
     mostrarEstudiantesActivos,
-    mostrarEstudiantesInactivos
+    mostrarEstudiantesInactivos,
+    desactivarEstudiante
 } = require('../controllers/estudianteController');
 
 // Ruta para obtener la información del estudiante y sus casos
@@ -21,6 +22,12 @@ router.post(
         ROL.PROFESSOR,
         ROL.STUDENT]),
     mostrarInformacionEstudianteConCasos
+);
+router.delete(
+    ROUTES.DELETE,
+    verifySession,
+    verifyRole([ROL.SUPERADMIN,]),
+    desactivarEstudiante
 );
 
 router.get(

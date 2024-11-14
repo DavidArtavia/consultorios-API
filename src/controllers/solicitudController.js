@@ -91,7 +91,7 @@ exports.procesarSolicitudConfirmacion = async (req, res) => {
             const id_estudiante = solicitud.id_estudiante;
             if (solicitud.accion == ACTION.DELETE && id_estudiante) {
 
-                const estudiante = await findStudentByPk(id_estudiante);
+                const estudiante = await findStudentByPk(id_estudiante, req);
                 await checkStudentAssignments(id_estudiante, transaction);
                 await estudiante.update({ estado: STATES.INACTIVE }, { transaction });
                 await solicitud.update({ estado: DECISION.ACCEPTED }, { transaction });
