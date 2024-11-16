@@ -71,6 +71,19 @@ const findStudentByPk = async (id_estudiante, req) => {
 
     return estudiante;
 };
+const findPersonById = async (cedula, req) => {
+
+    const persona = await Persona.findOne({
+        where: { cedula }
+    });
+
+    if (!persona) {
+        throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.NOT_PERSON_FOUND'));
+    }
+
+    return persona;
+};
+
 const findConfirmationRequestById = async (id_solicitud, req) => {
 
     const solicitud = await SolicitudConfirmacion.findByPk(id_solicitud, {
@@ -96,7 +109,7 @@ const checkStudentAssignments = async (id_estudiante, transaction) => {
             // Actualiza el estado del caso si es necesario
             const caso = await Caso.findByPk(asign.id_caso, { transaction });
             if (caso) {
-                await caso.update({ estado: 'activo' }, { transaction });
+                await caso.update({ estado: STATES.ACTIVE }, { transaction });
             }
         }
     }
@@ -399,6 +412,7 @@ const checkUserStatus = async (user, req, next) => {
 module.exports = {
     checkUserStatus,
     findStudentByPk,
+    findPersonById,
     validateInput,
     getFullName,
     validateUpdatesInputs,

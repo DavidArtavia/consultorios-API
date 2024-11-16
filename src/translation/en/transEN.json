@@ -90,6 +90,7 @@
         "STUDENT_NOT_FOUND": "Student not found.",
         "NOT_STUDENTS_FOUND": "No students found.",
         "NOT_PROFESORS_FOUND": "No professors found.",
+        "NOT_PERSON_FOUND": "Person not found.",
         "INVALID_LANGUAGE": "Invalid language. It must be 'es' or 'en'.",
         "SAME_ID_ID_CONFLICT": "{{entity1}} and {{entity2}} cannot have the same identification.",
         "REQUEST_NOT_FOUND": "Request not found.",

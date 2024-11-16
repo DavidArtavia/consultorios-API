@@ -11,6 +11,7 @@ const personasRoutes = require('./persona');
 const avancesRoutes = require('./avances');
 const solicitudRoutes = require('./solicitud');
 const languageRoutes = require('./language');
+const tseRoutes = require('./tseRoutes');
 
 // Define todas las rutas con su prefijo
 router.use('/usuarios', usuarioRoutes);
@@ -22,6 +23,7 @@ router.use('/personas', personasRoutes);
 router.use('/avances', avancesRoutes);
 router.use('/solicitud', solicitudRoutes);
 router.use('/language', languageRoutes);
+router.use('/consula', tseRoutes);
 router.get('/version', (req, res) => {
     res.send('v0.0.1');
 });
