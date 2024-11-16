@@ -866,45 +866,17 @@ exports.actualizarCaso = async (req, res) => {
         const id_contraparte = caso?.id_contraparte;
         const id_subsidiario = caso?.id_subsidiario;
 
-
-        if (
-            (cliente?.cedula && contraparte?.cedula) ||
-            (cliente?.cedula && subsidiario?.cedula) ||
-            (contraparte?.cedula && subsidiario?.cedula)
-        ) {
-            validateUniqueCedulas(
-                cliente?.cedula,
-                contraparte?.cedula,
-                subsidiario?.cedula,
-                req
-            );
-        }
         // Actualizar datos relacionados si se proporcionan
         if (cliente) {
 
             validateInput(cliente.primer_nombre, FIELDS.TEXT, req);
             validateInput(cliente.primer_apellido, FIELDS.TEXT, req);
             validateInput(cliente.segundo_apellido, FIELDS.TEXT, req);
-            validateInput(cliente.cedula, FIELDS.ID, req);
             validateInput(cliente.Persona.telefono, FIELDS.PHONE_NUMBER, req);
             validateInput(cliente.ingreso_economico, FIELDS.NUMERIC, req);
             validateInput(cliente.sexo, FIELDS.CHAR, req);
             cliente.Persona.telefono_adicional && validateInput(cliente.Persona.telefono_adicional, FIELDS.PHONE_NUMBER, req);
             cliente.segundo_nombre && validateInput(cliente.segundo_nombre, FIELDS.TEXTBOX, req);
-
-            cedulaDeLaPersona = await findPersonById(cliente.Persona.cedula, req);
-            if (!cedulaDeLaPersona) {
-                await validateIfExists({
-                    model: Persona,
-                    field: TABLE_FIELDS.CEDULA,
-                    value: cliente.Persona.cedula,
-                    errorMessage: req.t(
-                        'warning.PERSON_ALREADY_REGISTERED',
-                        { person: req.t('person.CLIENT') },
-                        { data: cliente.Persona.cedula }
-                    )
-                }, { transaction });
-            }
 
             await updateRelatedEntity(
                 Cliente,
@@ -927,30 +899,11 @@ exports.actualizarCaso = async (req, res) => {
             validateInput(contraparte.Persona.primer_nombre, FIELDS.TEXT, req);
             validateInput(contraparte.Persona.primer_apellido, FIELDS.TEXT, req);
             validateInput(contraparte.Persona.segundo_apellido, FIELDS.TEXT, req);
-            validateInput(contraparte.Persona.cedula, FIELDS.ID, req);
             validateInput(contraparte.Persona.telefono, FIELDS.PHONE_NUMBER, req);
             validateInput(contraparte.sexo, FIELDS.CHAR, req);
             validateInput(contraparte.Persona.detalles, FIELDS.TEXTBOX, req);
             contraparte.Persona.telefono_adicional && validateInput(contraparte.Persona.telefono_adicional, FIELDS.PHONE_NUMBER, req);
             contraparte.Persona.segundo_nombre && validateInput(contraparte.segundo_nombre, FIELDS.TEXTBOX, req);
-
-            cedulaDeLaPersona = await findPersonById(contraparte.Persona.cedula, req);
-            if (!cedulaDeLaPersona) {
-
-                await validateIfExists({
-                    model: Persona,
-                    field: TABLE_FIELDS.CEDULA,
-                    value: contraparte.Persona.cedula,
-                    errorMessage: req.t(
-                        'warning.PERSON_ALREADY_REGISTERED',
-                        {
-                            person: req.t('person.COUNTERPART'),
-                            data: contraparte.Persona.cedula,
-                        },
-                    )
-                }, { transaction });
-
-            }
 
             await updateRelatedEntity(
                 Contraparte,
@@ -972,30 +925,13 @@ exports.actualizarCaso = async (req, res) => {
             validateInput(subsidiario.Persona.primer_nombre, FIELDS.TEXT, req);
             validateInput(subsidiario.Persona.primer_apellido, FIELDS.TEXT, req);
             validateInput(subsidiario.Persona.segundo_apellido, FIELDS.TEXT, req);
-            validateInput(subsidiario.Persona.cedula, FIELDS.ID, req);
             validateInput(subsidiario.Persona.telefono, FIELDS.PHONE_NUMBER, req);
             validateInput(subsidiario.sexo, FIELDS.CHAR, req);
             validateInput(subsidiario.detalles, FIELDS.TEXTBOX, req);
             subsidiario.Persona.telefono_adicional && validateInput(subsidiario.Persona.telefono_adicional, FIELDS.PHONE_NUMBER, req);
             subsidiario.Persona.segundo_nombre && validateInput(subsidiario.segundo_nombre, FIELDS.TEXTBOX, req);
 
-            cedulaDeLaPersona = await findPersonById(subsidiario.Persona.cedula, req);
-            if (!cedulaDeLaPersona) {
-                await validateIfExists({
-                    model: Persona,
-                    field: TABLE_FIELDS.CEDULA,
-                    value: subsidiario.Persona.cedula,
-                    errorMessage: req.t(
-                        'warning.PERSON_ALREADY_REGISTERED',
-                        {
-                            person: req.t('person.SUBSIDIARY'),
-                            data: subsidiario.Persona.cedula
-                        },
-                    )
-                }, { transaction });
-            }
-
-            await updateRelatedEntity(
+           await updateRelatedEntity(
                 Subsidiario,
                 subsidiario,
                 transaction,

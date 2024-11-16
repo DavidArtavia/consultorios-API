@@ -338,7 +338,6 @@ exports.actualizarProfesor = async (req, res) => {
         segundo_nombre,
         primer_apellido,
         segundo_apellido,
-        cedula,
         telefono,
         telefono_adicional,
         especialidad,
@@ -365,7 +364,7 @@ exports.actualizarProfesor = async (req, res) => {
             ]
         });
 
-        if (!profesor || profesor.estado !== 'activo') {
+        if (!profesor || profesor.estado !== STATES.ACTIVE) {
             throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.PROFESOR_NOT_FOUND'));
         }
 
@@ -384,7 +383,6 @@ exports.actualizarProfesor = async (req, res) => {
             segundo_nombre,
             primer_apellido,
             segundo_apellido,
-            cedula,
             telefono,
             telefono_adicional
         }, { transaction });
@@ -406,27 +404,28 @@ exports.actualizarProfesor = async (req, res) => {
             description: `Profesor con UID ${id_profesor} fue actualizado`,
         }, { transaction });
 
+        const profesorInfo = {
+            id_profesor: profesor.id_profesor,
+            nombre_completo: getFullName(profesor.Persona),
+            primer_nombre,
+            segundo_nombre,
+            primer_apellido,
+            segundo_apellido,
+            especialidad,
+            direccion_exacta,
+            canton,
+            distrito,
+            localidad,
+            provincia
+        };
+
         await transaction.commit();
 
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
             message: req.t('success.PROFESOR_UPDATED'),
-            data: {
-                id_profesor: profesor.id_profesor,
-                nombre_completo: getFullName(profesor.Persona),
-                primer_nombre,
-                segundo_nombre,
-                primer_apellido,
-                segundo_apellido,
-                especialidad,
-                direccion_exacta,
-                canton,
-                distrito,
-                localidad,
-                provincia
-
-            }
+            data: profesorInfo
         });
     } catch (error) {
         await transaction.rollback();

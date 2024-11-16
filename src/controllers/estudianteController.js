@@ -450,7 +450,6 @@ exports.actualizarEstudiante = async (req, res) => {
         segundo_nombre,
         primer_apellido,
         segundo_apellido,
-        cedula,
         telefono,
         telefono_adicional,
         carnet,
@@ -471,18 +470,9 @@ exports.actualizarEstudiante = async (req, res) => {
         segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT, req);
         validateInput(primer_apellido, FIELDS.TEXT, req);
         validateInput(segundo_apellido, FIELDS.TEXT, req);
-        validateInput(cedula, FIELDS.ID, req);
         validateInput(telefono, FIELDS.PHONE_NUMBER, req);
         validateInput(carnet, FIELDS.CARNET, req);
         telefono_adicional && validateInput(telefono_adicional, FIELDS.PHONE_NUMBER, req);
-
-        await validateUpdatesInputs({
-            currentValue: estudiante.Persona.cedula,
-            newValue: cedula,
-            model: Persona,
-            field: TABLE_FIELDS.CEDULA,
-            message: req.t('warning.CEDULA_ALREADY_USED')
-        });
 
         await validateUpdatesInputs({
             currentValue: estudiante.carnet,
@@ -497,7 +487,6 @@ exports.actualizarEstudiante = async (req, res) => {
             segundo_nombre,
             primer_apellido,
             segundo_apellido,
-            cedula,
             telefono,
             telefono_adicional
         }, { transaction });
