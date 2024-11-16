@@ -8,13 +8,17 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
         },
         carnet: {
-            type: DataTypes.STRING(20),
+            type: DataTypes.TEXT,
             allowNull: false,
             unique: true,
         },
+        estado: {
+            type: DataTypes.ENUM('activo', 'inactivo'),
+            allowNull: false,
+            defaultValue: 'activo',
+        },
     }, {
         tableName: TABLE_NAME.ESTUDIANTES,
-        timestamps: false,
     });
 
     // Definir asociaciones

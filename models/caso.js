@@ -35,8 +35,8 @@ module.exports = (sequelize, DataTypes) => {
             onDelete: 'SET NULL'
         },
         expediente: {
-            type: DataTypes.STRING(50),
-            allowNull: false,
+            type: DataTypes.TEXT,
+            allowNull: true,
             unique: true,
         },
         ley_7600: {
@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: false,
         },
         tipo_proceso: {
-            type: DataTypes.STRING(255),
+            type: DataTypes.TEXT,
             allowNull: true,
         },
         cuantia_proceso: {
@@ -60,10 +60,6 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
         },
         etapa_proceso: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-        },
-        evidencia: {
             type: DataTypes.TEXT,
             allowNull: true,
         },
@@ -85,7 +81,7 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: TABLE_FIELDS.UID_CONTRAPARTE,
         });
         // Relación con Subsidiario (un cliente puede tener muchos subsidiarios)
-        Caso.hasMany(models.Subsidiario, { // Nota el uso correcto del nombre del modelo con mayúscula
+        Caso.belongsTo(models.Subsidiario, { // Nota el uso correcto del nombre del modelo con mayúscula
             foreignKey: TABLE_FIELDS.UID_SUBSIDIARIO, // Revisa que este campo exista en la tabla subsidiarios
         });
         Caso.hasMany(models.AsignacionDeCaso, {

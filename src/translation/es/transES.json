@@ -19,9 +19,19 @@
         "RETRIEVING": "Error al recuperar la información del {{data}}.",
         "RETRIEVING_USERS": "Error al recuperar la información de usuarios.",
         "UNASSIGNED_CASES": "Error al recuperar los casos no asignados.",
+        "UNASSIGNING_CASE": "Error al desasignar el caso.",
         "ASSIGNED_CASES": "Error al recuperar los casos asignados.",
         "CHANGING_LANGUAGE": "Error al cambiar el idioma.",
-        "RETRIEVING_CONFIRMATION_REQUESTS": "Error al recuperar las solicitudes de confirmación."
+        "RETRIEVING_CONFIRMATION_REQUESTS": "Error al recuperar las solicitudes de confirmación.",
+        "SERVER_ERROR": "No se pudo conectar a la base de datos:",
+        "DEACTIVATING_PROFESSOR": "Error al desactivar al profesor.",
+        "ACTIVATING_PROFESSOR": "Error al activar al profesor.",
+        "UPDATING_PROFESOR": "Error al actualizar al profesor.",
+        "UPDATE_USER": "Error al actualizar al usuario.",
+        "RECOVERED_ACTIVE_STUDENTS": "Error al recuperar estudiantes activos.",
+        "RECOVERED_INACTIVE_STUDENTS": "Error al recuperar estudiantes inactivos.",
+        "UPDATING_CASE": "Error al actualizar el caso.",
+        "DEACTIVATING_STUDENT": "Error deactivando estudiante."
     },
     "success": {
         "LOGIN": "Inicio de sesión exitoso.",
@@ -31,6 +41,7 @@
         "STUDENT_UPDATED": "Estudiante actualizado exitosamente.",
         "CASE_CREATED": "Caso creado exitosamente.",
         "CASE_ASSIGNED": "Caso asignado al estudiante exitosamente.",
+        "CASE_UNASSIGNED": "Caso desasignado al estudiante exitosamente.",
         "RECOVERED_STUDENTS": "Lista de estudiantes recuperada exitosamente.",
         "RECOVERED_PROFESORS": "Lista de profesores recuperada exitosamente.",
         "REQUEST_CREATED": "Solicitud enviada exitosamente al administrador. El estudiante será eliminado si se aprueba.",
@@ -44,9 +55,21 @@
         "PROGRESS_UPDATED": "Avance actualizado exitosamente.",
         "CHANGE_LANGUAGE": "Idioma cambiado exitosamente.",
         "CONFIRMATION_REQUESTS_FOUND": "Solicitudes de confirmación encontradas exitosamente.",
-        "REQUEST_DETAILS": "La solicitud fue: {{data}}"
+        "REQUEST_DETAILS": "La solicitud fue: {{data}}",
+        "SERVER_RUNNING": "Servidor corriendo en el puerto {{port}}",
+        "PROFESSOR_DEACTIVATED": "Profesor desactivado exitosamente.",
+        "PROFESSOR_ACTIVATED": "Profesor activado exitosamente.",
+        "PROFESOR_UPDATED": "Profesor actualizado exitosamente.",
+        "USER_UPDATED": "Usuario actualizado exitosamente.",
+        "RECOVERED_ACTIVE_STUDENTS": "Estudiantes activos recuperados con éxito.",
+        "RECOVERED_INACTIVE_STUDENTS": "Estudiantes inactivos recuperados con éxito.",
+        "CASE_UPDATED": "Caso actualizado exitosamente."
     },
     "warning": {
+        "PROFESSOR_ALREADY_INACTIVE": "El profesor ya está inactivo.",
+        "PROFESSOR_ALREADY_ACTIVE": "El profesor ya está activo.",
+        "INACTIVE_PROFESSOR": "El profesor está inactivo y no puede iniciar sesión.",
+        "INACTIVE_STUDENT": "El estudiante está inactivo y no puede iniciar sesión.",
         "REQUEST_PENDING": "Ya hay una solicitud de eliminación pendiente para este estudiante. Por favor, espere a que se procese.",
         "INVALID_DECISION": "Decisión inválida. Debe ser 'aceptado' o 'denegado'.",
         "CREATING_PROGRESS": "Error al crear el avance.",
@@ -66,8 +89,9 @@
         "STUDENT_NOT_FOUND": "Estudiante no encontrado.",
         "NOT_STUDENTS_FOUND": "No se encontraron estudiantes.",
         "NOT_PROFESORS_FOUND": "No se encontraron profesores.",
+        "NOT_PERSON_FOUND": "No se encontro la persona.",
         "INVALID_LANGUAGE": "Idioma inválido. Debe ser 'es' o 'en'.",
-        "SAME_ID_ID_CONFLICT ": "{{entity1}} y {{entity2}} no pueden tener la misma identificación.",
+        "SAME_ID_ID_CONFLICT": "{{entity1}} y {{entity2}} no pueden tener la misma cédula.",
         "REQUEST_NOT_FOUND": "Solicitud no encontrada.",
         "REQUEST_PROCESSED": "Esta solicitud ya ha sido procesada.",
         "NOT_USERS_FOUND": "No se encontraron usuarios.",
@@ -82,20 +106,25 @@
         "PERSON_ALREADY_REGISTERED": "{{person}} con ID {{data}} ya está registrado.",
         "IS_ALREADY_REGISTERED": "Ya existe una persona registrado con la cédula: {{data}} .",
         "CARNET_ALREADY_REGISTERED": "Ya existe un estudiante registrado con el carnet: {{data}} .",
-        "RECORD_ALREADY_EXISTS": "El registro con {{field}} {{value}} ya existe.",
-        "NO_CONFIRMATION_REQUESTS_FOUND": "No se encontraron solicitudes de confirmación."
+        "RECORD_ALREADY_EXISTS": "El registro con {{field}} {{data}} ya existe.",
+        "NO_CONFIRMATION_REQUESTS_FOUND": "No se encontraron solicitudes de confirmación.",
+        "UID_IS_REQUIRED": "EL UID es requerido.",
+        "ENTITY_NOT_FOUND": "{{entity}} no esta registrado.",
+        "NO_ACTIVE_STUDENTS_FOUND": "No se encontraron estudiantes activos.",
+        "NO_INACTIVE_STUDENTS_FOUND": "No se encontraron estudiantes inactivos."
     },
     "validation": {
-        "INVALID_TEXT_FORMAT": " --> {{value}} <-- Formato de texto inválido. Solo se permiten letras.",
-        "INVALID_TEXTBOX_FORMAT": "--> {{value}} <-- Formato de caja de texto inválido. Solo se permite texto con espacios.",
-        "INVALID_ID_FORMAT": "--> {{value}} <-- Formato de ID inválido.",
-        "INVALID_EMAIL_FORMAT": "--> {{value}} <-- Formato de correo electrónico inválido.",
-        "INVALID_PASSWORD_FORMAT": "--> {{value}} <-- Formato de contraseña inválido. La contraseña debe tener al menos 8 caracteres, contener una letra mayúscula, una letra minúscula, un número y un carácter especial.",
-        "INVALID_NUMERIC_FORMAT": "--> {{value}} <-- Valor numérico inválido.",
-        "INVALID_EXPEDIENTE_FORMAT": "--> {{value}} <-- Formato de número de expediente inválido.",
-        "INVALID_PHONE_NUMBER_FORMAT": "--> {{value}} <-- Formato de número de teléfono inválido. El número debe tener 8 dígitos y comenzar con 2, 5, 6, 7 o 8.",
-        "INVALID_CARNET_FORMAT": "--> {{value}} <-- Formato de carnet inválido.",
-        "INVALID_INPUT": "--> {{value}} <-- Entrada inválida."
+        "INVALID_TEXT_FORMAT": " --> {{data}} <-- Formato de texto inválido. Solo se permiten letras.",
+        "INVALID_TEXTBOX_FORMAT": "--> {{data}} <-- Formato de caja de texto inválido. Solo se permite texto con espacios.",
+        "INVALID_ID_FORMAT": "--> {{data}} <-- Formato de ID inválido.",
+        "INVALID_EMAIL_FORMAT": "--> {{data}} <-- Formato de correo electrónico inválido.",
+        "INVALID_PASSWORD_FORMAT": "--> {{data}} <-- Formato de contraseña inválido. La contraseña debe tener al menos 8 caracteres, contener una letra mayúscula, una letra minúscula, un número y un carácter especial.",
+        "INVALID_NUMERIC_FORMAT": "--> {{data}} <-- Valor numérico inválido.",
+        "INVALID_EXPEDIENTE_FORMAT": "--> {{data}} <-- Formato de número de expediente inválido.",
+        "INVALID_PHONE_NUMBER_FORMAT": "--> {{data}} <-- Formato de número de teléfono inválido. El número debe tener 8 dígitos y comenzar con 2, 5, 6, 7 o 8.",
+        "INVALID_CARNET_FORMAT": "--> {{data}} <-- Formato de carnet inválido.",
+        "INVALID_INPUT": "--> {{data}} <-- Entrada inválida.",
+        "INVALID_GENDER_CHARACTER": "--> {{data}} <-- es un carácter inválido. Solo se permiten 'M' o 'F'."
     },
     "person": {
         "STUDENT": "Estudiante",
@@ -107,5 +136,21 @@
     },
     "request": {
         "DELETE_STUDENT": "Solicitud para eliminar al estudiante {{fullName}} con cédula: {{ID}}"
+    },
+    "action": {
+        "UPDATE_STUDENT": "Actualizar Estudiante",
+        "UPDATE_USER": "Actualizar Usuario",
+        "UPDATE_CASE": "Actualizar Caso",
+        "ASSIGN_CASE": "Asignar caso a un Estudiante",
+        "UNASSIGN_CASE": "Desasignar caso de un Estudiante",
+        "DEACTIVATE_STUDENT": "Desactivar Estudiante"
+    },
+    "description": {
+        "UPDATE_STUDENT": "Actualizando datos del estudiante con UID: {{data}}",
+        "UPDATE_USER": "Actualizando datos del usuario con UID: {{data}}",
+        "UPDATE_CASE": "Actualizando caso con UID: {{data}}",
+        "ASSIGN_CASE": "Asignando caso con UID: {{data}} a un estudiante con UID: {{data}}",
+        "UNASSIGN_CASE": "Desasignando caso con UID: {{data}} de un estudiante con UID: {{data}}",
+        "DEACTIVATE_STUDENT": "Desactivando estudiante con UID: {{data}}"
     }
 }

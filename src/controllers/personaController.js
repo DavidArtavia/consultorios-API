@@ -37,6 +37,7 @@ exports.mostrarPersonasConUsuarios = async (req, res) => {
             segundo_apellido: persona.segundo_apellido,
             cedula: persona.cedula,
             telefono: persona.telefono,
+            telefono_adicional: persona.telefono_adicional,
             ...(persona.Usuario && {
                 usuario: {
                     id_usuario: persona.Usuario.id_usuario,

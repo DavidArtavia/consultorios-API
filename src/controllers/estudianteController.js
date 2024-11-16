@@ -1,7 +1,7 @@
-const { Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Direccion, Usuario, sequelize, SolicitudConfirmacion, Profesor } = require('../../models');
-const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL, FIELDS, ACTION, STATES } = require("../constants/constants");
+const { AuditLog, Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Subsidiario, Direccion, Usuario, sequelize, SolicitudConfirmacion } = require('../../models');
+const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL, FIELDS, ACTION, STATES, DECISION } = require("../constants/constants");
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
-const { validateUpdatesInputs, validateInput, getFullName, validateIfExists, validateIfUserExists, validateIfUserIsTeacher } = require('../utils/helpers');
+const { validateUpdatesInputs, validateInput, getFullName, validateIfExists, validateIfUserExists, validateIfUserIsTeacher, checkStudentAssignments, findStudentByPk } = require('../utils/helpers');
 
 
 exports.mostrarEstudiantes = async (req, res) => {
@@ -16,7 +16,8 @@ exports.mostrarEstudiantes = async (req, res) => {
                         TABLE_FIELDS.PRIMER_APELLIDO,
                         TABLE_FIELDS.SEGUNDO_APELLIDO,
                         TABLE_FIELDS.CEDULA,
-                        TABLE_FIELDS.TELEFONO
+                        TABLE_FIELDS.TELEFONO,
+                        TABLE_FIELDS.TELEFONO_ADICIONAL
                     ],
                     include: [
                         {
@@ -26,7 +27,9 @@ exports.mostrarEstudiantes = async (req, res) => {
                                 TABLE_FIELDS.CANTON,
                                 TABLE_FIELDS.DISTRITO,
                                 TABLE_FIELDS.LOCALIDAD,
-                                TABLE_FIELDS.PROVINCIA
+                                TABLE_FIELDS.PROVINCIA,
+                                TABLE_FIELDS.CREATED_AT,
+                                TABLE_FIELDS.UPDATED_AT
                             ]
                         }
                     ]
@@ -43,17 +46,21 @@ exports.mostrarEstudiantes = async (req, res) => {
 
         const estudiantesInfo = estudiantes.map(estudiante => ({
             id_estudiante: estudiante.id_estudiante,
+            nombre_completo: getFullName(estudiante.Persona),
             primer_nombre: estudiante.Persona.primer_nombre,
-            segundo_nombre: estudiante.Persona.segundo_nombre,
+            segundo_nombre: estudiante.Persona.segundo_nombre || '',
             primer_apellido: estudiante.Persona.primer_apellido,
             segundo_apellido: estudiante.Persona.segundo_apellido,
-            nombreCompleto: getFullName(estudiante.Persona),
+            estado: estudiante.estado,
             carnet: estudiante.carnet,
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,
-            direccion: estudiante.Persona.Direccion ? {
+            telefono_adicional: estudiante.Persona.telefono_adicional,
+            createdAt: estudiante.createdAt,
+            updatedAt: estudiante.updatedAt,
+            direccion: estudiante.Persona.Direccion && {
                 ...estudiante.Persona.Direccion.toJSON()
-            } : null,
+            },
             casosAsignados: estudiante.AsignacionDeCasos.length || 0
         }));
 
@@ -77,11 +84,10 @@ exports.mostrarEstudiantes = async (req, res) => {
     }
 };
 
-exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
-    const { idEstudiante } = req.body;
-
+exports.mostrarEstudiantesActivos = async (req, res) => {
     try {
-        const estudiante = await Estudiante.findByPk(idEstudiante, {
+        const estudiantesActivos = await Estudiante.findAll({
+            where: { estado: STATES.ACTIVE },
             include: [
                 {
                     model: Persona,
@@ -91,35 +97,227 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                         TABLE_FIELDS.PRIMER_APELLIDO,
                         TABLE_FIELDS.SEGUNDO_APELLIDO,
                         TABLE_FIELDS.CEDULA,
-                        TABLE_FIELDS.TELEFONO
+                        TABLE_FIELDS.TELEFONO,
+                        TABLE_FIELDS.TELEFONO_ADICIONAL
+                    ],
+                    include: [
+                        {
+                            model: Direccion,
+                        }
+                    ]
+                },
+                {
+                    model: AsignacionDeCaso
+                }
+            ]
+        });
+
+        if (estudiantesActivos.length == 0) {
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.NO_ACTIVE_STUDENTS_FOUND'));
+        }
+
+        const estudiantesActivosInfo = estudiantesActivos.map(estudiante => ({
+            id_estudiante: estudiante.id_estudiante,
+            nombre_completo: getFullName(estudiante.Persona),
+            primer_nombre: estudiante.Persona.primer_nombre,
+            segundo_nombre: estudiante.Persona.segundo_nombre || '',
+            primer_apellido: estudiante.Persona.primer_apellido,
+            segundo_apellido: estudiante.Persona.segundo_apellido,
+            estado: estudiante.estado,
+            carnet: estudiante.carnet,
+            cedula: estudiante.Persona.cedula,
+            telefono: estudiante.Persona.telefono,
+            telefono_adicional: estudiante.Persona.telefono_adicional,
+            createdAt: estudiante.createdAt,
+            updatedAt: estudiante.updatedAt,
+            direccion: estudiante.Persona.Direccion && {
+                ...estudiante.Persona.Direccion.toJSON()
+            },
+            casosAsignados: estudiante.AsignacionDeCasos.length || 0
+        }));
+
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: req.t('success.RECOVERED_ACTIVE_STUDENTS'),
+            data: estudiantesActivosInfo
+        });
+    } catch (error) {
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: req.t('error.RECOVERED_ACTIVE_STUDENTS'),
+                error: error.message,
+                stack: error.stack
+            }
+        });
+    }
+};
+
+exports.mostrarEstudiantesInactivos = async (req, res) => {
+    try {
+        const estudiantesInactivos = await Estudiante.findAll({
+            where: { estado: STATES.INACTIVE },
+            include: [
+                {
+                    model: Persona,
+                    attributes: [
+                        TABLE_FIELDS.PRIMER_NOMBRE,
+                        TABLE_FIELDS.SEGUNDO_NOMBRE,
+                        TABLE_FIELDS.PRIMER_APELLIDO,
+                        TABLE_FIELDS.SEGUNDO_APELLIDO,
+                        TABLE_FIELDS.CEDULA,
+                        TABLE_FIELDS.TELEFONO,
+                        TABLE_FIELDS.TELEFONO_ADICIONAL
+                    ],
+                    include: [
+                        {
+                            model: Direccion,
+
+                        }
+                    ]
+                },
+                {
+                    model: AsignacionDeCaso
+                }
+            ]
+        });
+
+        if (estudiantesInactivos.length == 0) {
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.NO_INACTIVE_STUDENTS_FOUND'));
+        }
+
+        const estudiantesInactivosInfo = estudiantesInactivos.map(estudiante => ({
+            id_estudiante: estudiante.id_estudiante,
+            nombre_completo: getFullName(estudiante.Persona),
+            primer_nombre: estudiante.Persona.primer_nombre,
+            segundo_nombre: estudiante.Persona.segundo_nombre || '',
+            primer_apellido: estudiante.Persona.primer_apellido,
+            segundo_apellido: estudiante.Persona.segundo_apellido,
+            estado: estudiante.estado,
+            carnet: estudiante.carnet,
+            cedula: estudiante.Persona.cedula,
+            telefono: estudiante.Persona.telefono,
+            telefono_adicional: estudiante.Persona.telefono_adicional,
+            createdAt: estudiante.createdAt,
+            updatedAt: estudiante.updatedAt,
+            direccion: estudiante.Persona.Direccion && {
+                ...estudiante.Persona.Direccion.toJSON()
+            },
+            casosAsignados: estudiante.AsignacionDeCasos.length || 0
+        }));
+
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: req.t('success.RECOVERED_INACTIVE_STUDENTS'),
+            data: estudiantesInactivosInfo
+        });
+    } catch (error) {
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: req.t('error.RECOVERED_INACTIVE_STUDENTS'),
+                error: error.message,
+                stack: error.stack
+            }
+        });
+    }
+};
+
+exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
+    const { idEstudiante } = req.body;
+
+    try {
+        const estudiante = await Estudiante.findByPk(idEstudiante, {
+            include: [
+                {
+                    model: Persona,
+                    as: 'Persona', // Alias explícito
+                    attributes: [
+                        TABLE_FIELDS.PRIMER_NOMBRE,
+                        TABLE_FIELDS.SEGUNDO_NOMBRE,
+                        TABLE_FIELDS.PRIMER_APELLIDO,
+                        TABLE_FIELDS.SEGUNDO_APELLIDO,
+                        TABLE_FIELDS.CEDULA,
+                        TABLE_FIELDS.TELEFONO,
+                        TABLE_FIELDS.TELEFONO_ADICIONAL,
+                        TABLE_FIELDS.CREATED_AT,
+                        TABLE_FIELDS.UPDATED_AT
                     ]
                 },
                 {
                     model: AsignacionDeCaso,
+                    as: 'AsignacionDeCasos', // Alias explícito
                     include: {
                         model: Caso,
+                        as: 'Caso', // Alias explícito
                         include: [
                             {
                                 model: Cliente,
+                                as: 'Cliente', // Alias explícito
                                 include: {
                                     model: Persona,
+                                    as: 'Persona', // Alias explícito
                                     attributes: [
                                         TABLE_FIELDS.PRIMER_NOMBRE,
                                         TABLE_FIELDS.SEGUNDO_NOMBRE,
                                         TABLE_FIELDS.PRIMER_APELLIDO,
-                                        TABLE_FIELDS.SEGUNDO_APELLIDO
+                                        TABLE_FIELDS.SEGUNDO_APELLIDO,
+                                        TABLE_FIELDS.CEDULA,
+                                        TABLE_FIELDS.TELEFONO,
+                                        TABLE_FIELDS.TELEFONO_ADICIONAL
+                                    ],
+                                    include: [
+                                        {
+                                            model: Direccion,
+                                            as: 'Direccion', // Alias explícito
+
+                                        }
                                     ]
                                 }
                             },
                             {
                                 model: Contraparte,
+                                as: 'Contraparte', // Alias explícito
+                                include: [
+                                    {
+                                        model: Persona,
+                                        as: 'Persona', // Alias explícito
+                                        attributes: { exclude: [TABLE_FIELDS.UID_PERSONA] },
+                                        include: [
+                                            {
+                                                model: Direccion,
+                                                as: 'Direccion', // Alias explícito
+
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                model: Subsidiario,
+                                as: 'Subsidiario', // Alias explícito
                                 include: {
                                     model: Persona,
+                                    as: 'Persona', // Alias explícito
                                     attributes: [
                                         TABLE_FIELDS.PRIMER_NOMBRE,
                                         TABLE_FIELDS.SEGUNDO_NOMBRE,
                                         TABLE_FIELDS.PRIMER_APELLIDO,
-                                        TABLE_FIELDS.SEGUNDO_APELLIDO
+                                        TABLE_FIELDS.SEGUNDO_APELLIDO,
+                                        TABLE_FIELDS.CEDULA,
+                                        TABLE_FIELDS.TELEFONO,
+                                        TABLE_FIELDS.TELEFONO_ADICIONAL
+                                    ],
+                                    include: [
+                                        {
+                                            model: Direccion,
+                                            as: 'Direccion', // Alias explícito
+
+                                        }
                                     ]
                                 }
                             }
@@ -134,11 +332,14 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                             TABLE_FIELDS.SINTESIS_HECHOS,
                             TABLE_FIELDS.ETAPA_PROCESO,
                             TABLE_FIELDS.EVIDENCIA,
-                            TABLE_FIELDS.ESTADO
+                            TABLE_FIELDS.ESTADO,
+                            TABLE_FIELDS.CREATED_AT,
+                            TABLE_FIELDS.UPDATED_AT
                         ]
                     }
                 }
-            ]
+            ],
+            // logging: console.log
         });
 
         if (!estudiante) {
@@ -147,14 +348,79 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
 
         const estudianteInfo = {
             id: estudiante.id_estudiante,
-            nombreCompleto: getFullName(estudiante.Persona),
+            nombre_completo: getFullName(estudiante.Persona),
             carnet: estudiante.carnet,
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,
-            casosAsignados: estudiante.AsignacionDeCasos.map(asignacion => ({
-                ...asignacion.Caso.toJSON(),
-            }))
+            telefono_adicional: estudiante.Persona.telefono_adicional,
+            createdAt: estudiante.createdAt,
+            updatedAt: estudiante.updatedAt,
+            casosAsignados: estudiante.AsignacionDeCasos.map(asignacion => {
+                const caso = asignacion.Caso.toJSON();
+                // Construir el objeto `Cliente` con el campo `nombreCompleto`
+                const cliente = caso.Cliente && caso.Cliente.Persona && {
+                    id_cliente: caso.Cliente.id_cliente,
+                    nombre_completo: getFullName(caso.Cliente.Persona),
+                    cedula: caso.Cliente.Persona.cedula,
+                    telefono: caso.Cliente.Persona.telefono,
+                    telefono_adicional: caso.Cliente.Persona.telefono_adicional,
+                    sexo: caso.Cliente.sexo,
+                    ingreso_economico: caso.Cliente.ingreso_economico,
+                    createdAt: caso.Cliente.createdAt,
+                    updatedAt: caso.Cliente.updatedAt,
+                    direccion_exacta: caso.Cliente.Persona.Direccion?.direccion_exac,
+                    canton: caso.Cliente.Persona.Direccion?.canton,
+                    distrito: caso.Cliente.Persona.Direccion?.distrito,
+                    localidad: caso.Cliente.Persona.Direccion?.localidad,
+                    provincia: caso.Cliente.Persona.Direccion?.provincia,
+                };
+
+                // Construir el objeto `Contraparte` con el campo `nombreCompleto`
+                const contraparte = caso.Contraparte && caso.Contraparte.Persona && {
+                    id_contraparte: caso.Contraparte.id_contraparte,
+                    nombre_completo: getFullName(caso.Contraparte.Persona),
+                    cedula: caso.Contraparte.Persona.cedula,
+                    telefono: caso.Contraparte.Persona.telefono,
+                    telefono_adicional: caso.Contraparte.Persona.telefono_adicional,
+                    sexo: caso.Contraparte.sexo,
+                    detalles: caso.Contraparte.detalles,
+                    createdAt: caso.Contraparte.createdAt,
+                    updatedAt: caso.Contraparte.updatedAt,
+                    direccion_exacta: caso.Contraparte.Persona.Direccion?.direccion_,
+                    canton: caso.Contraparte.Persona.Direccion?.canton,
+                    distrito: caso.Contraparte.Persona.Direccion?.distrito,
+                    localidad: caso.Contraparte.Persona.Direccion?.localidad,
+                    provincia: caso.Contraparte.Persona.Direccion?.provincia,
+                };
+
+                // Construir el objeto `Subsidiario` con el campo `nombreCompleto`
+                const subsidiario = caso.Subsidiario && caso.Subsidiario.Persona && {
+                    id_subsidiario: caso.Subsidiario.id_subsidiario,
+                    nombre_completo: getFullName(caso.Subsidiario.Persona),
+                    cedula: caso.Subsidiario.Persona.cedula,
+                    telefono: caso.Subsidiario.Persona.telefono,
+                    telefono_adicional: caso.Subsidiario.Persona.telefono_adicional,
+                    sexo: caso.Subsidiario.sexo,
+                    detalles: caso.Subsidiario.detalles,
+                    createdAt: caso.Subsidiario.createdAt,
+                    updatedAt: caso.Subsidiario.updatedAt,
+                    direccion_exacta: caso.Subsidiario.Persona.Direccion?.direccion_,
+                    canton: caso.Subsidiario.Persona.Direccion?.canton,
+                    distrito: caso.Subsidiario.Persona.Direccion?.distrito,
+                    localidad: caso.Subsidiario.Persona.Direccion?.localidad,
+                    provincia: caso.Subsidiario.Persona.Direccion?.provincia,
+                };
+
+                // Retornar el caso con Cliente, Contraparte y Subsidiario estructurados
+                return {
+                    ...caso,
+                    Cliente: cliente,
+                    Contraparte: contraparte,
+                    Subsidiario: subsidiario
+                };
+            })
         };
+
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
@@ -162,6 +428,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
             data: estudianteInfo
         });
     } catch (error) {
+        console.error(MESSAGE_ERROR.RETRIEVING_STUDENT_INFO, error, error.stack);
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -174,6 +441,8 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
     }
 };
 
+
+
 exports.actualizarEstudiante = async (req, res) => {
     const {
         id_estudiante,
@@ -181,11 +450,12 @@ exports.actualizarEstudiante = async (req, res) => {
         segundo_nombre,
         primer_apellido,
         segundo_apellido,
-        cedula,
         telefono,
+        telefono_adicional,
         carnet,
         direccion
     } = req.body;
+    const userId = req.session.user?.userId;
     const transaction = await sequelize.transaction(); // Inicia la transacción
 
     try {
@@ -200,17 +470,9 @@ exports.actualizarEstudiante = async (req, res) => {
         segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT, req);
         validateInput(primer_apellido, FIELDS.TEXT, req);
         validateInput(segundo_apellido, FIELDS.TEXT, req);
-        validateInput(cedula, FIELDS.ID, req);
         validateInput(telefono, FIELDS.PHONE_NUMBER, req);
         validateInput(carnet, FIELDS.CARNET, req);
-
-        await validateUpdatesInputs({
-            currentValue: estudiante.Persona.cedula,
-            newValue: cedula,
-            model: Persona,
-            field: TABLE_FIELDS.CEDULA,
-            message: req.t('warning.CEDULA_ALREADY_USED')
-        });
+        telefono_adicional && validateInput(telefono_adicional, FIELDS.PHONE_NUMBER, req);
 
         await validateUpdatesInputs({
             currentValue: estudiante.carnet,
@@ -225,8 +487,8 @@ exports.actualizarEstudiante = async (req, res) => {
             segundo_nombre,
             primer_apellido,
             segundo_apellido,
-            cedula,
-            telefono
+            telefono,
+            telefono_adicional
         }, { transaction });
 
         await estudiante.update({
@@ -246,6 +508,12 @@ exports.actualizarEstudiante = async (req, res) => {
                 },
                 { transaction });
         }
+
+        await AuditLog.create({
+            user_id: userId,
+            action: req.t('action.UPDATE_STUDENT'),
+            description: req.t('description.UPDATE_STUDENT', { data: id_estudiante })
+        }, { transaction });
 
         const estudianteInfo = {
             ...estudiante.toJSON(),
@@ -296,7 +564,8 @@ exports.solicitarEliminarEstudiante = async (req, res) => {
                         TABLE_FIELDS.PRIMER_APELLIDO,
                         TABLE_FIELDS.SEGUNDO_APELLIDO,
                         TABLE_FIELDS.CEDULA,
-                        TABLE_FIELDS.TELEFONO
+                        TABLE_FIELDS.TELEFONO,
+                        TABLE_FIELDS.TELEFONO_ADICIONAL
                     ],
                     include: [Direccion, Usuario]
                 },
@@ -325,7 +594,7 @@ exports.solicitarEliminarEstudiante = async (req, res) => {
 
         // Crear una solicitud de confirmación
         const solicitud = await SolicitudConfirmacion.create({
-            id_estudiante: id_estudiante,
+            id_estudiante,
             accion: ACTION.DELETE,
             detalles: req.t('request.DELETE_STUDENT',
                 {
@@ -359,49 +628,52 @@ exports.solicitarEliminarEstudiante = async (req, res) => {
     }
 };
 
-// exports.eliminarEstudiante = async (req, res) => {
-//     const { id_estudiante } = req.body;
+exports.desactivarEstudiante = async (req, res) => {
 
-//     try {
-//         // Buscar el estudiante y la persona asociada
-//         const estudiante = await Estudiante.findByPk(id_estudiante, {
-//             include: [
-//                 {
-//                     model: Persona,
-//                     include: [Direccion, Usuario]
-//                 },
-//                 {
-//                     model: AsignacionDeCaso
-//                 }
-//             ]
-//         });
+    const { id_estudiante } = req.body;
+    const userId = req.session.user?.userId;
+    const transaction = await sequelize.transaction();
 
+    try {
+        const estudiante = await findStudentByPk(id_estudiante, req);
+        await checkStudentAssignments(id_estudiante, transaction);
+        await estudiante.update({ estado: STATES.INACTIVE }, { transaction });
 
-//         if (!estudiante) {
-//             throw new CustomError(HttpStatus.NOT_FOUND, MESSAGE_ERROR.STUDENT_NOT_FOUND);
-//         }
-//         // Buscar la persona asociada al estudiante
-//         const persona = estudiante.Persona;
+        const estudianteInfo = {
+            nombre_completo: getFullName(estudiante.Persona),
+            carnet: estudiante.carnet,
+            cedula: estudiante.Persona.cedula,
+            telefono: estudiante.Persona.telefono,
+            telefono_adicional: estudiante.Persona.telefono_adicional,
+            estado: estudiante.estado,
+        };
 
-//         await persona.destroy();
+        await AuditLog.create({
+            user_id: userId,
+            action: req.t('action.DEACTIVATE_STUDENT'),
+            description: req.t('description.DEACTIVATE_STUDENT', { data: id_estudiante })
+        }, { transaction });
 
-//         return sendResponse({
-//             res,
-//             statusCode: HttpStatus.OK,
-//             message: MESSAGE_SUCCESS.STUDENT_DELETED,
-//             data: { estudiante }
-//         });
-//     } catch (error) {
-//         console.error(MESSAGE_ERROR.DELETE_STUDENT, error);
-//         return sendResponse({
-//             res,
-//             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-//             message: error?.message || {
-//                 message: MESSAGE_ERROR.RECOVERED_PROFESORS,
-//                 error: error.message,
-//                 stack: error.stack
-//             }
-//         });
-//     }
-// };
+        await transaction.commit();
 
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: req.t('success.REQUEST_DETAILS', { data: DECISION.ACCEPTED }),
+            data: estudianteInfo
+        });
+
+    } catch (error) {
+
+        await transaction.rollback();
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: req.t('error.DEACTIVATING_STUDENT'),
+                error: error.message,
+                stack: error.stack
+            }
+        });
+    }
+}; 

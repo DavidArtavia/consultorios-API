@@ -1,37 +1,63 @@
 const { HttpStatus, ACTION, DECISION, STATES, TABLE_FIELDS, ORDER } = require("../constants/constants");
 const { sendResponse, CustomError } = require("../handlers/responseHandler");
-const { sequelize, Persona, Estudiante, Caso, SolicitudConfirmacion} = require("../../models");
-const { checkStudentAssignmentsAndProgress, findConfirmationRequestById, findStudentByPk } = require("../utils/helpers");
+const { sequelize, Persona, Estudiante, Caso, SolicitudConfirmacion } = require("../../models");
+const { checkStudentAssignments, findConfirmationRequestById, findStudentByPk, getFullName } = require("../utils/helpers");
 
 exports.mostrarSolicitudes = async (req, res) => {
     try {
-        
+
         // Obtener todas las solicitudes de confirmación
         const solicitudes = await SolicitudConfirmacion.findAll({
             include: [
                 {
                     model: Estudiante,
-                    include: [Persona] 
-                },
-                {
-                    model: Caso 
+                    include: [Persona]
                 }
             ],
             order: [[TABLE_FIELDS.CREATED_AT, ORDER.DESC]] // Ordenar por fecha de creación, más recientes primero
         });
 
         if (!solicitudes || solicitudes.length === 0) {
-            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.NO_CONFIRMATION_REQUESTS_FOUND') );
+            throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.NO_CONFIRMATION_REQUESTS_FOUND'));
         }
+
+        const solicitudInfo = solicitudes.map(solicitud => ({
+            id_solicitud: solicitud.id_solicitud,
+            id_caso: solicitud.id_caso,
+            accion: solicitud.accion,
+            detalles: solicitud.detalles,
+            estado: solicitud.estado,
+            createdBy: solicitud.createdBy,
+            createdAt: solicitud.createdAt,
+            Estudiante: {
+                id_estudiante: solicitud.id_estudiante,
+                nombre_completo: getFullName(solicitud.Estudiante.Persona),
+                primer_nombre: solicitud.Estudiante.Persona.primer_nombre,
+                segundo_nombre: solicitud.Estudiante.Persona.segundo_nombre || '',
+                primer_apellido: solicitud.Estudiante.Persona.primer_apellido,
+                segundo_apellido: solicitud.Estudiante.Persona.segundo_apellido,
+                carnet: solicitud.Estudiante.carnet,
+                cedula: solicitud.Estudiante.Persona.cedula,
+                telefono: solicitud.Estudiante.Persona.telefono,
+                telefono_adicional: solicitud.Estudiante.Persona.telefono_adicional,
+                createdAt: solicitud.Estudiante.createdAt,
+                updatedAt: solicitud.Estudiante.updatedAt,
+                direccion: solicitud.Estudiante.Persona.Direccion && {
+                    ...solicitud.Estudiante.Persona.Direccion.toJSON()
+                }
+            }
+        }));
 
         // Responder con las solicitudes
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
             message: req.t('success.CONFIRMATION_REQUESTS_FOUND'),
-            data: solicitudes
+            data: solicitudInfo
         });
     } catch (error) {
+
+        console.error('Error en mostrarSolicitudes', error);
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -47,7 +73,6 @@ exports.mostrarSolicitudes = async (req, res) => {
 
 exports.procesarSolicitudConfirmacion = async (req, res) => {
     const { id_solicitud, decision } = req.body; // decision puede ser 'aceptado' o 'denegado'
-    const adminId = req.session.user.userId; // Asumimos que el administrador está autenticado y tiene este ID
     const transaction = await sequelize.transaction();
 
     try {
@@ -62,24 +87,21 @@ exports.procesarSolicitudConfirmacion = async (req, res) => {
 
         // Procesar la solicitud
         if (decision == DECISION.ACCEPTED) {
+
             const id_estudiante = solicitud.id_estudiante;
-            // Si es una solicitud para eliminar un estudiante
-            if (solicitud.accion === ACTION.DELETE && id_estudiante) {
+            if (solicitud.accion == ACTION.DELETE && id_estudiante) {
 
-                const estudiante = await findStudentByPk(id_estudiante);
-                // Verificar si el estudiante tiene asociados
-                await checkStudentAssignmentsAndProgress(id_estudiante, transaction);
-
-                // Eliminar al estudiante y su persona asociada
-                await estudiante.Persona.destroy({ transaction });
-
-                // Actualizar el estado de la solicitud a 'aceptado'
+                const estudiante = await findStudentByPk(id_estudiante, req);
+                await checkStudentAssignments(id_estudiante, transaction);
+                await estudiante.update({ estado: STATES.INACTIVE }, { transaction });
                 await solicitud.update({ estado: DECISION.ACCEPTED }, { transaction });
+
             }
-        } else if (decision === DECISION.DENIED) {
-            // Marcar la solicitud como denegada
+        } else if (decision == DECISION.DENIED) {
+
             await solicitud.update({ estado: DECISION.DENIED }, { transaction });
         } else {
+
             throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.INVALID_DECISION'));
         }
 
@@ -88,7 +110,7 @@ exports.procesarSolicitudConfirmacion = async (req, res) => {
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
-            message: req.t('success.REQUEST_DETAILS', { decision }),
+            message: req.t('success.REQUEST_DETAILS', { data: decision }),
             data: solicitud
         });
     } catch (error) {

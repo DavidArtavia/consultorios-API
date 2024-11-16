@@ -18,9 +18,14 @@ module.exports = {
         onUpdate: 'CASCADE',
       },
       carnet: {
-        type: Sequelize.STRING(20),
+        type: Sequelize.TEXT,
         allowNull: false,
         unique: true,
+      },
+      estado: {
+        type: Sequelize.ENUM('activo', 'inactivo'),
+        allowNull: false,
+        defaultValue: 'activo',
       },
       createdAt: {
         allowNull: false,

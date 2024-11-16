@@ -18,8 +18,13 @@ module.exports = {
         onUpdate: 'CASCADE',
       },
       especialidad: {
-        type: Sequelize.STRING(50),
+        type: Sequelize.TEXT,
         allowNull: true,
+      },
+      estado: {
+        type: Sequelize.ENUM('activo', 'inactivo'),
+        allowNull: false,
+        defaultValue: 'activo',
       },
       createdAt: {
         allowNull: false,

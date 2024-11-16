@@ -43,3 +43,7 @@ Desktop.ini
 dist/
 build/
 out/
+
+#other
+gestor.json
+Explicacion.drawio

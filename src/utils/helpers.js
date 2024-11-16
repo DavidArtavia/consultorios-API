@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
-const { MESSAGE_ERROR, HttpStatus, FIELDS, ROL } = require("../constants/constants");
+const { MESSAGE_ERROR, HttpStatus, FIELDS, ROL, STATES, TABLE_FIELDS } = require("../constants/constants");
 const { CustomError } = require("../handlers/responseHandler");
-const { Usuario, Caso, AsignacionDeCaso, Avance, Estudiante, SolicitudConfirmacion, Persona } = require("../../models");
+const { Usuario, Caso, AsignacionDeCaso, Estudiante, Profesor, SolicitudConfirmacion, Persona, Direccion } = require("../../models");
 const bcrypt = require("bcryptjs/dist/bcrypt");
 
 const getFullName = (persona) => {
@@ -24,6 +24,41 @@ const getFullName = (persona) => {
     return fullName.trim();
 };
 
+const updateRelatedEntity = async (Model, data, transaction, uid, req) => {
+
+
+
+    if (!uid) {
+        throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.UID_IS_REQUIRED'));
+    }
+    const entity = await Model.findByPk(uid, { transaction });
+    if (!entity) {
+        throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.ENTITY_NOT_FOUND'));
+    }
+    await entity.update(data, { transaction });
+};
+
+const updatePersonAndAddress = async (personData, transaction, id_persona, req) => {
+    if (!id_persona) {
+        throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.UID_IS_REQUIRED'));
+    }
+    const person = await Persona.findByPk(id_persona, { transaction });
+    if (!person) {
+        throw new CustomError(HttpStatus.NOT_FOUND, 'Person not found');
+    }
+    await person.update(personData, { transaction });
+
+    // Update the address if present
+    if (personData.Direccion) {
+        if (!person.id_persona) {
+            throw new CustomError(HttpStatus.BAD_REQUEST, 'Person ID is required');
+        }
+        await Direccion.update(
+            { ...personData.Direccion },
+            { where: { id_persona: person.id_persona } },
+            { transaction });
+    };
+};
 const findStudentByPk = async (id_estudiante, req) => {
 
     const estudiante = await Estudiante.findByPk(id_estudiante, {
@@ -36,6 +71,19 @@ const findStudentByPk = async (id_estudiante, req) => {
 
     return estudiante;
 };
+const findPersonById = async (cedula, req) => {
+
+    const persona = await Persona.findOne({
+        where: { cedula }
+    });
+
+    if (!persona) {
+        throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.NOT_PERSON_FOUND'));
+    }
+
+    return persona;
+};
+
 const findConfirmationRequestById = async (id_solicitud, req) => {
 
     const solicitud = await SolicitudConfirmacion.findByPk(id_solicitud, {
@@ -49,22 +97,20 @@ const findConfirmationRequestById = async (id_solicitud, req) => {
     return solicitud;
 };
 
-const checkStudentAssignmentsAndProgress = async (id_estudiante, transaction) => {
-
-    // Check if the student has associated progress
-    const avance = await Avance.findAll({ where: { id_estudiante: id_estudiante }, transaction });
-    if (avance.length > 0) {
-        console.log('Desarrollar la logica para ver que hacer con los avances');
-
-        // se puiede eliminar un estudiante que no haya hecho ningun avance 
-        //Agregar un enum de activo inactivo Finalisado en estudiante
-    }
+const checkStudentAssignments = async (id_estudiante, transaction) => {
 
     // Check if the student has case assignments
-    const asignacion = await AsignacionDeCaso.findAll({ where: { id_estudiante: id_estudiante }, transaction });
-    if (asignacion.length > 0) {
-        for (const asignacion of asignacion) {
-            await asignacion.destroy({ transaction });
+    const asignaciones = await AsignacionDeCaso.findAll({ where: { id_estudiante: id_estudiante }, transaction });
+    if (asignaciones && asignaciones.length > 0) {
+        for (const asign of asignaciones) {
+            // Lógica de eliminación de asignaciones
+            await asign.destroy({ transaction });
+
+            // Actualiza el estado del caso si es necesario
+            const caso = await Caso.findByPk(asign.id_caso, { transaction });
+            if (caso) {
+                await caso.update({ estado: STATES.ACTIVE }, { transaction });
+            }
         }
     }
 };
@@ -73,7 +119,7 @@ const checkStudentAssignmentsAndProgress = async (id_estudiante, transaction) =>
 const validateIfUserIsTeacher = (userRole, req) => {
 
     if (userRole !== ROL.PROFESSOR) {
-        throw new CustomError(HttpStatus.FORBIDDEN, req.t('warning.WITHOUT_PERMISSION'), { userRole });
+        throw new CustomError(HttpStatus.FORBIDDEN, req.t('warning.WITHOUT_PERMISSION', { userRole }));
     }
 };
 
@@ -130,7 +176,7 @@ const validateCaseAssignedToStudent = async (id_caso, id_estudiante, req) => {
 
 const validateRoleChange = (sessionRole, requestedRole, req) => {
     if (sessionRole === requestedRole) {
-        throw new CustomError(HttpStatus.FORBIDDEN, req.t('warning.WITHOUT_PERMISSION'), { userRole });
+        throw new CustomError(HttpStatus.FORBIDDEN, req.t('warning.WITHOUT_PERMISSION', { userRole }));
     }
 };
 
@@ -149,7 +195,6 @@ const validateUpdatesInputs = async ({ currentValue, newValue, model, field, mes
     }
 }
 
-
 const validatePasswordHash = async (password, userPasswordHash, req) => {
 
     const passwordMatch = await bcrypt.compare(password, userPasswordHash);
@@ -165,7 +210,8 @@ const validateText = (text) => {
 };
 
 const validateTextWithSpaces = (text) => {
-    const textRegex = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,'()-]+$/;
+    const textRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9.,'"?*¿¡!/:;&=#)(\s-]+$/;
+
     return textRegex.test(text);
 };
 
@@ -249,21 +295,22 @@ const validatePassword = (password) => {
 };
 
 const validateUniqueCedulas = (clienteCedula, contraparteCedula, subsidiarioCedula, req) => {
+
     if (subsidiarioCedula) {
-        if (subsidiarioCedula === clienteCedula) {
+        if (subsidiarioCedula == clienteCedula) {
             throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.SAME_ID_ID_CONFLICT', {
                 entity1: req.t('person.CLIENT'),
                 entity2: req.t('person.SUBSIDIARY')
             }));
         }
-        if (subsidiarioCedula === contraparteCedula) {
+        if (subsidiarioCedula == contraparteCedula) {
             throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.SAME_ID_ID_CONFLICT', {
                 entity1: req.t('person.COUNTERPART'),
                 entity2: req.t('person.SUBSIDIARY')
             }));
         }
     }
-    if (clienteCedula === contraparteCedula) {
+    if (clienteCedula == contraparteCedula) {
         throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.SAME_ID_ID_CONFLICT', {
             entity1: req.t('person.CLIENT'),
             entity2: req.t('person.COUNTERPART')
@@ -271,60 +318,101 @@ const validateUniqueCedulas = (clienteCedula, contraparteCedula, subsidiarioCedu
     }
 };
 
+const validateGenderCharacter = (character) => {
+    const allowedCharacters = /^[MF]$/;
+    return allowedCharacters.test(character);
+};
+
 const validateInput = (input, field, req) => {
     switch (field) {
         case FIELDS.TEXT:
             if (!validateText(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_TEXT_FORMAT'), {input} );
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_TEXT_FORMAT', { data: input }));
             }
             break;
         case FIELDS.TEXTBOX:
             if (!validateTextWithSpaces(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_TEXTBOX_FORMAT'), {input} );
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_TEXTBOX_FORMAT', { data: input }));
+            }
+            break;
+        case FIELDS.CHAR:
+            if (!validateGenderCharacter(input)) {
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_GENDER_CHARACTER', { data: input }));
             }
             break;
         case FIELDS.ID:
             if (!validateID(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_ID_FORMAT'), {input} );
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_ID_FORMAT', { data: input }));
             }
             break;
         case FIELDS.EMAIL:
             if (!validateEmail(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST,  req.t('validation.INVALID_EMAIL_FORMAT'), {input} );
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_EMAIL_FORMAT', { data: input }));
             }
             break;
         case FIELDS.PASSWORD:
             if (!validatePassword(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_PASSWORD_FORMAT'), {input} );
-
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_PASSWORD_FORMAT', { data: input }));
             }
             break;
         case FIELDS.NUMERIC:
             if (!validateNumericInput(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_NUMERIC_FORMAT'), {input} );
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_NUMERIC_FORMAT', { data: input }));
             }
             break;
         case FIELDS.EXPEDIENTE:
             if (!validateExpediente(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_EXPEDIENTE_FORMAT'), {input} );
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_EXPEDIENTE_FORMAT', { data: input }));
             }
             break;
         case FIELDS.PHONE_NUMBER:
             if (!validatePhoneNumberCR(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_PHONE_NUMBER_FORMAT'), {input} );
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_PHONE_NUMBER_FORMAT', { data: input }));
             }
             break;
         case FIELDS.CARNET:
             if (!validateCarnet(input)) {
-                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_CARNET_FORMAT'), {input} );
+                throw new CustomError(HttpStatus.BAD_REQUEST, req.t('validation.INVALID_CARNET_FORMAT', { data: input }));
             }
             break;
     }
 };
 
+const checkUserStatus = async (user, req, next) => {
+    let model, idField, notFoundMessage, inactiveMessage;
+
+    switch (user.rol) {
+        case ROL.PROFESSOR:
+            model = Profesor;
+            idField = TABLE_FIELDS.UID_PROFESOR;
+            notFoundMessage = req.t('warning.PROFESSOR_NOT_FOUND');
+            inactiveMessage = req.t('warning.INACTIVE_PROFESSOR');
+            break;
+        case ROL.STUDENT:
+            model = Estudiante;
+            idField = TABLE_FIELDS.UID_ESTUDIANTE;
+            notFoundMessage = req.t('warning.STUDENT_NOT_FOUND');
+            inactiveMessage = req.t('warning.INACTIVE_STUDENT');
+            break;
+        default:
+           return next(); 
+    }
+
+    const userData = await model.findOne({ where: { [idField]: user.id_persona } });
+
+    if (!userData) {
+        throw new CustomError(HttpStatus.NOT_FOUND, notFoundMessage);
+    }
+
+    if (userData.estado !== STATES.ACTIVE) {
+        throw new CustomError(HttpStatus.BAD_REQUEST, inactiveMessage);
+    }
+};
 
 module.exports = {
+    checkUserStatus,
     findStudentByPk,
+    findPersonById,
     validateInput,
     getFullName,
     validateUpdatesInputs,
@@ -336,6 +424,8 @@ module.exports = {
     validateUniqueCedulas,
     validateCaseAssignedToStudent,
     validateIfUserIsTeacher,
-    checkStudentAssignmentsAndProgress,
-    findConfirmationRequestById
+    checkStudentAssignments,
+    findConfirmationRequestById,
+    updateRelatedEntity,
+    updatePersonAndAddress
 };

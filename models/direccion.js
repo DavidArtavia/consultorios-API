@@ -13,25 +13,29 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
         },
         direccion_exacta: {
-            type: DataTypes.STRING(200),
+            type: DataTypes.TEXT,
             allowNull: true,
-            field: TABLE_FIELDS.DIRECCION_EXACTA
+            field: TABLE_FIELDS.DIRECCION_EXACTA,
         },
         canton: {
-            type: DataTypes.STRING(55),
+            type: DataTypes.TEXT,
             allowNull: false,
+            field: TABLE_FIELDS.CANTON,
         },
         distrito: {
-            type: DataTypes.STRING(55),
+            type: DataTypes.TEXT,
             allowNull: false,
+            field: TABLE_FIELDS.DISTRITO,
         },
         localidad: {
-            type: DataTypes.STRING(55),
+            type: DataTypes.TEXT,
             allowNull: false,
+            field: TABLE_FIELDS.LOCALIDAD,
         },
         provincia: {
-            type: DataTypes.STRING(55),
+            type: DataTypes.TEXT,
             allowNull: false,
+            field: TABLE_FIELDS.PROVINCIA,
         },
     }, {
         tableName: TABLE_NAME.DIRECCIONES,

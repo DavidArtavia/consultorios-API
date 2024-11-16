@@ -42,8 +42,8 @@ module.exports = {
 
       },
       expediente: {
-        type: Sequelize.STRING(50),
-        allowNull: false,
+        type: Sequelize.TEXT,
+        allowNull: true,
         unique: true,
       },
       ley_7600: {
@@ -51,7 +51,7 @@ module.exports = {
         defaultValue: false,
       },
       tipo_proceso: {
-        type: Sequelize.STRING(255),
+        type: Sequelize.TEXT,
         allowNull: true,
       },
       cuantia_proceso: {
@@ -77,10 +77,6 @@ module.exports = {
         defaultValue: Sequelize.fn('NOW')
       },
       etapa_proceso: {
-        type: Sequelize.TEXT,
-        allowNull: true,
-      },
-      evidencia: {
         type: Sequelize.TEXT,
         allowNull: true,
       },
