@@ -1,5 +1,5 @@
 
-const { Usuario, Persona, Direccion, Estudiante, Profesor, Sequelize, sequelize } = require('../../models');
+const { AuditLog, Usuario, Persona, Direccion, Estudiante, Profesor, Sequelize, sequelize } = require('../../models');
 const { HttpStatus, ROL, MESSAGE_ERROR, MESSAGE_SUCCESS, TABLE_FIELDS, FIELDS, TABLE_NAME, ACTION, STATES } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
 const { validateIfExists, validateExistingUser, validateRoleChange, validateInput, generateTempPassword } = require('../utils/helpers');
@@ -161,31 +161,21 @@ exports.register = async (req, res) => {
 
 exports.editarUsuario = async (req, res) => {
     const {
-        id_usuario,
         primer_nombre,
         segundo_nombre,
         primer_apellido,
         segundo_apellido,
-        nombre_usuario,
-        email,
-        cedula,
         telefono,
         telefono_adicional,
-        Direccion
     } = req.body;
-    const userId = req.session.user.userId;
+    const id_usuario = req.session.user.userId;
 
     const transaction = await sequelize.transaction(); // Iniciar transacción
 
     try {
         // Buscar al usuario
         const usuario = await Usuario.findByPk(id_usuario, {
-            include: {
-                model: Persona,
-                include: {
-                    model: Direccion
-                }
-            }
+            include: [{ model: Persona }]
         });
 
         if (!usuario) {
@@ -196,52 +186,24 @@ exports.editarUsuario = async (req, res) => {
         if (usuario.Persona) {
 
             validateInput(primer_nombre, FIELDS.TEXT, req);
-            segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT, req);
             validateInput(primer_apellido, FIELDS.TEXT, req);
             validateInput(segundo_apellido, FIELDS.TEXT, req);
-            validateInput(cedula, FIELDS.ID, req);
             validateInput(telefono, FIELDS.PHONE_NUMBER, req);
+            segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT, req);
             telefono_adicional && validateInput(telefono_adicional, FIELDS.PHONE_NUMBER, req);
-
-            await validateUpdatesInputs({
-                currentValue: usuario.Persona.cedula,
-                newValue: cedula,
-                model: Persona,
-                field: TABLE_FIELDS.CEDULA,
-                message: req.t('warning.CEDULA_ALREADY_USED')
-            });
 
             await usuario.Persona.update({
                 primer_nombre,
                 segundo_nombre,
                 primer_apellido,
                 segundo_apellido,
-                cedula,
                 telefono,
                 telefono_adicional
             }, { transaction });
         }
 
-        // Actualizar campos de Dirección si existen
-        if (usuario.Persona && usuario.Persona.Direccion) {
-
-            validateInput(Direccion.direccion_exacta, FIELDS.TEXTBOX, req);
-            validateInput(Direccion.canton, FIELDS.TEXT, req);
-            validateInput(Direccion.distrito, FIELDS.TEXT, req);
-            validateInput(Direccion.localidad, FIELDS.TEXT, req);
-            validateInput(Direccion.provincia, FIELDS.TEXT, req);
-
-            await usuario.Persona.Direccion.update({
-                direccion_exacta: Direccion.direccion_exacta,
-                canton: Direccion.canton,
-                distrito: Direccion.distrito,
-                localidad: Direccion.localidad,
-                provincia: Direccion.provincia
-            }, { transaction });
-        }
-
         await AuditLog.create({
-            user_id: userId,
+            user_id: id_usuario,
             action: req.t('action.UPDATE_USER'),
             description: req.t('description.UPDATE_USER', { data: id_usuario })
         }, { transaction });

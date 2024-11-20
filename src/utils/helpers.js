@@ -99,8 +99,27 @@ const findPersonById = async (cedula, req) => {
 
 const findConfirmationRequestById = async (id_solicitud, req) => {
 
-    const solicitud = await SolicitudConfirmacion.findByPk(id_solicitud, {
-        include: [Estudiante, Caso] // Asegúrate que se incluyan las referencias necesarias
+    const solicitud = await SolicitudConfirmacion.findOne({
+        where: { id_solicitud },
+        include: [
+            {
+                model: Estudiante,
+                include: [{
+                    model: Persona,
+                    attributes: ['primer_nombre', 'primer_apellido', 'cedula']
+                }]
+            },
+            {
+                // Incluir los datos del profesor que creó la solicitud
+                model: Persona,
+                as: 'Creador',
+                foreignKey: 'createdBy',
+                include: [{
+                    model: Usuario,
+                    attributes: ['email']
+                }]
+            }
+        ]
     });
 
     if (!solicitud) {

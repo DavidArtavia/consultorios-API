@@ -13,7 +13,6 @@
   "description": "",
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "chromedriver": "^131.0.0",
     "consultorios-api": "file:",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -26,7 +25,6 @@
     "nodemailer": "^6.9.16",
     "pg": "^8.12.0",
     "pg-hstore": "^2.3.4",
-    "selenium-webdriver": "^4.26.0",
     "sequelize": "^6.37.3",
     "sequelize-cli": "^6.6.2"
   },
