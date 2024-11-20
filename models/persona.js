@@ -44,6 +44,10 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: TABLE_FIELDS.UID_ESTUDIANTE,
             onDelete: 'CASCADE',
         });
+        Persona.hasOne(models.Profesor, {
+            foreignKey: TABLE_FIELDS.UID_PROFESOR,
+            onDelete: 'CASCADE',
+        });
         Persona.hasOne(models.Usuario, {
             foreignKey: TABLE_FIELDS.UID_PERSONA,
             onDelete: 'CASCADE',

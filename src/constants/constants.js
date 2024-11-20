@@ -186,6 +186,8 @@ const ROUTES = {
     USERS: '/usuarios',
     REGISTER: '/register',
     ACTIVATE: '/activar',
+    RECOVERY_PASSWORD: '/recuperar/contrasena',
+    CHANGE_PASSWORD: '/cambiar/contrasena',
 }
 
 module.exports = {

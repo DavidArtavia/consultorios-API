@@ -1,8 +1,9 @@
 
 const { Usuario, Persona, Direccion, Estudiante, Profesor, Sequelize, sequelize } = require('../../models');
-const { HttpStatus, ROL, MESSAGE_ERROR, MESSAGE_SUCCESS, TABLE_FIELDS, FIELDS, TABLE_NAME, ACTION } = require('../constants/constants');
+const { HttpStatus, ROL, MESSAGE_ERROR, MESSAGE_SUCCESS, TABLE_FIELDS, FIELDS, TABLE_NAME, ACTION, STATES } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
-const { validateIfExists, validateExistingUser, validateRoleChange, validateInput } = require('../utils/helpers');
+const { validateIfExists, validateExistingUser, validateRoleChange, validateInput, generateTempPassword } = require('../utils/helpers');
+const bcrypt = require('bcryptjs');
 
 
 // Register a new user
@@ -29,7 +30,7 @@ exports.register = async (req, res) => {
     try {
 
         const userRole = req.session.user.userRole;
-        
+
         validateRoleChange(userRole, rol, req);
         await validateExistingUser(username, email, req);
 
@@ -40,7 +41,7 @@ exports.register = async (req, res) => {
             errorMessage: req.t('warning.IS_ALREADY_REGISTERED', { data: cedula })
         });
 
-        
+
         validateInput(primer_nombre, FIELDS.TEXT, req);
         segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT, req);
         validateInput(primer_apellido, FIELDS.TEXT, req);
@@ -141,7 +142,7 @@ exports.register = async (req, res) => {
                     error: error.stack,
                 }
             });
-           
+
         }
 
         return sendResponse({
@@ -173,7 +174,7 @@ exports.editarUsuario = async (req, res) => {
         Direccion
     } = req.body;
     const userId = req.session.user.userId;
-    
+
     const transaction = await sequelize.transaction(); // Iniciar transacción
 
     try {
@@ -223,7 +224,7 @@ exports.editarUsuario = async (req, res) => {
 
         // Actualizar campos de Dirección si existen
         if (usuario.Persona && usuario.Persona.Direccion) {
-            
+
             validateInput(Direccion.direccion_exacta, FIELDS.TEXTBOX, req);
             validateInput(Direccion.canton, FIELDS.TEXT, req);
             validateInput(Direccion.distrito, FIELDS.TEXT, req);
@@ -255,7 +256,7 @@ exports.editarUsuario = async (req, res) => {
         });
     } catch (error) {
         await transaction.rollback(); // Revertir la transacción en caso de error
-     
+
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -264,14 +265,3 @@ exports.editarUsuario = async (req, res) => {
         });
     }
 };
-
-
-
-
-
-
-
-
-
-
-

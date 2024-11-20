@@ -6,6 +6,7 @@ const session = require('express-session');
 const sequelize = require('./src/config/database');
 const i18next = require('./src/middlewares/i18nextConfig');
 const i18nextMiddleware = require('i18next-http-middleware');
+const emailService = require('./src/services/emailService');
 
 // rutas 
 const apiRoutes = require('./src/routes');
@@ -34,6 +35,11 @@ app.use(session({
         maxAge: 1000 * 60 * 60 * 24 // 24 horas de duración
     }
 }));
+
+// Verificar conexión al iniciar
+emailService.verificarConexion()
+    .then(() => console.log('Servicio de email inicializado'))
+    .catch(err => console.error('Error al inicializar servicio de email:', err));
 
 // Middleware logger
 const logger = (req, res, next) => {

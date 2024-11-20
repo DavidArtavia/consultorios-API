@@ -32,6 +32,11 @@ const Usuario = sequelize.define('Usuario', {
         type: DataTypes.TEXT,
         allowNull: false,
     },
+    is_temp_password: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
     rol: {
         type: DataTypes.ENUM(ROL.SUPERADMIN, ROL.PROFESSOR, ROL.STUDENT),
         allowNull: false,

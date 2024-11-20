@@ -31,7 +31,10 @@
         "RECOVERED_ACTIVE_STUDENTS": "Error retrieving active students.",
         "RECOVERED_INACTIVE_STUDENTS": "Error retrieving inactive students.",
         "UPDATING_CASE": "Error updating case.",
-        "DEACTIVATING_STUDENT": "Error deactivating student."
+        "DEACTIVATING_STUDENT": "Error deactivating student.",
+        "PASSWORD_RESET_REQUEST": "Error requesting password reset.",
+        "PASSWORD_RESET_REQUESTED": "Error requesting password reset. The user is not registered.",
+        "PASSWORD_CHANGED": "Error changing password."
     },
     "success": {
         "LOGIN": "Login successful.",
@@ -63,7 +66,11 @@
         "USER_UPDATED": "User updated successfully.",
         "RECOVERED_ACTIVE_STUDENTS": "Active students retrieved successfully.",
         "RECOVERED_INACTIVE_STUDENTS": "Inactive students retrieved successfully.",
-        "CASE_UPDATED": "Case updated successfully."
+        "CASE_UPDATED": "Case updated successfully.",
+        "RESET_PASSWORD_SUBJECT": "Password reset",
+        "PASSWORD_RESET_REQUEST": "Password reset request sent successfully. Check your email for further instructions.",
+        "PASSWORD_CHANGED": "Password changed successfully.",
+        "PASSWORD_RESET_REQUESTED": "Password reset request sent successfully. Please check your email to obtain the temporary password."
         
     },
     "warning": {
@@ -112,7 +119,10 @@
         "UID_IS_REQUIRED": "The UID is required.",
         "ENTITY_NOT_FOUND": "The {{entity}} was not found.",
         "NO_ACTIVE_STUDENTS_FOUND": "No active students found.",
-        "NO_INACTIVE_STUDENTS_FOUND": "No inactive students found."
+        "NO_INACTIVE_STUDENTS_FOUND": "No inactive students found.",
+        "TEMP_PASSWORD_MUST_CHANGE": "The temporary password must be changed.",
+        "NOT_TEMP_PASSWORD": "The password is not temporary.",
+        "SAME_PASSWORD": "The new password must be different from the current password."
     },
     "validation": {
         "INVALID_TEXT_FORMAT": " --> {{data}} <-- Invalid text format. Only letters are allowed.",

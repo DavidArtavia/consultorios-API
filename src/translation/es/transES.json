@@ -31,7 +31,10 @@
         "RECOVERED_ACTIVE_STUDENTS": "Error al recuperar estudiantes activos.",
         "RECOVERED_INACTIVE_STUDENTS": "Error al recuperar estudiantes inactivos.",
         "UPDATING_CASE": "Error al actualizar el caso.",
-        "DEACTIVATING_STUDENT": "Error deactivando estudiante."
+        "DEACTIVATING_STUDENT": "Error deactivando estudiante.",
+        "PASSWORD_RESET_REQUEST": "Error al solicitar restablecimiento de contraseña.",
+        "PASSWORD_RESET_REQUESTED": "Error al solicitar restablecimiento de contraseña.",
+        "PASSWORD_CHANGED": "Error al cambiar la contraseña."
     },
     "success": {
         "LOGIN": "Inicio de sesión exitoso.",
@@ -63,7 +66,9 @@
         "USER_UPDATED": "Usuario actualizado exitosamente.",
         "RECOVERED_ACTIVE_STUDENTS": "Estudiantes activos recuperados con éxito.",
         "RECOVERED_INACTIVE_STUDENTS": "Estudiantes inactivos recuperados con éxito.",
-        "CASE_UPDATED": "Caso actualizado exitosamente."
+        "CASE_UPDATED": "Caso actualizado exitosamente.",
+        "RESET_PASSWORD_SUBJECT": "Restablecimiento de contraseña",
+        "PASSWORD_RESET_REQUESTED": "Solicitud de restablecimiento de contraseña enviada exitosamente. Por favor, revise su correo electrónico para obtener la contraseña temporal."
     },
     "warning": {
         "PROFESSOR_ALREADY_INACTIVE": "El profesor ya está inactivo.",
@@ -111,7 +116,11 @@
         "UID_IS_REQUIRED": "EL UID es requerido.",
         "ENTITY_NOT_FOUND": "{{entity}} no esta registrado.",
         "NO_ACTIVE_STUDENTS_FOUND": "No se encontraron estudiantes activos.",
-        "NO_INACTIVE_STUDENTS_FOUND": "No se encontraron estudiantes inactivos."
+        "NO_INACTIVE_STUDENTS_FOUND": "No se encontraron estudiantes inactivos.",
+        "TEMP_PASSWORD_MUST_CHANGE": "La contraseña temporal debe ser cambiada.",
+        "NOT_TEMP_PASSWORD": "La contraseña no es temporal.",
+        "SAME_PASSWORD": "La nueva contraseña no puede ser igual a la anterior.",
+        "PASSWORD_CHANGED": "Contraseña cambiada exitosamente."
     },
     "validation": {
         "INVALID_TEXT_FORMAT": " --> {{data}} <-- Formato de texto inválido. Solo se permiten letras.",

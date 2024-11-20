@@ -23,6 +23,7 @@ const Profesor = sequelize.define('Profesor', {
 Profesor.associate = models => {
     Profesor.belongsTo(models.Persona, {
         foreignKey: TABLE_FIELDS.UID_PROFESOR,
+        targetKey: TABLE_FIELDS.UID_PERSONA,
         onDelete: 'CASCADE',
     });
 };

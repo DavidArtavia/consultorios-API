@@ -23,7 +23,20 @@ const getFullName = (persona) => {
 
     return fullName.trim();
 };
+const generateTempPassword = () => {
+    // Definir caracteres permitidos
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+    const length = 10; // Longitud de la contraseña
+    let password = '';
 
+    // Generar contraseña aleatoria
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * chars.length);
+        password += chars[randomIndex];
+    }
+
+    return password;
+};
 const updateRelatedEntity = async (Model, data, transaction, uid, req) => {
 
 
@@ -287,11 +300,24 @@ const validatePhoneNumberCR = (phoneNumber) => {
     return phoneRegex.test(phoneNumber)
 };
 
-const validatePassword = (password) => {
-    // Expresión regular para la contraseña segura
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+// const validatePassword = (password) => {
+//     // Expresión regular para la contraseña segura
+//     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-    return passwordRegex.test(password);
+//     return passwordRegex.test(password);
+// };
+
+const validatePassword = (password) => {
+    // Agregamos el punto (.) a los caracteres especiales permitidos
+    const rules = {
+        minLength: password.length >= 8,
+        hasLower: /[a-z]/.test(password),
+        hasUpper: /[A-Z]/.test(password),
+        hasNumber: /\d/.test(password),
+        hasSpecial: /[@$!%*?&.]/.test(password)  // Agregado el punto
+    };
+
+    return Object.values(rules).every(rule => rule);
 };
 
 const validateUniqueCedulas = (clienteCedula, contraparteCedula, subsidiarioCedula, req) => {
@@ -427,5 +453,6 @@ module.exports = {
     checkStudentAssignments,
     findConfirmationRequestById,
     updateRelatedEntity,
-    updatePersonAndAddress
+    updatePersonAndAddress,
+    generateTempPassword
 };
