@@ -1,6 +1,6 @@
 const { Usuario, Profesor, Estudiante, Persona, sequelize } = require('../../models');
 const bcrypt = require('bcryptjs');
-const { HttpStatus, MESSAGE_ERROR, MESSAGE_SUCCESS, FIELDS, TABLE_FIELDS, ENV, KEYS, TIME, ROL, STATES } = require('../constants/constants');
+const { HttpStatus, FIELDS, TABLE_FIELDS, ENV, KEYS, TIME, ROL, STATES } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
 const { validateInput, validateIfUserExists, validatePasswordHash, checkUserStatus, generateTempPassword, getFullName } = require('../utils/helpers');
 const emailService = require('../services/emailService');
@@ -49,7 +49,7 @@ exports.login = async (req, res, next) => {
             userName: user.username,
             userRole: user.rol
         };
-
+        
         req.session.user = userData;
 
         // Enviar la cookie con los datos del usuario
