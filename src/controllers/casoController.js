@@ -574,7 +574,6 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(MESSAGE_ERROR.UNASSIGNED_CASES, error);
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
