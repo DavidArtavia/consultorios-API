@@ -107,13 +107,12 @@ exports.procesarSolicitudConfirmacion = async (req, res) => {
         }
 
         const profesorEmail = solicitud.Creador.Usuario.email;
-        const estudianteNombre = getFullName(solicitud.Estudiante.Persona);
 
         await emailService.enviarNotificacionSolicitud({
             to: profesorEmail,
             data: {
-                profesor: getFullName(solicitud.Creador.Persona),
-                estudiante: estudianteNombre,
+                profesor: getFullName(solicitud.Creador),
+                estudiante: getFullName(solicitud.Estudiante.Persona),
                 decision: decision,
                 cedula: solicitud.Estudiante.Persona.cedula,
                 fecha: new Date().toLocaleDateString()

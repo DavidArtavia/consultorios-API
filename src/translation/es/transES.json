@@ -68,6 +68,7 @@
         "RECOVERED_INACTIVE_STUDENTS": "Estudiantes inactivos recuperados con éxito.",
         "CASE_UPDATED": "Caso actualizado exitosamente.",
         "RESET_PASSWORD_SUBJECT": "Restablecimiento de contraseña",
+        "PASSWORD_CHANGED": "Contraseña cambiada exitosamente.",
         "PASSWORD_RESET_REQUESTED": "Solicitud de restablecimiento de contraseña enviada exitosamente. Por favor, revise su correo electrónico para obtener la contraseña temporal."
     },
     "warning": {
@@ -119,8 +120,7 @@
         "NO_INACTIVE_STUDENTS_FOUND": "No se encontraron estudiantes inactivos.",
         "TEMP_PASSWORD_MUST_CHANGE": "La contraseña temporal debe ser cambiada.",
         "NOT_TEMP_PASSWORD": "La contraseña no es temporal.",
-        "SAME_PASSWORD": "La nueva contraseña no puede ser igual a la anterior.",
-        "PASSWORD_CHANGED": "Contraseña cambiada exitosamente."
+        "SAME_PASSWORD": "La nueva contraseña no puede ser igual a la anterior."
     },
     "validation": {
         "INVALID_TEXT_FORMAT": " --> {{data}} <-- Formato de texto inválido. Solo se permiten letras.",

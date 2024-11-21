@@ -206,10 +206,7 @@ exports.solicitarRecuperacionContrasena = async (req, res) => {
             res,
             statusCode: HttpStatus.OK,
             message: req.t('success.PASSWORD_RESET_REQUESTED'),
-            data: {
-                email: usuario.email,
-                nombre_completo: getFullName(usuario.Persona),
-            }
+            data: {}
         });
 
     } catch (error) {

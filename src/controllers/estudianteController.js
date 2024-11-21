@@ -589,6 +589,7 @@ exports.solicitarEliminarEstudiante = async (req, res) => {
         });
 
         if (solicitudExistente) {
+            console.log('entro -->>>', solicitudExistente);
             throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.REQUEST_PENDING'));
         }
 

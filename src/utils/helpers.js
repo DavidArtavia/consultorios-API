@@ -105,8 +105,7 @@ const findConfirmationRequestById = async (id_solicitud, req) => {
             {
                 model: Estudiante,
                 include: [{
-                    model: Persona,
-                    attributes: ['primer_nombre', 'primer_apellido', 'cedula']
+                    model: Persona
                 }]
             },
             {
@@ -440,7 +439,7 @@ const checkUserStatus = async (user, req, next) => {
             inactiveMessage = req.t('warning.INACTIVE_STUDENT');
             break;
         default:
-           return next(); 
+            return next();
     }
 
     const userData = await model.findOne({ where: { [idField]: user.id_persona } });

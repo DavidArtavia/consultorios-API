@@ -15,7 +15,7 @@ const app = express();
 
 // Configuración de CORS con opciones
 const corsOptions = {
-    origin: true, // "true" permite todas las peticiones
+    origin: process.env.ORIGIN || true, // "true" permite todas las peticiones
     credentials: true, // Permite el intercambio de cookies
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Métodos permitidos
     allowedHeaders: ['Content-Type', 'Authorization'], // Headers permitidos
