@@ -4,7 +4,7 @@ const router = express.Router();
 const verifySession = require('../middlewares/auth');
 const { ROL, ROUTES } = require('../constants/constants');
 const { verifyRole } = require('../middlewares/verifyRole');
-const { register, editarUsuario } = require('../controllers/usuarioController');
+const { register, editarUsuario, cambiarContrasena } = require('../controllers/usuarioController');
 
 router.post(
     ROUTES.REGISTER,
@@ -14,6 +14,16 @@ router.post(
         ROL.PROFESSOR
     ]),
     register
+);
+router.post(
+    ROUTES.CHANGE_PASSWORD,
+    verifySession,
+    verifyRole([
+        ROL.SUPERADMIN,
+        ROL.PROFESSOR,
+        ROL.STUDENT
+    ]),
+    cambiarContrasena
 );
 router.put(
     ROUTES.UPDATE,

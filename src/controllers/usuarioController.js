@@ -228,11 +228,10 @@ exports.editarUsuario = async (req, res) => {
     }
 };
 
-
 exports.cambiarContrasena = async (req, res) => {
     const { current_password, new_password } = req.body;
-    const id_usuario = req.session.user.userId;
     const transaction = await sequelize.transaction();
+    const id_usuario = req.session.user.userId;
 
     try {
 
@@ -275,9 +274,7 @@ exports.cambiarContrasena = async (req, res) => {
             res,
             statusCode: HttpStatus.OK,
             message: req.t('success.PASSWORD_CHANGED'),
-            data: {
-                userData
-            }
+            data: {}
         });
 
     } catch (error) {
