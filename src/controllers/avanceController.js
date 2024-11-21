@@ -14,7 +14,7 @@ exports.crearAvance = async (req, res) => {
     } = req.body;
 
     try {
-        
+
         // Validar que el caso existe y está asignado al estudiante
         await validateCaseAssignedToStudent(id_caso, id_estudiante, req);
         // Crear el avance
@@ -108,7 +108,7 @@ exports.actualizarAvance = async (req, res) => {
         validateInput(gestion, FIELDS.TEXTBOX, req);
         validateInput(resultado_concreto, FIELDS.TEXTBOX, req);
         validateInput(evidencia, FIELDS.TEXTBOX, req);
-        validateInput(observaciones, FIELDS.TEXTBOX, req);
+        observaciones && validateInput(observaciones, FIELDS.TEXTBOX, req);
 
         // Actualizar los campos del avance
         await avance.update(
