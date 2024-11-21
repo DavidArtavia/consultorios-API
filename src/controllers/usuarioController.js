@@ -2,7 +2,7 @@
 const { AuditLog, Usuario, Persona, Direccion, Estudiante, Profesor, Sequelize, sequelize } = require('../../models');
 const { HttpStatus, ROL, MESSAGE_ERROR, MESSAGE_SUCCESS, TABLE_FIELDS, FIELDS, TABLE_NAME, ACTION, STATES } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
-const { validateIfExists, validateExistingUser, validateRoleChange, validateInput, generateTempPassword } = require('../utils/helpers');
+const { validateIfExists, validateExistingUser, validateRoleChange, validateInput, generateTempPassword, validateIfUserExists } = require('../utils/helpers');
 const bcrypt = require('bcryptjs');
 
 
@@ -224,6 +224,72 @@ exports.editarUsuario = async (req, res) => {
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || req.t('error.UPDATE_USER'),
             error: error.stack
+        });
+    }
+};
+
+
+exports.cambiarContrasena = async (req, res) => {
+    const { current_password, new_password } = req.body;
+    const id_usuario = req.session.user.userId;
+    const transaction = await sequelize.transaction();
+
+    try {
+
+        validateInput(new_password, FIELDS.PASSWORD, req);
+
+        const user = await validateIfUserExists({
+            model: Usuario,
+            field: TABLE_FIELDS.UID_USUARIO,
+            value: id_usuario,
+            errorMessage: req.t('warning.USER_NOT_FOUND')
+        });
+
+        // Verificar contraseña actual
+        const isValidPassword = await bcrypt.compare(current_password, user.password_hash);
+        if (!isValidPassword) {
+            throw new CustomError(
+                HttpStatus.UNAUTHORIZED,
+                req.t('warning.INVALID_PASSWORD')
+            );
+        }
+
+        // Verificar que la nueva contraseña sea diferente de la actual
+        if (current_password === new_password) {
+            throw new CustomError(
+                HttpStatus.BAD_REQUEST,
+                req.t('warning.SAME_PASSWORD')
+            );
+        }
+
+        // Actualizar a nueva contraseña
+        const hashedPassword = await bcrypt.hash(new_password, 10);
+        await user.update({
+            password_hash: hashedPassword,
+            is_temp_password: false
+        }, { transaction });
+
+        await transaction.commit();
+
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: req.t('success.PASSWORD_CHANGED'),
+            data: {
+                userData
+            }
+        });
+
+    } catch (error) {
+        await transaction.rollback();
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: req.t('error.PASSWORD_CHANGE'),
+                error: error.message,
+                stack: error.stack
+            }
         });
     }
 };

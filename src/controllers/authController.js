@@ -238,6 +238,7 @@ exports.cambiarContrasenaInicial = async (req, res) => {
             errorMessage: req.t('warning.USER_NOT_FOUND')
         });
 
+        // Verificar si la contraseña actual es temporal
         if (!user.is_temp_password) {
             throw new CustomError(
                 HttpStatus.BAD_REQUEST,
@@ -311,3 +312,4 @@ exports.cambiarContrasenaInicial = async (req, res) => {
         });
     }
 };
+

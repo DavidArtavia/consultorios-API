@@ -45,20 +45,55 @@ class EmailService {
     }
 
     async enviarCorreoRecuperacion(email, datos) {
+        const template = this.getTemplateRecuperacion(datos);
+
         try {
+            // Verificar que las imágenes estén cargadas
+            if (!this.ucrLogo || !this.sgcderLogo) {
+                console.error('Error: Las imágenes no están cargadas correctamente');
+                throw new CustomError(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    'Error en la configuración de imágenes del correo'
+                );
+            }
+
             const mailOptions = {
-                from: `"Consultorios Jurídicos UCR, sede Guanacaste" <${process.env.GMAIL_USER}>`,
+                from: {
+                    name: 'Consultorios Jurídicos UCR, Sede Guanacaste',
+                    address: process.env.GMAIL_USER
+                },
                 to: email,
                 subject: 'Recuperación de Contraseña - Consultorios Jurídicos',
-                html: this.getTemplateRecuperacion(datos)
+                html: template,
+                attachments: [  // Agregar esto
+                    {
+                        filename: 'ucr-logo.jpg',
+                        path: path.join(__dirname, '../assets/images/ucr-logo.jpg'),
+                        cid: 'ucr-logo'
+                    },
+                    {
+                        filename: 'sgcder-logo.jpg',
+                        path: path.join(__dirname, '../assets/images/sgcder-logo.jpg'),
+                        cid: 'sgcder-logo'
+                    }
+                ]
             };
 
             const info = await this.transporter.sendMail(mailOptions);
-            console.log('Email enviado:', info.messageId);
+            console.log('Email enviado exitosamente:', {
+                messageId: info.messageId,
+                to: email,
+                subject: mailOptions.subject
+            });
+
             return info;
 
         } catch (error) {
-            console.error('Error al enviar email:', error);
+            console.error('Error detallado al enviar email:', {
+                error: error.message,
+                stack: error.stack
+            });
+
             throw new CustomError(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 'Error al enviar el correo de recuperación'
@@ -128,8 +163,8 @@ class EmailService {
     <body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5;">
         <div style="max-width: 600px; margin: 0 auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
             <div class="logo-container">
-                <img class="logo-image" src="${this.ucrLogo}" alt="UCR Logo">
-                <img class="logo-image" src="${this.sgcderLogo}" alt="SG-CDer Logo">
+                <img class="logo-image" src="cid:ucr-logo" alt="UCR Logo">
+                <img class="logo-image" src="cid:sgcder-logo" alt="SG-CDer Logo">
                 <div class="header-text">
                     <h3>Carrera de Derecho</h3>
                     <h4>Sede de Guanacaste</h4>
@@ -237,7 +272,7 @@ class EmailService {
                 <img class="logo-image" src="cid:ucr-logo" alt="UCR Logo">
                 <img class="logo-image" src="cid:sgcder-logo" alt="SG-CDer Logo">
                 <div class="header-text">
-                    <h3>Carrera de Derecho</h3>
+                    <h3>Consultorios Jurídicos</h3>
                     <h4>Sede de Guanacaste</h4>
                 </div>
             </div>
