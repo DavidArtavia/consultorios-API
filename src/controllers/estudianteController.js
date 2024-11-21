@@ -678,3 +678,52 @@ exports.desactivarEstudiante = async (req, res) => {
         });
     }
 }; 
+
+exports.activarEstudiante = async (req, res) => {
+
+    const { id_estudiante } = req.body;
+    const userId = req.session.user?.userId;
+    const transaction = await sequelize.transaction();
+
+    try {
+        const estudiante = await findStudentByPk(id_estudiante, req);
+        await estudiante.update({ estado: STATES.ACTIVE }, { transaction });
+
+        const estudianteInfo = {
+            nombre_completo: getFullName(estudiante.Persona),
+            carnet: estudiante.carnet,
+            cedula: estudiante.Persona.cedula,
+            telefono: estudiante.Persona.telefono,
+            telefono_adicional: estudiante.Persona.telefono_adicional,
+            estado: estudiante.estado,
+        };
+
+        await AuditLog.create({
+            user_id: userId,
+            action: req.t('action.ACTIVATE_STUDENT'),
+            description: req.t('description.ACTIVATE_STUDENT', { data: id_estudiante })
+        }, { transaction });
+
+        await transaction.commit();
+
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: req.t('success.STUDENT_ACTIVATED'),
+            data: estudianteInfo
+        });
+
+    } catch (error) {
+
+        await transaction.rollback();
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: req.t('error.ACTIVATING_STUDENT'),
+                error: error.message,
+                stack: error.stack
+            }
+        });
+    }
+}; 

@@ -34,7 +34,8 @@
         "DEACTIVATING_STUDENT": "Error deactivating student.",
         "PASSWORD_RESET_REQUEST": "Error requesting password reset.",
         "PASSWORD_RESET_REQUESTED": "Error requesting password reset. The user is not registered.",
-        "PASSWORD_CHANGED": "Error changing password."
+        "PASSWORD_CHANGED": "Error changing password.",
+        "ACTIVATING_STUDENT": "Error activating student."
     },
     "success": {
         "LOGIN": "Login successful.",
@@ -70,7 +71,8 @@
         "RESET_PASSWORD_SUBJECT": "Password reset",
         "PASSWORD_RESET_REQUEST": "Password reset request sent successfully. Check your email for further instructions.",
         "PASSWORD_CHANGED": "Password changed successfully.",
-        "PASSWORD_RESET_REQUESTED": "Password reset request sent successfully. Please check your email to obtain the temporary password."
+        "PASSWORD_RESET_REQUESTED": "Password reset request sent successfully. Please check your email to obtain the temporary password.",
+        "STUDENT_ACTIVATED": "Student activated successfully."
         
     },
     "warning": {
@@ -154,7 +156,8 @@
         "UPDATE_CASE": "Update Case",
         "ASSIGN_CASE": "Assign case to a Student",
         "UNASSIGN_CASE": "Unassign case from a Student",
-        "DEACTIVATE_STUDENT": "Deactivate Student"
+        "DEACTIVATE_STUDENT": "Deactivate Student",
+        "ACTIVATE_STUDENT": "Activate Student"
     },
     "description": {
         "UPDATE_STUDENT": "Updating student data with UID: {{data}}",
@@ -162,6 +165,7 @@
         "UPDATE_CASE": "Updating case with UID: {{data}}",
         "ASSIGN_CASE": "Assigning case with UID: {{data}} to a student with UID: {{data}}",
         "UNASSIGN_CASE": "Unassigning case with UID: {{data}} from a student with UID: {{data}}",
-        "DEACTIVATE_STUDENT": "Deactivating student with UID: {{data}}"
+        "DEACTIVATE_STUDENT": "Deactivating student with UID: {{data}}",
+        "ACTIVATE_STUDENT": "Activating student with UID: {{data}}"
     }
 }

@@ -34,7 +34,8 @@
         "DEACTIVATING_STUDENT": "Error deactivando estudiante.",
         "PASSWORD_RESET_REQUEST": "Error al solicitar restablecimiento de contraseña.",
         "PASSWORD_RESET_REQUESTED": "Error al solicitar restablecimiento de contraseña.",
-        "PASSWORD_CHANGED": "Error al cambiar la contraseña."
+        "PASSWORD_CHANGED": "Error al cambiar la contraseña.",
+        "ACTIVATING_STUDENT": "Error activando estudiante."
     },
     "success": {
         "LOGIN": "Inicio de sesión exitoso.",
@@ -69,7 +70,8 @@
         "CASE_UPDATED": "Caso actualizado exitosamente.",
         "RESET_PASSWORD_SUBJECT": "Restablecimiento de contraseña",
         "PASSWORD_CHANGED": "Contraseña cambiada exitosamente.",
-        "PASSWORD_RESET_REQUESTED": "Solicitud de restablecimiento de contraseña enviada exitosamente. Por favor, revise su correo electrónico para obtener la contraseña temporal."
+        "PASSWORD_RESET_REQUESTED": "Solicitud de restablecimiento de contraseña enviada exitosamente. Por favor, revise su correo electrónico para obtener la contraseña temporal.",
+        "STUDENT_ACTIVATED": "Estudiante activado exitosamente."
     },
     "warning": {
         "PROFESSOR_ALREADY_INACTIVE": "El profesor ya está inactivo.",
@@ -152,7 +154,8 @@
         "UPDATE_CASE": "Actualizar Caso",
         "ASSIGN_CASE": "Asignar caso a un Estudiante",
         "UNASSIGN_CASE": "Desasignar caso de un Estudiante",
-        "DEACTIVATE_STUDENT": "Desactivar Estudiante"
+        "DEACTIVATE_STUDENT": "Desactivar Estudiante",
+        "ACTIVATE_STUDENT": "Activar Estudiante"
     },
     "description": {
         "UPDATE_STUDENT": "Actualizando datos del estudiante con UID: {{data}}",
@@ -160,6 +163,7 @@
         "UPDATE_CASE": "Actualizando caso con UID: {{data}}",
         "ASSIGN_CASE": "Asignando caso con UID: {{data}} a un estudiante con UID: {{data}}",
         "UNASSIGN_CASE": "Desasignando caso con UID: {{data}} de un estudiante con UID: {{data}}",
-        "DEACTIVATE_STUDENT": "Desactivando estudiante con UID: {{data}}"
+        "DEACTIVATE_STUDENT": "Desactivando estudiante con UID: {{data}}",
+        "ACTIVATE_STUDENT": "Activando estudiante con UID: {{data}}"
     }
 }
