@@ -129,7 +129,7 @@ exports.crearCaso = async (req, res) => {
 
         await Direccion.create({
             id_persona: contrapartePersona.id_persona,
-            direccion_exacta: contraparte.direccion.direccionExacta,
+            direccion_exacta: contraparte.direccion.direccion_exacta,
             canton: contraparte.direccion.canton,
             distrito: contraparte.direccion.distrito,
             localidad: contraparte.direccion.localidad,
@@ -182,7 +182,7 @@ exports.crearCaso = async (req, res) => {
 
             await Direccion.create({
                 id_persona: subsidiarioPersona.id_persona,
-                direccion_exacta: subsidiario.direccion.direccionExacta,
+                direccion_exacta: subsidiario.direccion.direccion_exacta,
                 canton: subsidiario.direccion.canton,
                 distrito: subsidiario.direccion.distrito,
                 localidad: subsidiario.direccion.localidad,
@@ -493,7 +493,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                 telefono_adicional: caso.Cliente.Persona.telefono_adicional,
                 createdAt: caso.Cliente.Persona.createdAt,
                 updatedAt: caso.Cliente.Persona.updatedAt,
-                dirreccion_exacta: caso.Cliente.Persona.Direccion.direccion_exacta,
+                direccion_exacta: caso.Cliente.Persona.Direccion.direccion_exacta,
                 canton: caso.Cliente.Persona.Direccion.canton,
                 distrito: caso.Cliente.Persona.Direccion.distrito,
                 localidad: caso.Cliente.Persona.Direccion.localidad,
@@ -515,7 +515,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                 telefono_adicional: caso.Contraparte.Persona.telefono_adicional,
                 createdAt: caso.Contraparte.Persona.createdAt,
                 updatedAt: caso.Contraparte.Persona.updatedAt,
-                dirreccion_exacta: caso.Contraparte.Persona.Direccion.direccion_exacta,
+                direccion_exacta: caso.Contraparte.Persona.Direccion.direccion_exacta,
                 canton: caso.Contraparte.Persona.Direccion.canton,
                 distrito: caso.Contraparte.Persona.Direccion.distrito,
                 localidad: caso.Contraparte.Persona.Direccion.localidad,
@@ -537,7 +537,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                 telefono_adicional: caso.Subsidiario.Persona.telefono_adicional,
                 createdAt: caso.Subsidiario.Persona.createdAt,
                 updatedAt: caso.Subsidiario.Persona.updatedAt,
-                dirreccion_exacta: caso.Subsidiario.Persona.Direccion.direccion_exacta,
+                direccion_exacta: caso.Subsidiario.Persona.Direccion.direccion_exacta,
                 canton: caso.Subsidiario.Persona.Direccion.canton,
                 distrito: caso.Subsidiario.Persona.Direccion.distrito,
                 localidad: caso.Subsidiario.Persona.Direccion.localidad,
