@@ -341,11 +341,6 @@ exports.actualizarProfesor = async (req, res) => {
         telefono,
         telefono_adicional,
         especialidad,
-        direccion_exacta,
-        canton,
-        distrito,
-        localidad,
-        provincia
     } = req.body;
     const userId = req.session.user?.userId;
     const transaction = await sequelize.transaction();
@@ -356,10 +351,6 @@ exports.actualizarProfesor = async (req, res) => {
                 {
                     model: Persona,
                     as: 'Persona',
-                    include: {
-                        model: Direccion,
-                        as: 'Direccion'
-                    }
                 }
             ]
         });
@@ -373,7 +364,6 @@ exports.actualizarProfesor = async (req, res) => {
         validateInput(segundo_apellido, FIELDS.CEDULA, req);
         validateInput(telefono, FIELDS.TELEFONO, req);
         validateInput(especialidad, FIELDS.TEXT, req);
-        validateInput(cedula, FIELDS.ID, req);
         telefono_adicional && validateInput(telefono_adicional, FIELDS.TELEFONO, req);
         segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT, req);
 
@@ -385,14 +375,6 @@ exports.actualizarProfesor = async (req, res) => {
             segundo_apellido,
             telefono,
             telefono_adicional
-        }, { transaction });
-
-        await profesor.Persona.Direccion.update({
-            direccion_exacta,
-            canton,
-            distrito,
-            localidad,
-            provincia
         }, { transaction });
 
         await profesor.update({ especialidad }, { transaction });
@@ -411,12 +393,8 @@ exports.actualizarProfesor = async (req, res) => {
             segundo_nombre,
             primer_apellido,
             segundo_apellido,
+            cedula: profesor.Persona.cedula,
             especialidad,
-            direccion_exacta,
-            canton,
-            distrito,
-            localidad,
-            provincia
         };
 
         await transaction.commit();
