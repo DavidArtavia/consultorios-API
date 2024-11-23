@@ -12,19 +12,19 @@ class EmailService {
         const sgcderLogoPath = path.join(__dirname, '../assets/images/sgcder-logo.jpg');
 
         // Verificar rutas
-        console.log('Verificando rutas de imágenes:');
-        verifyImage(ucrLogoPath);
-        verifyImage(sgcderLogoPath);
+        // console.log('Verificando rutas de imágenes:');
+        // verifyImage(ucrLogoPath);
+        // verifyImage(sgcderLogoPath);
 
         // Convertir imágenes
         this.ucrLogo = convertImageToBase64(ucrLogoPath);
         this.sgcderLogo = convertImageToBase64(sgcderLogoPath);
 
         // Verificar resultados
-        console.log('Estado de carga de imágenes:', {
-            ucrLogo: !!this.ucrLogo,
-            sgcderLogo: !!this.sgcderLogo
-        });
+        // console.log('Estado de carga de imágenes:', {
+        //     ucrLogo: !!this.ucrLogo,
+        //     sgcderLogo: !!this.sgcderLogo
+        // });
 
         if (!this.ucrLogo || !this.sgcderLogo) {
             console.error('Error cargando las imágenes del correo');

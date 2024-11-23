@@ -250,7 +250,7 @@ exports.cambiarContrasenaInicial = async (req, res) => {
         const isValidPassword = await bcrypt.compare(current_password, user.password_hash);
         if (!isValidPassword) {
             throw new CustomError(
-                HttpStatus.UNAUTHORIZED,
+                HttpStatus.BAD_REQUEST,
                 req.t('warning.INVALID_PASSWORD')
             );
         }

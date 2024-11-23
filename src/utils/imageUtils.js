@@ -25,20 +25,20 @@ const convertImageToBase64 = (imagePath) => {
         }
 
         // Leer el archivo de imagen
-        console.log(`Intentando leer imagen: ${imagePath}`);
+        // console.log(`Intentando leer imagen: ${imagePath}`);
         const imageFile = fs.readFileSync(imagePath);
-        console.log(`Tamaño de imagen: ${imageFile.length} bytes`);
+        // console.log(`Tamaño de imagen: ${imageFile.length} bytes`);
 
         // Convertir a base64
         const base64Image = Buffer.from(imageFile).toString('base64');
-        console.log(`Longitud base64: ${base64Image.length} caracteres`);
+        // console.log(`Longitud base64: ${base64Image.length} caracteres`);
 
         // Construir data URL
         const mimeType = extension === 'jpg' ? 'jpeg' : extension;
         const dataUrl = `data:image/${mimeType};base64,${base64Image}`;
 
         // Verificar que la conversión fue exitosa
-        console.log(`Conversión exitosa para: ${path.basename(imagePath)}`);
+        // console.log(`Conversión exitosa para: ${path.basename(imagePath)}`);
 
         return dataUrl;
 
