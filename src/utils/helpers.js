@@ -286,7 +286,8 @@ const validateEmail = (email) => {
         'bol.com.br',
         'terra.com.br',
         'web.de',
-        'mail.ru'
+        'mail.ru',
+        "cpaurl.com"
     ];
 
     const emailDomain = email.split('@')[1];
