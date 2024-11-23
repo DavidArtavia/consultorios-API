@@ -1,6 +1,6 @@
 const { TABLE_NAME, TABLE_FIELDS } = require("../src/constants/constants");
 module.exports = (sequelize, DataTypes) => {
-    const Profesor = sequelize.define('Profesor', {
+    const Administrador = sequelize.define('Administrador', {
         id_profesor: {
             type: DataTypes.UUID,
             primaryKey: true,
@@ -16,17 +16,17 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: 'activo',
         },
     }, {
-        tableName: TABLE_NAME.PROFESORES,
+        tableName: TABLE_NAME.ADMINISTRADORES,
     });
 
     // Definir asociaciones
-    Profesor.associate = models => {
-        Profesor.belongsTo(models.Persona, {
-            foreignKey: TABLE_FIELDS.UID_PROFESOR,
+    Administrador.associate = models => {
+        Administrador.belongsTo(models.Persona, {
+            foreignKey: TABLE_FIELDS.UID_ADMINISTRADOR,
             targetKey: TABLE_FIELDS.UID_PERSONA,
             onDelete: 'CASCADE',
         });
     };
 
-    return Profesor
+    return Administrador
 }

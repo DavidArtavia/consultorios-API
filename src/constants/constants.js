@@ -34,6 +34,7 @@ const TABLE_NAME = {
     CLIENTES: 'clientes',
     ESTUDIANTES: 'estudiantes',
     PROFESORES: 'profesores',
+    ADMINISTRADORES: 'administradores',
     USUARIOS: 'usuarios',
     CONTRAPARTES: 'contrapartes',
     DIRECCIONES: 'direcciones',
@@ -46,6 +47,7 @@ const TABLE_NAME = {
 
 };
 const TABLE_FIELDS = {
+    UID_ADMINISTRADOR: 'id_administrador',
     UID_SUBSIDIARIO: 'id_subsidiario',
     UID_ASIGNACION: 'id_asignacion',
     UID_CASO: 'id_caso',
