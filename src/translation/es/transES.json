@@ -84,7 +84,7 @@
         "NO_CASE_ASSIGNED": "El caso no está asignado a este estudiante.",
         "NO_PROGRESS_FOUND": "No hay avances registrado para este caso.",
         "INVALID_EMAIL": "El correo electrónico no existe.",
-        "INVALID_PASSWORD": "Contraseña inválida.",
+        "INVALID_PASSWORD": "La contraseña actual no es valida.",
         "EMAIL_IS_REQUIRED": "El correo electrónico es obligatorio.",
         "PASSWORD_IS_REQUIRED": "La contraseña es obligatoria.",
         "USER_NOT_FOUND": "Usuario no encontrado.",

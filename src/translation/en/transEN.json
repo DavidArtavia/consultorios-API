@@ -73,7 +73,6 @@
         "PASSWORD_CHANGED": "Password changed successfully.",
         "PASSWORD_RESET_REQUESTED": "Password reset request sent successfully. Please check your email to obtain the temporary password.",
         "STUDENT_ACTIVATED": "Student activated successfully."
-        
     },
     "warning": {
         "PROFESSOR_ALREADY_INACTIVE": "The professor is already inactive.",
@@ -86,7 +85,7 @@
         "NO_CASE_ASSIGNED": "The case is not assigned to this student.",
         "NO_PROGRESS_FOUND": "No progress recorded for this case.",
         "INVALID_EMAIL": "The email does not exist.",
-        "INVALID_PASSWORD": "Invalid password.",
+        "INVALID_PASSWORD": "The current password is not valid.",
         "EMAIL_IS_REQUIRED": "Email is required.",
         "PASSWORD_IS_REQUIRED": "Password is required.",
         "USER_NOT_FOUND": "User not found.",
