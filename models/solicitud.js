@@ -52,7 +52,6 @@ module.exports = (sequelize, DataTypes) => {
         },
     }, {
         tableName: TABLE_NAME.SOLICITUD_CONFIRMACION,
-        timestamps: false,
     });
 
     SolicitudConfirmacion.associate = models => {
