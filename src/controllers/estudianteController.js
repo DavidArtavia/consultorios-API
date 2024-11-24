@@ -331,7 +331,6 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                             TABLE_FIELDS.APORTE_CUMUNIDAD,
                             TABLE_FIELDS.SINTESIS_HECHOS,
                             TABLE_FIELDS.ETAPA_PROCESO,
-                            TABLE_FIELDS.EVIDENCIA,
                             TABLE_FIELDS.ESTADO,
                             TABLE_FIELDS.CREATED_AT,
                             TABLE_FIELDS.UPDATED_AT
