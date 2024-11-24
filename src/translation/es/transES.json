@@ -122,7 +122,8 @@
         "NO_INACTIVE_STUDENTS_FOUND": "No se encontraron estudiantes inactivos.",
         "TEMP_PASSWORD_MUST_CHANGE": "La contraseña temporal debe ser cambiada.",
         "NOT_TEMP_PASSWORD": "La contraseña no es temporal.",
-        "SAME_PASSWORD": "La nueva contraseña no puede ser igual a la anterior."
+        "SAME_PASSWORD": "La nueva contraseña no puede ser igual a la anterior.",
+        "CARNET_ALREADY_USED": "El carnet ya está en uso."
     },
     "validation": {
         "INVALID_TEXT_FORMAT": " --> {{data}} <-- Formato de texto inválido. Solo se permiten letras.",

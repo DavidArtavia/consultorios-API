@@ -123,7 +123,8 @@
         "NO_INACTIVE_STUDENTS_FOUND": "No inactive students found.",
         "TEMP_PASSWORD_MUST_CHANGE": "The temporary password must be changed.",
         "NOT_TEMP_PASSWORD": "The password is not temporary.",
-        "SAME_PASSWORD": "The new password must be different from the current password."
+        "SAME_PASSWORD": "The new password must be different from the current password.",
+        "CARNET_ALREADY_USED": "The student ID Card is already in use."
     },
     "validation": {
         "INVALID_TEXT_FORMAT": " --> {{data}} <-- Invalid text format. Only letters are allowed.",
