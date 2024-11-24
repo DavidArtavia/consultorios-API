@@ -57,8 +57,6 @@ exports.mostrarSolicitudes = async (req, res) => {
             data: solicitudInfo
         });
     } catch (error) {
-
-        console.error('Error en mostrarSolicitudes', error);
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,

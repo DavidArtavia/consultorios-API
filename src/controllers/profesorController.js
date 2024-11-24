@@ -267,8 +267,6 @@ exports.desactivarProfesor = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(req.t('error.DEACTIVATING_PROFESSOR'), error);
-
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -316,8 +314,6 @@ exports.activarProfesor = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(req.t('error.ACTIVATING_PROFESSOR'), error);
-
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,

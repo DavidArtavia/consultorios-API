@@ -428,7 +428,6 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
             data: estudianteInfo
         });
     } catch (error) {
-        console.error(MESSAGE_ERROR.RETRIEVING_STUDENT_INFO, error, error.stack);
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -532,7 +531,6 @@ exports.actualizarEstudiante = async (req, res) => {
         });
     } catch (error) {
         await transaction.rollback();
-
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -589,7 +587,6 @@ exports.solicitarEliminarEstudiante = async (req, res) => {
         });
 
         if (solicitudExistente) {
-            console.log('entro -->>>', solicitudExistente);
             throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.REQUEST_PENDING'));
         }
 

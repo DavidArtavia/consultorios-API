@@ -103,7 +103,6 @@ exports.register = async (req, res) => {
                     carnet: carnet
                 }, { transaction });
             } catch (error) {
-                console.error(MESSAGE_ERROR.CREATE_STUDENT, error);
                 throw new CustomError(HttpStatus.INTERNAL_SERVER_ERROR, req.t('error.CREATE_STUDENT'));
             }
         } else if (rol === ROL.PROFESSOR) {
@@ -113,7 +112,6 @@ exports.register = async (req, res) => {
                     especialidad
                 }, { transaction });
             } catch (error) {
-                console.error(MESSAGE_ERROR.CREATE_PROFESSOR, error);
                 throw new CustomError(HttpStatus.INTERNAL_SERVER_ERROR, req.t('error.CREATE_PROFESSOR'));
             }
         }

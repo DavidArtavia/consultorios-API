@@ -68,7 +68,6 @@ exports.login = async (req, res, next) => {
         });
 
     } catch (error) {
-        console.log('error -->>>', error, error.message, error.stack, error.statusCode);
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,

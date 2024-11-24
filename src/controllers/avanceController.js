@@ -34,8 +34,6 @@ exports.crearAvance = async (req, res) => {
             data: nuevoAvance
         });
     } catch (error) {
-
-        console.error(error);
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
