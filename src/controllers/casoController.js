@@ -235,7 +235,6 @@ exports.crearCaso = async (req, res) => {
     } catch (error) {
         // Deshacer la transacción en caso de error
         await transaction.rollback();
-
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -554,7 +553,6 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                 aporte_comunidad: caso.aporte_comunidad,
                 sintesis_hechos: caso.sintesis_hechos,
                 etapa_proceso: caso.etapa_proceso,
-                evidencia: caso.evidencia,
                 estado: caso.estado,
                 createdAt: caso.createdAt,
                 updatedAt: caso.updatedAt,
@@ -783,7 +781,6 @@ exports.mostrarCasosAsignados = async (req, res) => {
                 aporte_comunidad: caso.aporte_comunidad,
                 sintesis_hechos: caso.sintesis_hechos,
                 etapa_proceso: caso.etapa_proceso,
-                evidencia: caso.evidencia,
                 estado: caso.estado,
                 createdAt: caso.createdAt,
                 updatedAt: caso.updatedAt,

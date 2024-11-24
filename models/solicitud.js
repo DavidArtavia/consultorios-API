@@ -1,3 +1,4 @@
+const { t } = require("i18next");
 const { TABLE_NAME, TABLE_FIELDS } = require("../src/constants/constants");
 
 module.exports = (sequelize, DataTypes) => {
@@ -51,7 +52,7 @@ module.exports = (sequelize, DataTypes) => {
         },
     }, {
         tableName: TABLE_NAME.SOLICITUD_CONFIRMACION,
-        timestamps: true,
+        timestamps: false,
     });
 
     SolicitudConfirmacion.associate = models => {
