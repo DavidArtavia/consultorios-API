@@ -268,33 +268,13 @@ exports.cambiarContrasenaInicial = async (req, res) => {
             is_temp_password: false
         }, { transaction });
 
-        // Crear la sesión del usuario
-        const userData = {
-            userId: user.id_usuario,
-            personaId: user.id_persona,
-            userEmail: user.email,
-            userName: user.username,
-            userRole: user.rol
-        };
-
-        req.session.user = userData;
-
-        // Establecer cookie
-        res.cookie(KEYS.USER_DATA, JSON.stringify(userData), {
-            httpOnly: false,
-            secure: process.env.APP_ENV == ENV.PROD,
-            maxAge: TIME.DAY
-        });
-
         await transaction.commit();
 
         return sendResponse({
             res,
             statusCode: HttpStatus.OK,
             message: req.t('success.PASSWORD_CHANGED'),
-            data: {
-                userData
-            }
+            data: {}
         });
 
     } catch (error) {
