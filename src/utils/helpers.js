@@ -1,8 +1,8 @@
 const { Op } = require("sequelize");
-const { MESSAGE_ERROR, HttpStatus, FIELDS, ROL, STATES, TABLE_FIELDS } = require("../constants/constants");
+const { MESSAGE_ERROR, HttpStatus, FIELDS, ROL, STATES, TABLE_FIELDS, BCRYPT_CONFIG } = require("../constants/constants");
 const { CustomError } = require("../handlers/responseHandler");
 const { Usuario, Caso, AsignacionDeCaso, Estudiante, Profesor, SolicitudConfirmacion, Persona, Direccion } = require("../../models");
-const bcrypt = require("bcryptjs/dist/bcrypt");
+const bcrypt = require('bcryptjs');
 
 const getFullName = (persona) => {
     const {

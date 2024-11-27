@@ -182,9 +182,10 @@ exports.solicitarRecuperacionContrasena = async (req, res) => {
         }
         // Generar contraseña temporal
         const tempPassword = generateTempPassword();
+        const password_hash = await bcrypt.hash(tempPassword, BCRYPT_CONFIG.SALT_ROUNDS);
         // Actualizar usuario con contraseña temporal
         await usuario.update({
-            password_hash: tempPassword,
+            password_hash: password_hash,
             is_temp_password: true
         }, { transaction });
 
