@@ -261,6 +261,16 @@ exports.cambiarContrasenaInicial = async (req, res) => {
             );
         }
 
+        const userData = {
+            userId: user.id_usuario,
+            personaId: user.id_persona,
+            userEmail: user.email,
+            userName: user.username,
+            userRole: user.rol
+        };
+
+        req.session.user = userData;
+
         // Actualizar a nueva contraseña
         const hashedPassword = await bcrypt.hash(new_password, BCRYPT_CONFIG.SALT_ROUNDS);
         await user.update({
@@ -274,7 +284,7 @@ exports.cambiarContrasenaInicial = async (req, res) => {
             res,
             statusCode: HttpStatus.OK,
             message: req.t('success.PASSWORD_CHANGED'),
-            data: {}
+            data: { userData }
         });
 
     } catch (error) {
