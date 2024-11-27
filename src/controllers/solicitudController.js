@@ -106,7 +106,7 @@ exports.procesarSolicitudConfirmacion = async (req, res) => {
 
         const profesorEmail = solicitud.Creador.Usuario.email;
 
-        await emailService.enviarNotificacionSolicitud({
+        await emailService.sendRequestNotification({
             to: profesorEmail,
             data: {
                 profesor: getFullName(solicitud.Creador),

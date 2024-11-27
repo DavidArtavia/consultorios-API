@@ -1,6 +1,6 @@
 const { Usuario, Profesor, Estudiante, Persona, sequelize } = require('../../models');
 const bcrypt = require('bcryptjs');
-const { HttpStatus, FIELDS, TABLE_FIELDS, ENV, KEYS, TIME, ROL, STATES } = require('../constants/constants');
+const { HttpStatus, FIELDS, TABLE_FIELDS, ENV, KEYS, TIME, ROL, STATES, BCRYPT_CONFIG } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
 const { validateInput, validateIfUserExists, validatePasswordHash, checkUserStatus, generateTempPassword, getFullName } = require('../utils/helpers');
 const emailService = require('../services/emailService');
@@ -182,16 +182,14 @@ exports.solicitarRecuperacionContrasena = async (req, res) => {
         }
         // Generar contraseña temporal
         const tempPassword = generateTempPassword();
-        const hashedPassword = await bcrypt.hash(tempPassword, 10);
-
         // Actualizar usuario con contraseña temporal
         await usuario.update({
-            password_hash: hashedPassword,
+            password_hash: tempPassword,
             is_temp_password: true
         }, { transaction });
 
         // Enviar email
-        await emailService.enviarCorreoRecuperacion(
+        await emailService.sendRecoveryEmail(
             usuario.email,
             {
                 nombre_completo: getFullName(usuario.Persona),

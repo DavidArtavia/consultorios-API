@@ -132,6 +132,13 @@ const ORDER = {
     DESC: 'DESC'
 };
 
+const BCRYPT_CONFIG = {
+    SALT_ROUNDS: 10,
+    MIN_PASSWORD_LENGTH: 6,
+    MAX_PASSWORD_LENGTH: 72, // Límite máximo de bcrypt
+    HASH_PREFIX: '$2b$'     // Prefijo que identifica el algoritmo
+};
+
 const STATES = {
     PENDING: 'pendiente',
     ACCEPTED: 'aceptado',
@@ -190,6 +197,7 @@ const ROUTES = {
     ACTIVATE: '/activar',
     RECOVERY_PASSWORD: '/recuperar/contrasena',
     CHANGE_PASSWORD: '/cambiar/contrasena',
+    UPDATE_BY_ADMIN: '/actualizar/admin',
 }
 
 module.exports = {
@@ -206,6 +214,7 @@ module.exports = {
     STATES,
     TABLE_FIELDS,
     TABLE_NAME,
-    TIME
+    TIME,
+    BCRYPT_CONFIG
 }
 

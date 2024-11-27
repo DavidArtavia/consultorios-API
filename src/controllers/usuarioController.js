@@ -2,7 +2,8 @@
 const { AuditLog, Usuario, Persona, Direccion, Estudiante, Profesor, Sequelize, sequelize } = require('../../models');
 const { HttpStatus, ROL, MESSAGE_ERROR, MESSAGE_SUCCESS, TABLE_FIELDS, FIELDS, TABLE_NAME, ACTION, STATES } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
-const { validateIfExists, validateExistingUser, validateRoleChange, validateInput, generateTempPassword, validateIfUserExists } = require('../utils/helpers');
+const emailService = require('../services/emailService');
+const { validateIfExists, validateExistingUser, validateRoleChange, validateInput, generateTempPassword, validateIfUserExists, getFullName } = require('../utils/helpers');
 const bcrypt = require('bcryptjs');
 
 
@@ -18,7 +19,6 @@ exports.register = async (req, res) => {
         telefono_adicional,
         username,
         email,
-        password,
         rol,
         especialidad,
         carnet,
@@ -88,11 +88,14 @@ exports.register = async (req, res) => {
             }, { transaction });
         }
 
+        const tempPassword = generateTempPassword();
+
         const usuario = await Usuario.create({
             id_persona: persona.id_persona,
             username,
             email,
-            password_hash: password, // Se encripta en el hook beforeCreate
+            password_hash: tempPassword, // Se encripta en el hook beforeCreate
+            is_temp_password: true,
             rol
         }, { transaction });
 
@@ -115,6 +118,12 @@ exports.register = async (req, res) => {
                 throw new CustomError(HttpStatus.INTERNAL_SERVER_ERROR, req.t('error.CREATE_PROFESSOR'));
             }
         }
+
+        await emailService.sendWelcomeEmail(email, {
+            nombre_completo: getFullName(persona),
+            email,
+            tempPassword
+        });
 
         await transaction.commit();
 
@@ -282,6 +291,117 @@ exports.cambiarContrasena = async (req, res) => {
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
             message: error?.message || {
                 message: req.t('error.PASSWORD_CHANGE'),
+                error: error.message,
+                stack: error.stack
+            }
+        });
+    }
+};
+
+exports.editarDatosUsuarioAdmin = async (req, res) => {
+    const { id_usuario, email, cedula, carnet } = req.body;
+    const transaction = await sequelize.transaction();
+    try {
+
+        const adminId = req.session.user.userId;
+        const adminRole = req.session.user.userRole;
+
+        // Verificar que sea administrador
+        if (adminRole !== ROL.SUPERADMIN) {
+            throw new CustomError(
+                HttpStatus.FORBIDDEN,
+                req.t('warning.ADMIN_REQUIRED')
+            );
+        }
+
+        validateInput(email, FIELDS.EMAIL, req);
+        validateInput(cedula, FIELDS.ID, req);
+
+        const usuario = await Usuario.findByPk(id_usuario, {
+            include: [
+                {
+                    model: Persona,
+                    include: [
+                        { model: Estudiante, required: false },
+                        { model: Profesor, required: false }
+                    ]
+                }
+            ]
+        });
+
+        if (!usuario) {
+            throw new CustomError(
+                HttpStatus.NOT_FOUND,
+                req.t('warning.USER_NOT_FOUND')
+            );
+        }
+        // Verificar si el email ya existe en otro usuario
+        await validateExistingUser(null, email, req);
+
+        // Verificar si la cédula ya existe en otra persona
+        await validateIfExists({
+            model: Persona,
+            field: TABLE_FIELDS.CEDULA,
+            value: cedula,
+            errorMessage: req.t('warning.IS_ALREADY_REGISTERED', { data: cedula })
+        });
+
+        // Actualizar email del usuario
+        await usuario.update({ email }, { transaction });
+
+        // Actualizar cédula de la persona
+        await usuario.Persona.update({ cedula }, { transaction });
+
+        // Si es estudiante y se proporcionó carnet
+        if (usuario.rol === ROL.STUDENT) {
+            if (!carnet) {
+                throw new CustomError(
+                    HttpStatus.BAD_REQUEST,
+                    req.t('warning.CARNET_REQUIRED')
+                );
+            }
+
+            validateInput(carnet, FIELDS.CARNET, req);
+
+            // Verificar si el carnet ya existe
+            await validateIfExists({
+                model: Estudiante,
+                field: TABLE_FIELDS.CARNET,
+                value: carnet,
+                errorMessage: req.t('warning.CARNET_ALREADY_REGISTERED', { data: carnet })
+            }, req);
+
+            // Actualizar carnet
+            usuario.Persona.Estudiante && await usuario.Persona.Estudiante.update({ carnet }, { transaction });
+        }
+
+        // Registrar en auditoría
+        await AuditLog.create({
+            user_id: adminId,
+            action: req.t('action.ADMIN_UPDATE_USER'),
+            description: req.t('description.ADMIN_UPDATE_USER', {
+                admin: adminId,
+                user: id_usuario
+            })
+        }, { transaction });
+
+        await transaction.commit();
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: req.t('success.USER_UPDATED'),
+            data: { usuario }
+        });
+
+    } catch (error) {
+        if (transaction && !transaction.finished) {
+            await transaction.rollback();
+        }
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: req.t('error.UPDATE_USER'),
                 error: error.message,
                 stack: error.stack
             }

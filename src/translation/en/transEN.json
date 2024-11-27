@@ -124,7 +124,9 @@
         "TEMP_PASSWORD_MUST_CHANGE": "The temporary password must be changed.",
         "NOT_TEMP_PASSWORD": "The password is not temporary.",
         "SAME_PASSWORD": "The new password must be different from the current password.",
-        "CARNET_ALREADY_USED": "The student ID Card is already in use."
+        "CARNET_ALREADY_USED": "The student ID Card is already in use.",
+        "ADMIN_REQUIRED": "An administrator is required to perform this action.",
+        "CARNET_REQUIRED": "The student ID card is required."
     },
     "validation": {
         "INVALID_TEXT_FORMAT": " --> {{data}} <-- Invalid text format. Only letters are allowed.",
@@ -157,7 +159,8 @@
         "ASSIGN_CASE": "Assign case to a Student",
         "UNASSIGN_CASE": "Unassign case from a Student",
         "DEACTIVATE_STUDENT": "Deactivate Student",
-        "ACTIVATE_STUDENT": "Activate Student"
+        "ACTIVATE_STUDENT": "Activate Student",
+        "ADMIN_UPDATE_USER": "Update User by Admin"
     },
     "description": {
         "UPDATE_STUDENT": "Updating student data with UID: {{data}}",
@@ -166,6 +169,7 @@
         "ASSIGN_CASE": "Assigning case with UID: {{data}} to a student with UID: {{data}}",
         "UNASSIGN_CASE": "Unassigning case with UID: {{data}} from a student with UID: {{data}}",
         "DEACTIVATE_STUDENT": "Deactivating student with UID: {{data}}",
-        "ACTIVATE_STUDENT": "Activating student with UID: {{data}}"
+        "ACTIVATE_STUDENT": "Activating student with UID: {{data}}",
+        "ADMIN_UPDATE_USER": "Updating user data with UID: {{data}} by an administrator"
     }
 }

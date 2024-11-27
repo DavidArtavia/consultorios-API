@@ -123,7 +123,9 @@
         "TEMP_PASSWORD_MUST_CHANGE": "La contraseña temporal debe ser cambiada.",
         "NOT_TEMP_PASSWORD": "La contraseña no es temporal.",
         "SAME_PASSWORD": "La nueva contraseña no puede ser igual a la anterior.",
-        "CARNET_ALREADY_USED": "El carnet ya está en uso."
+        "CARNET_ALREADY_USED": "El carnet ya está en uso.",
+        "ADMIN_REQUIRED": "Se requiere un administrador para realizar esta acción.",
+        "CARNET_REQUIRED": "El carnet es requerido."
     },
     "validation": {
         "INVALID_TEXT_FORMAT": " --> {{data}} <-- Formato de texto inválido. Solo se permiten letras.",
@@ -156,7 +158,8 @@
         "ASSIGN_CASE": "Asignar caso a un Estudiante",
         "UNASSIGN_CASE": "Desasignar caso de un Estudiante",
         "DEACTIVATE_STUDENT": "Desactivar Estudiante",
-        "ACTIVATE_STUDENT": "Activar Estudiante"
+        "ACTIVATE_STUDENT": "Activar Estudiante",
+        "ADMIN_UPDATE_USER": "Actualizar Usuario por Administrador"
     },
     "description": {
         "UPDATE_STUDENT": "Actualizando datos del estudiante con UID: {{data}}",
@@ -165,6 +168,7 @@
         "ASSIGN_CASE": "Asignando caso con UID: {{data}} a un estudiante con UID: {{data}}",
         "UNASSIGN_CASE": "Desasignando caso con UID: {{data}} de un estudiante con UID: {{data}}",
         "DEACTIVATE_STUDENT": "Desactivando estudiante con UID: {{data}}",
-        "ACTIVATE_STUDENT": "Activando estudiante con UID: {{data}}"
+        "ACTIVATE_STUDENT": "Activando estudiante con UID: {{data}}",
+        "ADMIN_UPDATE_USER": "Actualizando datos del usuario con UID: {{data}} por un administrador"
     }
 }
