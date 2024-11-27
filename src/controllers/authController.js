@@ -262,7 +262,7 @@ exports.cambiarContrasenaInicial = async (req, res) => {
         }
 
         // Actualizar a nueva contraseña
-        const hashedPassword = await bcrypt.hash(new_password, 10);
+        const hashedPassword = await bcrypt.hash(new_password, BCRYPT_CONFIG.SALT_ROUNDS);
         await user.update({
             password_hash: hashedPassword,
             is_temp_password: false
