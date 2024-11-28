@@ -54,9 +54,6 @@ app.use(logger);
 // Rutas
 app.use('/api/v1', apiRoutes);
 
-
-
-
 const port = process.env.PORT || 3000;
 
 // Iniciar el servidor y conectar a la base de datos

@@ -601,18 +601,6 @@ exports.mostrarCasosAsignados = async (req, res) => {
                             model: Estudiante,
                             include: [{
                                 model: Persona,
-                                include: [{
-                                    model: Direccion,
-                                    attributes: [
-                                        TABLE_FIELDS.DIRECCION_EXACTA,
-                                        TABLE_FIELDS.CANTON,
-                                        TABLE_FIELDS.DISTRITO,
-                                        TABLE_FIELDS.LOCALIDAD,
-                                        TABLE_FIELDS.PROVINCIA,
-                                        TABLE_FIELDS.CREATED_AT,
-                                        TABLE_FIELDS.UPDATED_AT
-                                    ]
-                                }]
                             }]
                         }
                     ]
@@ -837,7 +825,7 @@ exports.actualizarCaso = async (req, res) => {
         if (!caso) {
             throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.CASE_NOT_FOUND'));
         }
-       expediente && validateInput(expediente, FIELDS.EXPEDIENTE, req);
+        expediente && validateInput(expediente, FIELDS.EXPEDIENTE, req);
         validateInput(tipo_proceso, FIELDS.TEXT, req);
         validateInput(cuantia_proceso, FIELDS.NUMERIC, req);
         validateInput(aporte_comunidad, FIELDS.NUMERIC, req);
@@ -927,7 +915,7 @@ exports.actualizarCaso = async (req, res) => {
             subsidiario.Persona.telefono_adicional && validateInput(subsidiario.Persona.telefono_adicional, FIELDS.PHONE_NUMBER, req);
             subsidiario.Persona.segundo_nombre && validateInput(subsidiario.segundo_nombre, FIELDS.TEXTBOX, req);
 
-           await updateRelatedEntity(
+            await updateRelatedEntity(
                 Subsidiario,
                 subsidiario,
                 transaction,
