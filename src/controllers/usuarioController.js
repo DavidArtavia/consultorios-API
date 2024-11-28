@@ -30,9 +30,10 @@ exports.register = async (req, res) => {
     try {
 
         const userRole = req.session.user.userRole;
+        const emailLowerCase = email.toLowerCase();
 
         validateRoleChange(userRole, rol, req);
-        await validateExistingUser(username, email, req);
+        await validateExistingUser(username, emailLowerCase, req);
 
         await validateIfExists({
             model: Persona,
@@ -50,7 +51,7 @@ exports.register = async (req, res) => {
         validateInput(cedula, FIELDS.ID, req);
         validateInput(telefono, FIELDS.PHONE_NUMBER, req);
         telefono_adicional && validateInput(telefono_adicional, FIELDS.PHONE_NUMBER, req);
-        validateInput(email, FIELDS.EMAIL, req);
+        validateInput(emailLowerCase, FIELDS.EMAIL, req);
 
         if (rol == ROL.STUDENT) {
             validateInput(carnet, FIELDS.CARNET, req);
@@ -93,7 +94,7 @@ exports.register = async (req, res) => {
         const usuario = await Usuario.create({
             id_persona: persona.id_persona,
             username,
-            email,
+            email: emailLowerCase,
             password_hash: tempPassword, // Se encripta en el hook beforeCreate
             is_temp_password: true,
             rol
@@ -119,9 +120,9 @@ exports.register = async (req, res) => {
             }
         }
 
-        await emailService.sendWelcomeEmail(email, {
+        await emailService.sendWelcomeEmail(emailLowerCase, {
             nombre_completo: getFullName(persona),
-            email,
+            email: emailLowerCase,
             tempPassword
         });
 
@@ -305,6 +306,7 @@ exports.editarDatosUsuarioAdmin = async (req, res) => {
 
         const adminId = req.session.user.userId;
         const adminRole = req.session.user.userRole;
+        const emailLowerCase = email.toLowerCase();
 
         // Verificar que sea administrador
         if (adminRole !== ROL.SUPERADMIN) {
@@ -314,7 +316,7 @@ exports.editarDatosUsuarioAdmin = async (req, res) => {
             );
         }
 
-        validateInput(email, FIELDS.EMAIL, req);
+        validateInput(emailLowerCase, FIELDS.EMAIL, req);
         validateInput(cedula, FIELDS.ID, req);
 
         const usuario = await Usuario.findByPk(id_usuario, {
@@ -336,7 +338,7 @@ exports.editarDatosUsuarioAdmin = async (req, res) => {
             );
         }
         // Verificar si el email ya existe en otro usuario
-        await validateExistingUser(null, email, req);
+        await validateExistingUser(null, emailLowerCase, req);
 
         // Verificar si la cédula ya existe en otra persona
         await validateIfExists({
@@ -347,7 +349,7 @@ exports.editarDatosUsuarioAdmin = async (req, res) => {
         });
 
         // Actualizar email del usuario
-        await usuario.update({ email }, { transaction });
+        await usuario.update({ email: emailLowerCase }, { transaction });
 
         // Actualizar cédula de la persona
         await usuario.Persona.update({ cedula }, { transaction });

@@ -12,13 +12,14 @@ exports.login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
-        validateInput(email, FIELDS.EMAIL, req);
+        const emailLowerCase = email.toLowerCase();
+        validateInput(emailLowerCase, FIELDS.EMAIL, req);
 
         // Buscar al usuario por email
         const user = await validateIfUserExists({
             model: Usuario,
             field: TABLE_FIELDS.EMAIL,
-            value: email,
+            value: emailLowerCase,
             errorMessage: req.t('warning.USER_NOT_FOUND')
         });
 
@@ -49,7 +50,7 @@ exports.login = async (req, res, next) => {
             userName: user.username,
             userRole: user.rol
         };
-        
+
         req.session.user = userData;
 
         // Enviar la cookie con los datos del usuario
