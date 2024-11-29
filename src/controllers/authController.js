@@ -51,7 +51,16 @@ exports.login = async (req, res, next) => {
             userRole: user.rol
         };
 
-        req.session.user = userData;
+        
+            req.session.user = userData;
+            req.session.save((err) => {
+                if (err) {
+                    console.error('Error saving session:', err);
+                    reject(err);
+                } else {
+                    console.log('Session saved successfully');
+                }
+            });
 
         // Enviar la cookie con los datos del usuario
         res.cookie(KEYS.USER_DATA, JSON.stringify(userData), {

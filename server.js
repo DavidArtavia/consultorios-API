@@ -15,27 +15,41 @@ const app = express();
 
 // Configuración de CORS con opciones
 const corsOptions = {
-    origin: process.env.ORIGIN || true, // "true" permite todas las peticiones
+    origin: process.env.ORIGIN || 'http://localhost:3000',
     credentials: true, // Permite el intercambio de cookies
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Métodos permitidos
-    allowedHeaders: ['Content-Type', 'Authorization'], // Headers permitidos
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept-Language'],
+    exposedHeaders: ['set-cookie'],
 };
 
 app.use(cors(corsOptions));
-app.use(express.json());
-
 // Configurar la sesión con cookies de larga duración
-app.use(session({
+const sessionConfig = {
     secret: process.env.SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-        httpOnly: true, // Protege la cookie contra accesos desde JavaScript del lado del cliente
-        secure: process.env.APP_ENV === 'PROD', // Usar solo HTTPS en producción
-        maxAge: 1000 * 60 * 60 * 24 // 24 horas de duración
-    }
-}));
+        httpOnly: true,
+        secure: process.env.APP_ENV === 'PROD',
+        sameSite: process.env.APP_ENV === 'PROD' ? 'none' : 'lax', // Importante para CORS
+        maxAge: 24 * 60 * 60 * 1000, // 24 horas
+        path: '/'
+    },
+};
+// Si estamos en producción y usando secure cookies
+if (process.env.APP_ENV === 'PROD') {
+    app.set('trust proxy', 1); // Confiar en el primer proxy
+}
 
+app.use(session(sessionConfig));
+app.use(express.json());
+
+// Middleware para debug de sesiones
+app.use((req, res, next) => {
+    console.log('Session ID:', req.sessionID);
+    console.log('Session Data:', req.session);
+    next();
+});
 // Verificar conexión al iniciar
 emailService.verificarConexion()
     .then(() => console.log('Servicio de email inicializado'))
