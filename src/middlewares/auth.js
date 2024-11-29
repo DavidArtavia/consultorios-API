@@ -14,8 +14,8 @@ function verifySession(req, res, next) {
     }
 
     const user = req.session.user;
-    console.log('Session232:', req.session);
-    console.log('User from session:', user);
+    // console.log('Session232:', req.session);
+    // console.log('User from session:', user);
 
     if (!user) {
         return sendResponse({

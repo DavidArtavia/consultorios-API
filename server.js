@@ -48,8 +48,8 @@ app.use(express.json());
 
 // Middleware para debug de sesiones
 app.use((req, res, next) => {
-    console.log('Session ID:', req.sessionID);
-    console.log('Session Data:', req.session);
+    // console.log('Session ID:', req.sessionID);
+    // console.log('Session Data:', req.session);
     next();
 });
 // Verificar conexión al iniciar
