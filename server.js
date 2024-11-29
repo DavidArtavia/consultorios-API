@@ -7,7 +7,7 @@ const sequelize = require('./src/config/database');
 const i18next = require('./src/middlewares/i18nextConfig');
 const i18nextMiddleware = require('i18next-http-middleware');
 const emailService = require('./src/services/emailService');
-
+const { TIME, ENV } = require('./src/constants/constants');
 // rutas 
 const apiRoutes = require('./src/routes');
 
@@ -15,7 +15,7 @@ const app = express();
 
 // Configuración de CORS con opciones
 const corsOptions = {
-    origin: process.env.ORIGIN || 'http://localhost:3000',
+    origin: process.env.ORIGIN || 'http://localhost:5173',
     credentials: true, // Permite el intercambio de cookies
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Métodos permitidos
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept-Language'],
@@ -23,6 +23,11 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+// Si estamos en producción y usando secure cookies
+if (process.env.APP_ENV === 'PROD') {
+    app.set('trust proxy', 1); // Confiar en el primer proxy
+}
 // Configurar la sesión con cookies de larga duración
 const sessionConfig = {
     secret: process.env.SECRET,
@@ -30,16 +35,13 @@ const sessionConfig = {
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
-        secure: process.env.APP_ENV === 'PROD',
-        sameSite: process.env.APP_ENV === 'PROD' ? 'none' : 'lax', // Importante para CORS
-        maxAge: 24 * 60 * 60 * 1000, // 24 horas
+        secure: process.env.APP_ENV === ENV.PROD,
+        sameSite: process.env.APP_ENV === ENV.PROD ? 'none' : 'lax', // Importante para CORS
+        maxAge: TIME.DAY, // 24 horas
         path: '/'
     },
 };
-// Si estamos en producción y usando secure cookies
-if (process.env.APP_ENV === 'PROD') {
-    app.set('trust proxy', 1); // Confiar en el primer proxy
-}
+
 
 app.use(session(sessionConfig));
 app.use(express.json());
