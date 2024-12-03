@@ -125,7 +125,9 @@
         "SAME_PASSWORD": "La nueva contraseña no puede ser igual a la anterior.",
         "CARNET_ALREADY_USED": "El carnet ya está en uso.",
         "ADMIN_REQUIRED": "Se requiere un administrador para realizar esta acción.",
-        "CARNET_REQUIRED": "El carnet es requerido."
+        "CARNET_REQUIRED": "El carnet es requerido.",
+        "INVALID_STATE": "Estado inválido. Debe ser 'activo', 'asesoria', 'terminado', 'archivado' o 'asignado'.",
+        "CASE_NOT_ASSIGNED_TO_STUDENT": "El caso no está asignado a este estudiante."
     },
     "validation": {
         "INVALID_TEXT_FORMAT": " --> {{data}} <-- Formato de texto inválido. Solo se permiten letras.",

@@ -1,5 +1,5 @@
 const { AuditLog, Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Subsidiario, Direccion, Usuario, sequelize, SolicitudConfirmacion } = require('../../models');
-const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL, FIELDS, ACTION, STATES, DECISION } = require("../constants/constants");
+const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL, FIELDS, ACTION, STATES, DECISION, VALID_STATES } = require("../constants/constants");
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
 const { validateUpdatesInputs, validateInput, getFullName, validateIfExists, validateIfUserExists, validateIfUserIsTeacher, checkStudentAssignments, findStudentByPk } = require('../utils/helpers');
 
@@ -346,7 +346,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
         }
 
         const estudianteInfo = {
-            id: estudiante.id_estudiante,
+            id_estudiante: estudiante.id_estudiante,
             nombre_completo: getFullName(estudiante.Persona),
             carnet: estudiante.carnet,
             cedula: estudiante.Persona.cedula,
@@ -673,7 +673,7 @@ exports.desactivarEstudiante = async (req, res) => {
             }
         });
     }
-}; 
+};
 
 exports.activarEstudiante = async (req, res) => {
 
@@ -722,4 +722,75 @@ exports.activarEstudiante = async (req, res) => {
             }
         });
     }
-}; 
+};
+
+exports.actualizarCaso = async (req, res) => {
+
+    const { id_caso, estado } = req.body;
+    const transaction = await sequelize.transaction();
+
+    try {
+        const normalizarEstado = estado.toLowerCase().trim();
+
+        // Buscar el caso y sus asignaciones
+        const caso = await Caso.findByPk(id_caso, {
+            include: [{
+                model: AsignacionDeCaso,
+                as: 'Asignaciones',
+                where: {
+                    id_estudiante: req.session.user.personaId,
+                }
+            }]
+        }, { transaction });
+
+        if (!caso) {
+            throw new CustomError(
+                HttpStatus.NOT_FOUND,
+                req.t('warning.CASE_NOT_ASSIGNED_TO_STUDENT')
+            );
+        }
+
+        if (!VALID_STATES.includes(normalizarEstado)) {
+            throw new CustomError(
+                HttpStatus.BAD_REQUEST,
+                req.t('warning.INVALID_STATE')
+            );
+        }
+
+        await caso.update({ estado }, { transaction });
+
+        await AuditLog.create({
+            user_id: req.session.user.userId,
+            action: req.t('action.UPDATE_CASE'),
+            description: req.t('description.UPDATE_CASE', { data: id_caso })
+        }, { transaction });
+
+        await transaction.commit();
+
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: req.t('success.CASE_UPDATED'),
+            data: {
+                id_caso: caso.id_caso,
+                estado: caso.estado,
+            }
+        });
+
+    } catch (error) {
+
+        await transaction.rollback();
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: req.t('error.UPDATING_CASE'),
+                error: error.message,
+                stack: error.stack
+            }
+        });
+    }
+
+
+
+};

@@ -126,7 +126,9 @@
         "SAME_PASSWORD": "The new password must be different from the current password.",
         "CARNET_ALREADY_USED": "The student ID Card is already in use.",
         "ADMIN_REQUIRED": "An administrator is required to perform this action.",
-        "CARNET_REQUIRED": "The student ID card is required."
+        "CARNET_REQUIRED": "The student ID card is required.",
+        "INVALID_STATE": "Invalid state. It must be 'activo', 'asesoria', 'terminado', 'archivado' or 'asignado'.",
+        "CASE_NOT_ASSIGNED_TO_STUDENT": "The case is not assigned to the student."
     },
     "validation": {
         "INVALID_TEXT_FORMAT": " --> {{data}} <-- Invalid text format. Only letters are allowed.",

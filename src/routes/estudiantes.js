@@ -11,7 +11,8 @@ const {
     mostrarEstudiantesActivos,
     mostrarEstudiantesInactivos,
     desactivarEstudiante,
-    activarEstudiante
+    activarEstudiante, 
+    actualizarCaso
 } = require('../controllers/estudianteController');
 
 // Ruta para obtener la información del estudiante y sus casos
@@ -23,6 +24,14 @@ router.post(
         ROL.PROFESSOR,
         ROL.STUDENT]),
     mostrarInformacionEstudianteConCasos
+);
+router.post(
+    ROUTES.UPDATE_CASE,
+    verifySession,
+    verifyRole([
+        ROL.SUPERADMIN,
+        ROL.STUDENT]),
+    actualizarCaso
 );
 router.post(
     ROUTES.DELETE,

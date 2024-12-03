@@ -15,6 +15,14 @@ const HttpStatus = {
     SERVICE_UNAVAILABLE: 503
 };
 
+const VALID_STATES = [
+    'activo',
+    'asesoria',
+    'terminado',
+    'archivado',
+    'asignado'
+];
+
 const FIELDS = {
     TEXT: 'text',
     TEXTBOX: 'textbox',
@@ -198,6 +206,7 @@ const ROUTES = {
     RECOVERY_PASSWORD: '/recuperar/contrasena',
     CHANGE_PASSWORD: '/cambiar/contrasena',
     UPDATE_BY_ADMIN: '/actualizar/admin',
+    UPDATE_CASE: '/actualizar/caso',
 }
 
 module.exports = {
@@ -215,6 +224,7 @@ module.exports = {
     TABLE_FIELDS,
     TABLE_NAME,
     TIME,
-    BCRYPT_CONFIG
+    BCRYPT_CONFIG,
+    VALID_STATES
 }
 
