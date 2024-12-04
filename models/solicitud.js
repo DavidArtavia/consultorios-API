@@ -1,3 +1,4 @@
+const { t } = require("i18next");
 const { TABLE_NAME, TABLE_FIELDS } = require("../src/constants/constants");
 
 module.exports = (sequelize, DataTypes) => {
@@ -41,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             defaultValue: 'pendiente'
         },
-        createdBy: {
+        createdBy: { // Profesor o usuario que creó la solicitud
             type: DataTypes.UUID,
             allowNull: false,
             references: {
@@ -51,7 +52,6 @@ module.exports = (sequelize, DataTypes) => {
         },
     }, {
         tableName: TABLE_NAME.SOLICITUD_CONFIRMACION,
-        timestamps: true,
     });
 
     SolicitudConfirmacion.associate = models => {
@@ -61,8 +61,14 @@ module.exports = (sequelize, DataTypes) => {
         SolicitudConfirmacion.belongsTo(models.Estudiante, {
             foreignKey: TABLE_FIELDS.UID_ESTUDIANTE,
         });
-        SolicitudConfirmacion.belongsTo(models.Profesor, {
+        SolicitudConfirmacion.belongsTo(models.Persona, {
+            as: 'Creador',
             foreignKey: 'createdBy',
+            include: [{
+                model: models.Profesor
+            }, {
+                model: models.Usuario
+            }]
         });
     };
 

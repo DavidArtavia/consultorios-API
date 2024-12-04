@@ -1,5 +1,5 @@
 const { AuditLog, Estudiante, Persona, AsignacionDeCaso, Caso, Cliente, Contraparte, Subsidiario, Direccion, Usuario, sequelize, SolicitudConfirmacion } = require('../../models');
-const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL, FIELDS, ACTION, STATES, DECISION } = require("../constants/constants");
+const { HttpStatus, TABLE_FIELDS, MESSAGE_ERROR, MESSAGE_SUCCESS, ROL, FIELDS, ACTION, STATES, DECISION, VALID_STATES } = require("../constants/constants");
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
 const { validateUpdatesInputs, validateInput, getFullName, validateIfExists, validateIfUserExists, validateIfUserIsTeacher, checkStudentAssignments, findStudentByPk } = require('../utils/helpers');
 
@@ -103,8 +103,11 @@ exports.mostrarEstudiantesActivos = async (req, res) => {
                     include: [
                         {
                             model: Direccion,
+                        },
+                        {
+                            model: Usuario,
                         }
-                    ]
+                    ],
                 },
                 {
                     model: AsignacionDeCaso
@@ -115,6 +118,7 @@ exports.mostrarEstudiantesActivos = async (req, res) => {
         if (estudiantesActivos.length == 0) {
             throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.NO_ACTIVE_STUDENTS_FOUND'));
         }
+        console.log('estudiante.Persona.Usuario.email -->>>', estudiantesActivos[0].Persona.Usuario.email);
 
         const estudiantesActivosInfo = estudiantesActivos.map(estudiante => ({
             id_estudiante: estudiante.id_estudiante,
@@ -125,6 +129,7 @@ exports.mostrarEstudiantesActivos = async (req, res) => {
             segundo_apellido: estudiante.Persona.segundo_apellido,
             estado: estudiante.estado,
             carnet: estudiante.carnet,
+            email: estudiante.Persona.Usuario.email,
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,
             telefono_adicional: estudiante.Persona.telefono_adicional,
@@ -174,7 +179,9 @@ exports.mostrarEstudiantesInactivos = async (req, res) => {
                     include: [
                         {
                             model: Direccion,
-
+                        },
+                        {
+                            model: Usuario,
                         }
                     ]
                 },
@@ -197,6 +204,7 @@ exports.mostrarEstudiantesInactivos = async (req, res) => {
             segundo_apellido: estudiante.Persona.segundo_apellido,
             estado: estudiante.estado,
             carnet: estudiante.carnet,
+            email: estudiante.Persona.Usuario.email,
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,
             telefono_adicional: estudiante.Persona.telefono_adicional,
@@ -331,7 +339,6 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
                             TABLE_FIELDS.APORTE_CUMUNIDAD,
                             TABLE_FIELDS.SINTESIS_HECHOS,
                             TABLE_FIELDS.ETAPA_PROCESO,
-                            TABLE_FIELDS.EVIDENCIA,
                             TABLE_FIELDS.ESTADO,
                             TABLE_FIELDS.CREATED_AT,
                             TABLE_FIELDS.UPDATED_AT
@@ -347,7 +354,7 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
         }
 
         const estudianteInfo = {
-            id: estudiante.id_estudiante,
+            id_estudiante: estudiante.id_estudiante,
             nombre_completo: getFullName(estudiante.Persona),
             carnet: estudiante.carnet,
             cedula: estudiante.Persona.cedula,
@@ -428,7 +435,6 @@ exports.mostrarInformacionEstudianteConCasos = async (req, res) => {
             data: estudianteInfo
         });
     } catch (error) {
-        console.error(MESSAGE_ERROR.RETRIEVING_STUDENT_INFO, error, error.stack);
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -532,7 +538,6 @@ exports.actualizarEstudiante = async (req, res) => {
         });
     } catch (error) {
         await transaction.rollback();
-
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -676,4 +681,124 @@ exports.desactivarEstudiante = async (req, res) => {
             }
         });
     }
-}; 
+};
+
+exports.activarEstudiante = async (req, res) => {
+
+    const { id_estudiante } = req.body;
+    const userId = req.session.user?.userId;
+    const transaction = await sequelize.transaction();
+
+    try {
+        const estudiante = await findStudentByPk(id_estudiante, req);
+        await estudiante.update({ estado: STATES.ACTIVE }, { transaction });
+
+        const estudianteInfo = {
+            nombre_completo: getFullName(estudiante.Persona),
+            carnet: estudiante.carnet,
+            cedula: estudiante.Persona.cedula,
+            telefono: estudiante.Persona.telefono,
+            telefono_adicional: estudiante.Persona.telefono_adicional,
+            estado: estudiante.estado,
+        };
+
+        await AuditLog.create({
+            user_id: userId,
+            action: req.t('action.ACTIVATE_STUDENT'),
+            description: req.t('description.ACTIVATE_STUDENT', { data: id_estudiante })
+        }, { transaction });
+
+        await transaction.commit();
+
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: req.t('success.STUDENT_ACTIVATED'),
+            data: estudianteInfo
+        });
+
+    } catch (error) {
+
+        await transaction.rollback();
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: req.t('error.ACTIVATING_STUDENT'),
+                error: error.message,
+                stack: error.stack
+            }
+        });
+    }
+};
+
+exports.actualizarCaso = async (req, res) => {
+
+    const { id_caso, estado } = req.body;
+    const transaction = await sequelize.transaction();
+
+    try {
+        const normalizarEstado = estado.toLowerCase().trim();
+
+        // Buscar el caso y sus asignaciones
+        const caso = await Caso.findByPk(id_caso, {
+            include: [{
+                model: AsignacionDeCaso,
+                as: 'Asignaciones',
+                where: {
+                    id_estudiante: req.session.user.personaId,
+                }
+            }]
+        }, { transaction });
+
+        if (!caso) {
+            throw new CustomError(
+                HttpStatus.NOT_FOUND,
+                req.t('warning.CASE_NOT_ASSIGNED_TO_STUDENT')
+            );
+        }
+
+        if (!VALID_STATES.includes(normalizarEstado)) {
+            throw new CustomError(
+                HttpStatus.BAD_REQUEST,
+                req.t('warning.INVALID_STATE')
+            );
+        }
+
+        await caso.update({ estado }, { transaction });
+
+        await AuditLog.create({
+            user_id: req.session.user.userId,
+            action: req.t('action.UPDATE_CASE'),
+            description: req.t('description.UPDATE_CASE', { data: id_caso })
+        }, { transaction });
+
+        await transaction.commit();
+
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: req.t('success.CASE_UPDATED'),
+            data: {
+                id_caso: caso.id_caso,
+                estado: caso.estado,
+            }
+        });
+
+    } catch (error) {
+
+        await transaction.rollback();
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: req.t('error.UPDATING_CASE'),
+                error: error.message,
+                stack: error.stack
+            }
+        });
+    }
+
+
+
+};

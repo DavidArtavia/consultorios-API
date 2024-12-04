@@ -1,8 +1,8 @@
 const { Op } = require("sequelize");
-const { MESSAGE_ERROR, HttpStatus, FIELDS, ROL, STATES, TABLE_FIELDS } = require("../constants/constants");
+const { MESSAGE_ERROR, HttpStatus, FIELDS, ROL, STATES, TABLE_FIELDS, BCRYPT_CONFIG } = require("../constants/constants");
 const { CustomError } = require("../handlers/responseHandler");
 const { Usuario, Caso, AsignacionDeCaso, Estudiante, Profesor, SolicitudConfirmacion, Persona, Direccion } = require("../../models");
-const bcrypt = require("bcryptjs/dist/bcrypt");
+const bcrypt = require('bcryptjs');
 
 const getFullName = (persona) => {
     const {
@@ -23,7 +23,20 @@ const getFullName = (persona) => {
 
     return fullName.trim();
 };
+const generateTempPassword = () => {
+    // Definir caracteres permitidos
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+    const length = 10; // Longitud de la contraseña
+    let password = '';
 
+    // Generar contraseña aleatoria
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * chars.length);
+        password += chars[randomIndex];
+    }
+
+    return password;
+};
 const updateRelatedEntity = async (Model, data, transaction, uid, req) => {
 
 
@@ -86,8 +99,26 @@ const findPersonById = async (cedula, req) => {
 
 const findConfirmationRequestById = async (id_solicitud, req) => {
 
-    const solicitud = await SolicitudConfirmacion.findByPk(id_solicitud, {
-        include: [Estudiante, Caso] // Asegúrate que se incluyan las referencias necesarias
+    const solicitud = await SolicitudConfirmacion.findOne({
+        where: { id_solicitud },
+        include: [
+            {
+                model: Estudiante,
+                include: [{
+                    model: Persona
+                }]
+            },
+            {
+                // Incluir los datos del profesor que creó la solicitud
+                model: Persona,
+                as: 'Creador',
+                foreignKey: 'createdBy',
+                include: [{
+                    model: Usuario,
+                    attributes: ['email']
+                }]
+            }
+        ]
     });
 
     if (!solicitud) {
@@ -255,7 +286,8 @@ const validateEmail = (email) => {
         'bol.com.br',
         'terra.com.br',
         'web.de',
-        'mail.ru'
+        'mail.ru',
+        "cpaurl.com"
     ];
 
     const emailDomain = email.split('@')[1];
@@ -287,11 +319,24 @@ const validatePhoneNumberCR = (phoneNumber) => {
     return phoneRegex.test(phoneNumber)
 };
 
-const validatePassword = (password) => {
-    // Expresión regular para la contraseña segura
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+// const validatePassword = (password) => {
+//     // Expresión regular para la contraseña segura
+//     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-    return passwordRegex.test(password);
+//     return passwordRegex.test(password);
+// };
+
+const validatePassword = (password) => {
+    // Agregamos el punto (.) a los caracteres especiales permitidos
+    const rules = {
+        minLength: password.length >= 8,
+        hasLower: /[a-z]/.test(password),
+        hasUpper: /[A-Z]/.test(password),
+        hasNumber: /\d/.test(password),
+        hasSpecial: /[@$!%*?&.]/.test(password)  // Agregado el punto
+    };
+
+    return Object.values(rules).every(rule => rule);
 };
 
 const validateUniqueCedulas = (clienteCedula, contraparteCedula, subsidiarioCedula, req) => {
@@ -395,7 +440,7 @@ const checkUserStatus = async (user, req, next) => {
             inactiveMessage = req.t('warning.INACTIVE_STUDENT');
             break;
         default:
-           return next(); 
+            return next();
     }
 
     const userData = await model.findOne({ where: { [idField]: user.id_persona } });
@@ -427,5 +472,6 @@ module.exports = {
     checkStudentAssignments,
     findConfirmationRequestById,
     updateRelatedEntity,
-    updatePersonAndAddress
+    updatePersonAndAddress,
+    generateTempPassword
 };

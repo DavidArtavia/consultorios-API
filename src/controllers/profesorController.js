@@ -1,6 +1,6 @@
 const { MESSAGE_ERROR, HttpStatus, TABLE_FIELDS, MESSAGE_SUCCESS, STATES, FIELDS } = require("../constants/constants");
 const { sendResponse, CustomError } = require("../handlers/responseHandler");
-const { Profesor, Persona, Direccion, AuditLog, sequelize } = require("../../models");
+const { Profesor, Persona, Direccion, Usuario, AuditLog, sequelize } = require("../../models");
 const { getFullName, validateInput } = require("../utils/helpers");
 
 
@@ -108,6 +108,9 @@ exports.mostrarProfesoresActivos = async (req, res) => {
                                 TABLE_FIELDS.CREATED_AT,
                                 TABLE_FIELDS.UPDATED_AT
                             ]
+                        },
+                        {
+                            model: Usuario,
                         }
                     ]
                 }
@@ -125,6 +128,7 @@ exports.mostrarProfesoresActivos = async (req, res) => {
             segundo_nombre: profesor.Persona.segundo_nombre,
             primer_apellido: profesor.Persona.primer_apellido,
             segundo_apellido: profesor.Persona.segundo_apellido,
+            email: profesor.Persona.Usuario.email,
             especialidad: profesor.especialidad,
             fecha_inscripcion: profesor.fecha_inscripcion,
             cedula: profesor.Persona.cedula,
@@ -186,6 +190,9 @@ exports.mostrarProfesoresInactivos = async (req, res) => {
                                 TABLE_FIELDS.CREATED_AT,
                                 TABLE_FIELDS.UPDATED_AT
                             ]
+                        },
+                        {
+                            model: Usuario,
                         }
                     ]
                 }
@@ -199,6 +206,11 @@ exports.mostrarProfesoresInactivos = async (req, res) => {
         const profesoresInfo = profesoresInactivos.map(profesor => ({
             id_profesor: profesor.id_profesor,
             nombre_completo: getFullName(profesor.Persona),
+            primer_nombre: profesor.Persona.primer_nombre,
+            segundo_nombre: profesor.Persona.segundo_nombre,
+            primer_apellido: profesor.Persona.primer_apellido,
+            segundo_apellido: profesor.Persona.segundo_apellido,
+            email: profesor.Persona.Usuario.email,
             especialidad: profesor.especialidad,
             fecha_inscripcion: profesor.fecha_inscripcion,
             cedula: profesor.Persona.cedula,
@@ -267,8 +279,6 @@ exports.desactivarProfesor = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(req.t('error.DEACTIVATING_PROFESSOR'), error);
-
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -316,8 +326,6 @@ exports.activarProfesor = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(req.t('error.ACTIVATING_PROFESSOR'), error);
-
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -341,11 +349,6 @@ exports.actualizarProfesor = async (req, res) => {
         telefono,
         telefono_adicional,
         especialidad,
-        direccion_exacta,
-        canton,
-        distrito,
-        localidad,
-        provincia
     } = req.body;
     const userId = req.session.user?.userId;
     const transaction = await sequelize.transaction();
@@ -356,10 +359,6 @@ exports.actualizarProfesor = async (req, res) => {
                 {
                     model: Persona,
                     as: 'Persona',
-                    include: {
-                        model: Direccion,
-                        as: 'Direccion'
-                    }
                 }
             ]
         });
@@ -373,7 +372,6 @@ exports.actualizarProfesor = async (req, res) => {
         validateInput(segundo_apellido, FIELDS.CEDULA, req);
         validateInput(telefono, FIELDS.TELEFONO, req);
         validateInput(especialidad, FIELDS.TEXT, req);
-        validateInput(cedula, FIELDS.ID, req);
         telefono_adicional && validateInput(telefono_adicional, FIELDS.TELEFONO, req);
         segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT, req);
 
@@ -385,14 +383,6 @@ exports.actualizarProfesor = async (req, res) => {
             segundo_apellido,
             telefono,
             telefono_adicional
-        }, { transaction });
-
-        await profesor.Persona.Direccion.update({
-            direccion_exacta,
-            canton,
-            distrito,
-            localidad,
-            provincia
         }, { transaction });
 
         await profesor.update({ especialidad }, { transaction });
@@ -411,12 +401,8 @@ exports.actualizarProfesor = async (req, res) => {
             segundo_nombre,
             primer_apellido,
             segundo_apellido,
+            cedula: profesor.Persona.cedula,
             especialidad,
-            direccion_exacta,
-            canton,
-            distrito,
-            localidad,
-            provincia
         };
 
         await transaction.commit();

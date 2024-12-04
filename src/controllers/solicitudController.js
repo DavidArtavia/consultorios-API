@@ -2,6 +2,7 @@ const { HttpStatus, ACTION, DECISION, STATES, TABLE_FIELDS, ORDER } = require(".
 const { sendResponse, CustomError } = require("../handlers/responseHandler");
 const { sequelize, Persona, Estudiante, Caso, SolicitudConfirmacion } = require("../../models");
 const { checkStudentAssignments, findConfirmationRequestById, findStudentByPk, getFullName } = require("../utils/helpers");
+const emailService = require('../services/emailService');
 
 exports.mostrarSolicitudes = async (req, res) => {
     try {
@@ -56,8 +57,6 @@ exports.mostrarSolicitudes = async (req, res) => {
             data: solicitudInfo
         });
     } catch (error) {
-
-        console.error('Error en mostrarSolicitudes', error);
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -77,7 +76,7 @@ exports.procesarSolicitudConfirmacion = async (req, res) => {
 
     try {
         // Buscar la solicitud de confirmación
-        const solicitud = await findConfirmationRequestById(id_solicitud);
+        const solicitud = await findConfirmationRequestById(id_solicitud, req);
 
         const state = solicitud.estado;
 
@@ -104,6 +103,19 @@ exports.procesarSolicitudConfirmacion = async (req, res) => {
 
             throw new CustomError(HttpStatus.BAD_REQUEST, req.t('warning.INVALID_DECISION'));
         }
+
+        const profesorEmail = solicitud.Creador.Usuario.email;
+
+        await emailService.sendRequestNotification({
+            to: profesorEmail,
+            data: {
+                profesor: getFullName(solicitud.Creador),
+                estudiante: getFullName(solicitud.Estudiante.Persona),
+                decision: decision,
+                cedula: solicitud.Estudiante.Persona.cedula,
+                fecha: new Date().toLocaleDateString()
+            }
+        });
 
         await transaction.commit();
 

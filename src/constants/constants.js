@@ -15,6 +15,14 @@ const HttpStatus = {
     SERVICE_UNAVAILABLE: 503
 };
 
+const VALID_STATES = [
+    'activo',
+    'asesoria',
+    'terminado',
+    'archivado',
+    'asignado'
+];
+
 const FIELDS = {
     TEXT: 'text',
     TEXTBOX: 'textbox',
@@ -34,6 +42,7 @@ const TABLE_NAME = {
     CLIENTES: 'clientes',
     ESTUDIANTES: 'estudiantes',
     PROFESORES: 'profesores',
+    ADMINISTRADORES: 'administradores',
     USUARIOS: 'usuarios',
     CONTRAPARTES: 'contrapartes',
     DIRECCIONES: 'direcciones',
@@ -46,6 +55,7 @@ const TABLE_NAME = {
 
 };
 const TABLE_FIELDS = {
+    UID_ADMINISTRADOR: 'id_administrador',
     UID_SUBSIDIARIO: 'id_subsidiario',
     UID_ASIGNACION: 'id_asignacion',
     UID_CASO: 'id_caso',
@@ -130,6 +140,13 @@ const ORDER = {
     DESC: 'DESC'
 };
 
+const BCRYPT_CONFIG = {
+    SALT_ROUNDS: 10,
+    MIN_PASSWORD_LENGTH: 6,
+    MAX_PASSWORD_LENGTH: 72, // Límite máximo de bcrypt
+    HASH_PREFIX: '$2b$'     // Prefijo que identifica el algoritmo
+};
+
 const STATES = {
     PENDING: 'pendiente',
     ACCEPTED: 'aceptado',
@@ -186,6 +203,10 @@ const ROUTES = {
     USERS: '/usuarios',
     REGISTER: '/register',
     ACTIVATE: '/activar',
+    RECOVERY_PASSWORD: '/recuperar/contrasena',
+    CHANGE_PASSWORD: '/cambiar/contrasena',
+    UPDATE_BY_ADMIN: '/actualizar/admin',
+    UPDATE_CASE: '/actualizar/caso',
 }
 
 module.exports = {
@@ -202,6 +223,8 @@ module.exports = {
     STATES,
     TABLE_FIELDS,
     TABLE_NAME,
-    TIME
+    TIME,
+    BCRYPT_CONFIG,
+    VALID_STATES
 }
 

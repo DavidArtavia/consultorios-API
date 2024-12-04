@@ -10,6 +10,8 @@ router.get(
     verifySession,
     verifyRole([
         ROL.SUPERADMIN,
+        ROL.PROFESSOR,
+        ROL.STUDENT
     ]),
     mostrarPersonasConUsuarios
 );

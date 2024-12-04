@@ -58,7 +58,7 @@ exports.crearCaso = async (req, res) => {
         validateInput(casoData.aporte_comunidad, FIELDS.NUMERIC, req);
         casoData.expediente && validateInput(casoData.expediente, FIELDS.EXPEDIENTE, req);
         validateInput(casoData.tipo_proceso, FIELDS.TEXT, req);
-        validateInput(casoData.etapa_proceso, FIELDS.TEXT, req);
+        validateInput(casoData.etapa_proceso, FIELDS.TEXTBOX, req);
         validateInput(casoData.sintesis_hechos, FIELDS.TEXTBOX, req);
         casoData.expediente && validateInput(casoData.expediente, FIELDS.EXPEDIENTE, req);
 
@@ -129,7 +129,7 @@ exports.crearCaso = async (req, res) => {
 
         await Direccion.create({
             id_persona: contrapartePersona.id_persona,
-            direccion_exacta: contraparte.direccion.direccionExacta,
+            direccion_exacta: contraparte.direccion.direccion_exacta,
             canton: contraparte.direccion.canton,
             distrito: contraparte.direccion.distrito,
             localidad: contraparte.direccion.localidad,
@@ -182,7 +182,7 @@ exports.crearCaso = async (req, res) => {
 
             await Direccion.create({
                 id_persona: subsidiarioPersona.id_persona,
-                direccion_exacta: subsidiario.direccion.direccionExacta,
+                direccion_exacta: subsidiario.direccion.direccion_exacta,
                 canton: subsidiario.direccion.canton,
                 distrito: subsidiario.direccion.distrito,
                 localidad: subsidiario.direccion.localidad,
@@ -235,7 +235,6 @@ exports.crearCaso = async (req, res) => {
     } catch (error) {
         // Deshacer la transacción en caso de error
         await transaction.rollback();
-
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -493,7 +492,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                 telefono_adicional: caso.Cliente.Persona.telefono_adicional,
                 createdAt: caso.Cliente.Persona.createdAt,
                 updatedAt: caso.Cliente.Persona.updatedAt,
-                dirreccion_exacta: caso.Cliente.Persona.Direccion.direccion_exacta,
+                direccion_exacta: caso.Cliente.Persona.Direccion.direccion_exacta,
                 canton: caso.Cliente.Persona.Direccion.canton,
                 distrito: caso.Cliente.Persona.Direccion.distrito,
                 localidad: caso.Cliente.Persona.Direccion.localidad,
@@ -515,7 +514,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                 telefono_adicional: caso.Contraparte.Persona.telefono_adicional,
                 createdAt: caso.Contraparte.Persona.createdAt,
                 updatedAt: caso.Contraparte.Persona.updatedAt,
-                dirreccion_exacta: caso.Contraparte.Persona.Direccion.direccion_exacta,
+                direccion_exacta: caso.Contraparte.Persona.Direccion.direccion_exacta,
                 canton: caso.Contraparte.Persona.Direccion.canton,
                 distrito: caso.Contraparte.Persona.Direccion.distrito,
                 localidad: caso.Contraparte.Persona.Direccion.localidad,
@@ -537,7 +536,7 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                 telefono_adicional: caso.Subsidiario.Persona.telefono_adicional,
                 createdAt: caso.Subsidiario.Persona.createdAt,
                 updatedAt: caso.Subsidiario.Persona.updatedAt,
-                dirreccion_exacta: caso.Subsidiario.Persona.Direccion.direccion_exacta,
+                direccion_exacta: caso.Subsidiario.Persona.Direccion.direccion_exacta,
                 canton: caso.Subsidiario.Persona.Direccion.canton,
                 distrito: caso.Subsidiario.Persona.Direccion.distrito,
                 localidad: caso.Subsidiario.Persona.Direccion.localidad,
@@ -554,7 +553,6 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
                 aporte_comunidad: caso.aporte_comunidad,
                 sintesis_hechos: caso.sintesis_hechos,
                 etapa_proceso: caso.etapa_proceso,
-                evidencia: caso.evidencia,
                 estado: caso.estado,
                 createdAt: caso.createdAt,
                 updatedAt: caso.updatedAt,
@@ -574,7 +572,6 @@ exports.mostrarCasosNoAsignados = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(MESSAGE_ERROR.UNASSIGNED_CASES, error);
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -604,18 +601,6 @@ exports.mostrarCasosAsignados = async (req, res) => {
                             model: Estudiante,
                             include: [{
                                 model: Persona,
-                                include: [{
-                                    model: Direccion,
-                                    attributes: [
-                                        TABLE_FIELDS.DIRECCION_EXACTA,
-                                        TABLE_FIELDS.CANTON,
-                                        TABLE_FIELDS.DISTRITO,
-                                        TABLE_FIELDS.LOCALIDAD,
-                                        TABLE_FIELDS.PROVINCIA,
-                                        TABLE_FIELDS.CREATED_AT,
-                                        TABLE_FIELDS.UPDATED_AT
-                                    ]
-                                }]
                             }]
                         }
                     ]
@@ -784,7 +769,6 @@ exports.mostrarCasosAsignados = async (req, res) => {
                 aporte_comunidad: caso.aporte_comunidad,
                 sintesis_hechos: caso.sintesis_hechos,
                 etapa_proceso: caso.etapa_proceso,
-                evidencia: caso.evidencia,
                 estado: caso.estado,
                 createdAt: caso.createdAt,
                 updatedAt: caso.updatedAt,
@@ -841,7 +825,7 @@ exports.actualizarCaso = async (req, res) => {
         if (!caso) {
             throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.CASE_NOT_FOUND'));
         }
-       expediente && validateInput(expediente, FIELDS.EXPEDIENTE, req);
+        expediente && validateInput(expediente, FIELDS.EXPEDIENTE, req);
         validateInput(tipo_proceso, FIELDS.TEXT, req);
         validateInput(cuantia_proceso, FIELDS.NUMERIC, req);
         validateInput(aporte_comunidad, FIELDS.NUMERIC, req);
@@ -931,7 +915,7 @@ exports.actualizarCaso = async (req, res) => {
             subsidiario.Persona.telefono_adicional && validateInput(subsidiario.Persona.telefono_adicional, FIELDS.PHONE_NUMBER, req);
             subsidiario.Persona.segundo_nombre && validateInput(subsidiario.segundo_nombre, FIELDS.TEXTBOX, req);
 
-           await updateRelatedEntity(
+            await updateRelatedEntity(
                 Subsidiario,
                 subsidiario,
                 transaction,

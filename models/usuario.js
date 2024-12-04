@@ -1,7 +1,7 @@
 // models/usuario.js
 
 const bcrypt = require('bcryptjs');
-const { TABLE_NAME, TABLE_FIELDS, ROL } = require('../src/constants/constants');
+const { TABLE_NAME, TABLE_FIELDS, ROL, BCRYPT_CONFIG } = require('../src/constants/constants');
 
 module.exports = (sequelize, DataTypes) => {
 const Usuario = sequelize.define('Usuario', {
@@ -32,6 +32,11 @@ const Usuario = sequelize.define('Usuario', {
         type: DataTypes.TEXT,
         allowNull: false,
     },
+    is_temp_password: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
     rol: {
         type: DataTypes.ENUM(ROL.SUPERADMIN, ROL.PROFESSOR, ROL.STUDENT),
         allowNull: false,
@@ -39,7 +44,7 @@ const Usuario = sequelize.define('Usuario', {
 }, {
     hooks: {
         beforeCreate: async (usuario) => {
-            usuario.password_hash = await bcrypt.hash(usuario.password_hash, 10);
+            usuario.password_hash = await bcrypt.hash(usuario.password_hash, BCRYPT_CONFIG.SALT_ROUNDS);
         },
     },
     tableName: TABLE_NAME.USUARIOS, 

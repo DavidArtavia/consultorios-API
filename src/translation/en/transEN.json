@@ -31,7 +31,11 @@
         "RECOVERED_ACTIVE_STUDENTS": "Error retrieving active students.",
         "RECOVERED_INACTIVE_STUDENTS": "Error retrieving inactive students.",
         "UPDATING_CASE": "Error updating case.",
-        "DEACTIVATING_STUDENT": "Error deactivating student."
+        "DEACTIVATING_STUDENT": "Error deactivating student.",
+        "PASSWORD_RESET_REQUEST": "Error requesting password reset.",
+        "PASSWORD_RESET_REQUESTED": "Error requesting password reset. The user is not registered.",
+        "PASSWORD_CHANGED": "Error changing password.",
+        "ACTIVATING_STUDENT": "Error activating student."
     },
     "success": {
         "LOGIN": "Login successful.",
@@ -63,8 +67,12 @@
         "USER_UPDATED": "User updated successfully.",
         "RECOVERED_ACTIVE_STUDENTS": "Active students retrieved successfully.",
         "RECOVERED_INACTIVE_STUDENTS": "Inactive students retrieved successfully.",
-        "CASE_UPDATED": "Case updated successfully."
-        
+        "CASE_UPDATED": "Case updated successfully.",
+        "RESET_PASSWORD_SUBJECT": "Password reset",
+        "PASSWORD_RESET_REQUEST": "Password reset request sent successfully. Check your email for further instructions.",
+        "PASSWORD_CHANGED": "Password changed successfully.",
+        "PASSWORD_RESET_REQUESTED": "Password reset request sent successfully. Please check your email to obtain the temporary password.",
+        "STUDENT_ACTIVATED": "Student activated successfully."
     },
     "warning": {
         "PROFESSOR_ALREADY_INACTIVE": "The professor is already inactive.",
@@ -77,7 +85,7 @@
         "NO_CASE_ASSIGNED": "The case is not assigned to this student.",
         "NO_PROGRESS_FOUND": "No progress recorded for this case.",
         "INVALID_EMAIL": "The email does not exist.",
-        "INVALID_PASSWORD": "Invalid password.",
+        "INVALID_PASSWORD": "The current password is not valid.",
         "EMAIL_IS_REQUIRED": "Email is required.",
         "PASSWORD_IS_REQUIRED": "Password is required.",
         "USER_NOT_FOUND": "User not found.",
@@ -112,7 +120,15 @@
         "UID_IS_REQUIRED": "The UID is required.",
         "ENTITY_NOT_FOUND": "The {{entity}} was not found.",
         "NO_ACTIVE_STUDENTS_FOUND": "No active students found.",
-        "NO_INACTIVE_STUDENTS_FOUND": "No inactive students found."
+        "NO_INACTIVE_STUDENTS_FOUND": "No inactive students found.",
+        "TEMP_PASSWORD_MUST_CHANGE": "The temporary password must be changed.",
+        "NOT_TEMP_PASSWORD": "The password is not temporary.",
+        "SAME_PASSWORD": "The new password must be different from the current password.",
+        "CARNET_ALREADY_USED": "The student ID Card is already in use.",
+        "ADMIN_REQUIRED": "An administrator is required to perform this action.",
+        "CARNET_REQUIRED": "The student ID card is required.",
+        "INVALID_STATE": "Invalid state. It must be 'activo', 'asesoria', 'terminado', 'archivado' or 'asignado'.",
+        "CASE_NOT_ASSIGNED_TO_STUDENT": "The case is not assigned to the student."
     },
     "validation": {
         "INVALID_TEXT_FORMAT": " --> {{data}} <-- Invalid text format. Only letters are allowed.",
@@ -144,7 +160,9 @@
         "UPDATE_CASE": "Update Case",
         "ASSIGN_CASE": "Assign case to a Student",
         "UNASSIGN_CASE": "Unassign case from a Student",
-        "DEACTIVATE_STUDENT": "Deactivate Student"
+        "DEACTIVATE_STUDENT": "Deactivate Student",
+        "ACTIVATE_STUDENT": "Activate Student",
+        "ADMIN_UPDATE_USER": "Update User by Admin"
     },
     "description": {
         "UPDATE_STUDENT": "Updating student data with UID: {{data}}",
@@ -152,6 +170,8 @@
         "UPDATE_CASE": "Updating case with UID: {{data}}",
         "ASSIGN_CASE": "Assigning case with UID: {{data}} to a student with UID: {{data}}",
         "UNASSIGN_CASE": "Unassigning case with UID: {{data}} from a student with UID: {{data}}",
-        "DEACTIVATE_STUDENT": "Deactivating student with UID: {{data}}"
+        "DEACTIVATE_STUDENT": "Deactivating student with UID: {{data}}",
+        "ACTIVATE_STUDENT": "Activating student with UID: {{data}}",
+        "ADMIN_UPDATE_USER": "Updating user data with UID: {{data}} by an administrator"
     }
 }

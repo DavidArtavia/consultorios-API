@@ -1,8 +1,10 @@
 
-const { Usuario, Persona, Direccion, Estudiante, Profesor, Sequelize, sequelize } = require('../../models');
-const { HttpStatus, ROL, MESSAGE_ERROR, MESSAGE_SUCCESS, TABLE_FIELDS, FIELDS, TABLE_NAME, ACTION } = require('../constants/constants');
+const { AuditLog, Usuario, Persona, Direccion, Estudiante, Profesor, Sequelize, sequelize } = require('../../models');
+const { HttpStatus, ROL, MESSAGE_ERROR, MESSAGE_SUCCESS, TABLE_FIELDS, FIELDS, TABLE_NAME, ACTION, STATES } = require('../constants/constants');
 const { sendResponse, CustomError } = require('../handlers/responseHandler');
-const { validateIfExists, validateExistingUser, validateRoleChange, validateInput } = require('../utils/helpers');
+const emailService = require('../services/emailService');
+const { validateIfExists, validateExistingUser, validateRoleChange, validateInput, generateTempPassword, validateIfUserExists, getFullName } = require('../utils/helpers');
+const bcrypt = require('bcryptjs');
 
 
 // Register a new user
@@ -17,7 +19,6 @@ exports.register = async (req, res) => {
         telefono_adicional,
         username,
         email,
-        password,
         rol,
         especialidad,
         carnet,
@@ -29,9 +30,10 @@ exports.register = async (req, res) => {
     try {
 
         const userRole = req.session.user.userRole;
-        
+        const emailLowerCase = email.toLowerCase();
+
         validateRoleChange(userRole, rol, req);
-        await validateExistingUser(username, email, req);
+        await validateExistingUser(username, emailLowerCase, req);
 
         await validateIfExists({
             model: Persona,
@@ -40,7 +42,7 @@ exports.register = async (req, res) => {
             errorMessage: req.t('warning.IS_ALREADY_REGISTERED', { data: cedula })
         });
 
-        
+
         validateInput(primer_nombre, FIELDS.TEXT, req);
         segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT, req);
         validateInput(primer_apellido, FIELDS.TEXT, req);
@@ -49,7 +51,7 @@ exports.register = async (req, res) => {
         validateInput(cedula, FIELDS.ID, req);
         validateInput(telefono, FIELDS.PHONE_NUMBER, req);
         telefono_adicional && validateInput(telefono_adicional, FIELDS.PHONE_NUMBER, req);
-        validateInput(email, FIELDS.EMAIL, req);
+        validateInput(emailLowerCase, FIELDS.EMAIL, req);
 
         if (rol == ROL.STUDENT) {
             validateInput(carnet, FIELDS.CARNET, req);
@@ -87,11 +89,14 @@ exports.register = async (req, res) => {
             }, { transaction });
         }
 
+        const tempPassword = generateTempPassword();
+
         const usuario = await Usuario.create({
             id_persona: persona.id_persona,
             username,
-            email,
-            password_hash: password, // Se encripta en el hook beforeCreate
+            email: emailLowerCase,
+            password_hash: tempPassword, // Se encripta en el hook beforeCreate
+            is_temp_password: true,
             rol
         }, { transaction });
 
@@ -102,7 +107,6 @@ exports.register = async (req, res) => {
                     carnet: carnet
                 }, { transaction });
             } catch (error) {
-                console.error(MESSAGE_ERROR.CREATE_STUDENT, error);
                 throw new CustomError(HttpStatus.INTERNAL_SERVER_ERROR, req.t('error.CREATE_STUDENT'));
             }
         } else if (rol === ROL.PROFESSOR) {
@@ -112,10 +116,15 @@ exports.register = async (req, res) => {
                     especialidad
                 }, { transaction });
             } catch (error) {
-                console.error(MESSAGE_ERROR.CREATE_PROFESSOR, error);
                 throw new CustomError(HttpStatus.INTERNAL_SERVER_ERROR, req.t('error.CREATE_PROFESSOR'));
             }
         }
+
+        await emailService.sendWelcomeEmail(emailLowerCase, {
+            nombre_completo: getFullName(persona),
+            email: emailLowerCase,
+            tempPassword
+        });
 
         await transaction.commit();
 
@@ -141,7 +150,7 @@ exports.register = async (req, res) => {
                     error: error.stack,
                 }
             });
-           
+
         }
 
         return sendResponse({
@@ -160,31 +169,21 @@ exports.register = async (req, res) => {
 
 exports.editarUsuario = async (req, res) => {
     const {
-        id_usuario,
         primer_nombre,
         segundo_nombre,
         primer_apellido,
         segundo_apellido,
-        nombre_usuario,
-        email,
-        cedula,
         telefono,
         telefono_adicional,
-        Direccion
     } = req.body;
-    const userId = req.session.user.userId;
-    
+    const id_usuario = req.session.user.userId;
+
     const transaction = await sequelize.transaction(); // Iniciar transacción
 
     try {
         // Buscar al usuario
         const usuario = await Usuario.findByPk(id_usuario, {
-            include: {
-                model: Persona,
-                include: {
-                    model: Direccion
-                }
-            }
+            include: [{ model: Persona }]
         });
 
         if (!usuario) {
@@ -195,52 +194,24 @@ exports.editarUsuario = async (req, res) => {
         if (usuario.Persona) {
 
             validateInput(primer_nombre, FIELDS.TEXT, req);
-            segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT, req);
             validateInput(primer_apellido, FIELDS.TEXT, req);
             validateInput(segundo_apellido, FIELDS.TEXT, req);
-            validateInput(cedula, FIELDS.ID, req);
             validateInput(telefono, FIELDS.PHONE_NUMBER, req);
+            segundo_nombre && validateInput(segundo_nombre, FIELDS.TEXT, req);
             telefono_adicional && validateInput(telefono_adicional, FIELDS.PHONE_NUMBER, req);
-
-            await validateUpdatesInputs({
-                currentValue: usuario.Persona.cedula,
-                newValue: cedula,
-                model: Persona,
-                field: TABLE_FIELDS.CEDULA,
-                message: req.t('warning.CEDULA_ALREADY_USED')
-            });
 
             await usuario.Persona.update({
                 primer_nombre,
                 segundo_nombre,
                 primer_apellido,
                 segundo_apellido,
-                cedula,
                 telefono,
                 telefono_adicional
             }, { transaction });
         }
 
-        // Actualizar campos de Dirección si existen
-        if (usuario.Persona && usuario.Persona.Direccion) {
-            
-            validateInput(Direccion.direccion_exacta, FIELDS.TEXTBOX, req);
-            validateInput(Direccion.canton, FIELDS.TEXT, req);
-            validateInput(Direccion.distrito, FIELDS.TEXT, req);
-            validateInput(Direccion.localidad, FIELDS.TEXT, req);
-            validateInput(Direccion.provincia, FIELDS.TEXT, req);
-
-            await usuario.Persona.Direccion.update({
-                direccion_exacta: Direccion.direccion_exacta,
-                canton: Direccion.canton,
-                distrito: Direccion.distrito,
-                localidad: Direccion.localidad,
-                provincia: Direccion.provincia
-            }, { transaction });
-        }
-
         await AuditLog.create({
-            user_id: userId,
+            user_id: id_usuario,
             action: req.t('action.UPDATE_USER'),
             description: req.t('description.UPDATE_USER', { data: id_usuario })
         }, { transaction });
@@ -255,7 +226,7 @@ exports.editarUsuario = async (req, res) => {
         });
     } catch (error) {
         await transaction.rollback(); // Revertir la transacción en caso de error
-     
+
         return sendResponse({
             res,
             statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -265,13 +236,191 @@ exports.editarUsuario = async (req, res) => {
     }
 };
 
+exports.cambiarContrasena = async (req, res) => {
+    const { current_password, new_password } = req.body;
+    const transaction = await sequelize.transaction();
+    const id_usuario = req.session.user.userId;
+
+    try {
+
+        validateInput(new_password, FIELDS.PASSWORD, req);
+
+        const user = await validateIfUserExists({
+            model: Usuario,
+            field: TABLE_FIELDS.UID_USUARIO,
+            value: id_usuario,
+            errorMessage: req.t('warning.USER_NOT_FOUND')
+        });
+
+        // Verificar contraseña actual
+        const isValidPassword = await bcrypt.compare(current_password, user.password_hash);
+        if (!isValidPassword) {
+            throw new CustomError(
+                HttpStatus.BAD_REQUEST,
+                req.t('warning.INVALID_PASSWORD')
+            );
+        }
+
+        // Verificar que la nueva contraseña sea diferente de la actual
+        if (current_password === new_password) {
+            throw new CustomError(
+                HttpStatus.BAD_REQUEST,
+                req.t('warning.SAME_PASSWORD')
+            );
+        }
+
+        // Actualizar a nueva contraseña
+        const hashedPassword = await bcrypt.hash(new_password, 10);
+        await user.update({
+            password_hash: hashedPassword,
+            is_temp_password: false
+        }, { transaction });
+
+        await transaction.commit();
+
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: req.t('success.PASSWORD_CHANGED'),
+            data: {}
+        });
+
+    } catch (error) {
+        await transaction.rollback();
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: req.t('error.PASSWORD_CHANGE'),
+                error: error.message,
+                stack: error.stack
+            }
+        });
+    }
+};
+
+exports.editarDatosUsuarioAdmin = async (req, res) => {
+    const { id_persona, email, cedula, carnet } = req.body;
+    const transaction = await sequelize.transaction();
+    try {
+
+        const adminId = req.session.user.userId;
+        const adminRole = req.session.user.userRole;
+        const emailLowerCase = email.toLowerCase();
+
+        // Verificar que sea administrador
+        if (adminRole !== ROL.SUPERADMIN) {
+            throw new CustomError(
+                HttpStatus.FORBIDDEN,
+                req.t('warning.ADMIN_REQUIRED')
+            );
+        }
+
+        validateInput(emailLowerCase, FIELDS.EMAIL, req);
+        validateInput(cedula, FIELDS.ID, req);
+
+        const persona = await Persona.findByPk(id_persona, {
+            include: [
+                {
+                    model: Usuario
+                },
+                {
+                    model: Estudiante,
+                    required: false
+                },
+                {
+                    model: Profesor,
+                    required: false
+                }
+            ]
+        });
+
+        if (!persona.Usuario) {
+            throw new CustomError(
+                HttpStatus.NOT_FOUND,
+                req.t('warning.USER_NOT_FOUND')
+            );
+        }
+        // Verificar si el email ya existe en otro usuario
+        if (email !== persona.Usuario.email) {
+
+            await validateExistingUser(null, emailLowerCase, req);
+
+            // Actualizar email del usuario
+            await persona.Usuario.update({ email: emailLowerCase }, { transaction });
+        }
+
+        // Verificar si la cédula ya existe en otra persona
+        if (cedula !== persona.cedula) {
+            await validateIfExists({
+                model: Persona,
+                field: TABLE_FIELDS.CEDULA,
+                value: cedula,
+                errorMessage: req.t('warning.IS_ALREADY_REGISTERED', { data: cedula })
+            });
+
+            // Actualizar cédula de la persona
+            await persona.update({ cedula }, { transaction });
+        }
 
 
+        // Si es estudiante y se proporcionó carnet
+        if (persona.Usuario.rol === ROL.STUDENT) {
+            if (!carnet) {
+                throw new CustomError(
+                    HttpStatus.BAD_REQUEST,
+                    req.t('warning.CARNET_REQUIRED')
+                );
+            }
 
+            validateInput(carnet, FIELDS.CARNET, req);
 
+            // Verificar si el carnet ya existe
+            if (carnet !== persona.Estudiante.carnet) {
 
+                await validateIfExists({
+                    model: Estudiante,
+                    field: TABLE_FIELDS.CARNET,
+                    value: carnet,
+                    errorMessage: req.t('warning.CARNET_ALREADY_REGISTERED', { data: carnet })
+                }, req);
 
+                // Actualizar carnet
+                persona.Estudiante && await persona.Estudiante.update({ carnet }, { transaction });
+            }
 
+        }
 
+        // Registrar en auditoría
+        await AuditLog.create({
+            user_id: adminId,
+            action: req.t('action.ADMIN_UPDATE_USER'),
+            description: req.t('description.ADMIN_UPDATE_USER', {
+                admin: adminId,
+                user: persona.Usuario.id_usuario
+            })
+        }, { transaction });
 
+        await transaction.commit();
+        return sendResponse({
+            res,
+            statusCode: HttpStatus.OK,
+            message: req.t('success.USER_UPDATED'),
+            data: { user: persona }
+        });
 
+    } catch (error) {
+        if (transaction && !transaction.finished) {
+            await transaction.rollback();
+        }
+        return sendResponse({
+            res,
+            statusCode: error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+            message: error?.message || {
+                message: req.t('error.UPDATE_USER'),
+                error: error.message,
+                stack: error.stack
+            }
+        });
+    }
+};
