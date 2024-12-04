@@ -5,7 +5,6 @@ const { sendResponse } = require("../handlers/responseHandler");
 exports.verifyRole = (roles) => {
     return (req, res, next) => {
         const userRole = req.session.user.userRole;  // Obtener el rol del usuario desde la sesión
-
         console.log('userRole -->>>', userRole );
         if (!userRole || !roles.includes(userRole)) {
 

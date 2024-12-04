@@ -103,8 +103,11 @@ exports.mostrarEstudiantesActivos = async (req, res) => {
                     include: [
                         {
                             model: Direccion,
+                        },
+                        {
+                            model: Usuario,
                         }
-                    ]
+                    ],
                 },
                 {
                     model: AsignacionDeCaso
@@ -115,6 +118,7 @@ exports.mostrarEstudiantesActivos = async (req, res) => {
         if (estudiantesActivos.length == 0) {
             throw new CustomError(HttpStatus.NOT_FOUND, req.t('warning.NO_ACTIVE_STUDENTS_FOUND'));
         }
+        console.log('estudiante.Persona.Usuario.email -->>>', estudiantesActivos[0].Persona.Usuario.email);
 
         const estudiantesActivosInfo = estudiantesActivos.map(estudiante => ({
             id_estudiante: estudiante.id_estudiante,
@@ -125,6 +129,7 @@ exports.mostrarEstudiantesActivos = async (req, res) => {
             segundo_apellido: estudiante.Persona.segundo_apellido,
             estado: estudiante.estado,
             carnet: estudiante.carnet,
+            email: estudiante.Persona.Usuario.email,
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,
             telefono_adicional: estudiante.Persona.telefono_adicional,
@@ -174,7 +179,9 @@ exports.mostrarEstudiantesInactivos = async (req, res) => {
                     include: [
                         {
                             model: Direccion,
-
+                        },
+                        {
+                            model: Usuario,
                         }
                     ]
                 },
@@ -197,6 +204,7 @@ exports.mostrarEstudiantesInactivos = async (req, res) => {
             segundo_apellido: estudiante.Persona.segundo_apellido,
             estado: estudiante.estado,
             carnet: estudiante.carnet,
+            email: estudiante.Persona.Usuario.email,
             cedula: estudiante.Persona.cedula,
             telefono: estudiante.Persona.telefono,
             telefono_adicional: estudiante.Persona.telefono_adicional,

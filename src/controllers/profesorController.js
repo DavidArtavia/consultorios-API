@@ -1,6 +1,6 @@
 const { MESSAGE_ERROR, HttpStatus, TABLE_FIELDS, MESSAGE_SUCCESS, STATES, FIELDS } = require("../constants/constants");
 const { sendResponse, CustomError } = require("../handlers/responseHandler");
-const { Profesor, Persona, Direccion, AuditLog, sequelize } = require("../../models");
+const { Profesor, Persona, Direccion, Usuario, AuditLog, sequelize } = require("../../models");
 const { getFullName, validateInput } = require("../utils/helpers");
 
 
@@ -108,6 +108,9 @@ exports.mostrarProfesoresActivos = async (req, res) => {
                                 TABLE_FIELDS.CREATED_AT,
                                 TABLE_FIELDS.UPDATED_AT
                             ]
+                        },
+                        {
+                            model: Usuario,
                         }
                     ]
                 }
@@ -125,6 +128,7 @@ exports.mostrarProfesoresActivos = async (req, res) => {
             segundo_nombre: profesor.Persona.segundo_nombre,
             primer_apellido: profesor.Persona.primer_apellido,
             segundo_apellido: profesor.Persona.segundo_apellido,
+            email: profesor.Persona.Usuario.email,
             especialidad: profesor.especialidad,
             fecha_inscripcion: profesor.fecha_inscripcion,
             cedula: profesor.Persona.cedula,
@@ -186,6 +190,9 @@ exports.mostrarProfesoresInactivos = async (req, res) => {
                                 TABLE_FIELDS.CREATED_AT,
                                 TABLE_FIELDS.UPDATED_AT
                             ]
+                        },
+                        {
+                            model: Usuario,
                         }
                     ]
                 }
@@ -199,6 +206,11 @@ exports.mostrarProfesoresInactivos = async (req, res) => {
         const profesoresInfo = profesoresInactivos.map(profesor => ({
             id_profesor: profesor.id_profesor,
             nombre_completo: getFullName(profesor.Persona),
+            primer_nombre: profesor.Persona.primer_nombre,
+            segundo_nombre: profesor.Persona.segundo_nombre,
+            primer_apellido: profesor.Persona.primer_apellido,
+            segundo_apellido: profesor.Persona.segundo_apellido,
+            email: profesor.Persona.Usuario.email,
             especialidad: profesor.especialidad,
             fecha_inscripcion: profesor.fecha_inscripcion,
             cedula: profesor.Persona.cedula,

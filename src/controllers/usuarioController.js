@@ -300,7 +300,7 @@ exports.cambiarContrasena = async (req, res) => {
 };
 
 exports.editarDatosUsuarioAdmin = async (req, res) => {
-    const { id_usuario, email, cedula, carnet } = req.body;
+    const { id_persona, email, cedula, carnet } = req.body;
     const transaction = await sequelize.transaction();
     try {
 
@@ -319,43 +319,53 @@ exports.editarDatosUsuarioAdmin = async (req, res) => {
         validateInput(emailLowerCase, FIELDS.EMAIL, req);
         validateInput(cedula, FIELDS.ID, req);
 
-        const usuario = await Usuario.findByPk(id_usuario, {
+        const persona = await Persona.findByPk(id_persona, {
             include: [
                 {
-                    model: Persona,
-                    include: [
-                        { model: Estudiante, required: false },
-                        { model: Profesor, required: false }
-                    ]
+                    model: Usuario
+                },
+                {
+                    model: Estudiante,
+                    required: false
+                },
+                {
+                    model: Profesor,
+                    required: false
                 }
             ]
         });
 
-        if (!usuario) {
+        if (!persona.Usuario) {
             throw new CustomError(
                 HttpStatus.NOT_FOUND,
                 req.t('warning.USER_NOT_FOUND')
             );
         }
         // Verificar si el email ya existe en otro usuario
-        await validateExistingUser(null, emailLowerCase, req);
+        if (email !== persona.Usuario.email) {
+
+            await validateExistingUser(null, emailLowerCase, req);
+
+            // Actualizar email del usuario
+            await persona.Usuario.update({ email: emailLowerCase }, { transaction });
+        }
 
         // Verificar si la cédula ya existe en otra persona
-        await validateIfExists({
-            model: Persona,
-            field: TABLE_FIELDS.CEDULA,
-            value: cedula,
-            errorMessage: req.t('warning.IS_ALREADY_REGISTERED', { data: cedula })
-        });
+        if (cedula !== persona.cedula) {
+            await validateIfExists({
+                model: Persona,
+                field: TABLE_FIELDS.CEDULA,
+                value: cedula,
+                errorMessage: req.t('warning.IS_ALREADY_REGISTERED', { data: cedula })
+            });
 
-        // Actualizar email del usuario
-        await usuario.update({ email: emailLowerCase }, { transaction });
+            // Actualizar cédula de la persona
+            await persona.update({ cedula }, { transaction });
+        }
 
-        // Actualizar cédula de la persona
-        await usuario.Persona.update({ cedula }, { transaction });
 
         // Si es estudiante y se proporcionó carnet
-        if (usuario.rol === ROL.STUDENT) {
+        if (persona.Usuario.rol === ROL.STUDENT) {
             if (!carnet) {
                 throw new CustomError(
                     HttpStatus.BAD_REQUEST,
@@ -366,15 +376,19 @@ exports.editarDatosUsuarioAdmin = async (req, res) => {
             validateInput(carnet, FIELDS.CARNET, req);
 
             // Verificar si el carnet ya existe
-            await validateIfExists({
-                model: Estudiante,
-                field: TABLE_FIELDS.CARNET,
-                value: carnet,
-                errorMessage: req.t('warning.CARNET_ALREADY_REGISTERED', { data: carnet })
-            }, req);
+            if (carnet !== persona.Estudiante.carnet) {
 
-            // Actualizar carnet
-            usuario.Persona.Estudiante && await usuario.Persona.Estudiante.update({ carnet }, { transaction });
+                await validateIfExists({
+                    model: Estudiante,
+                    field: TABLE_FIELDS.CARNET,
+                    value: carnet,
+                    errorMessage: req.t('warning.CARNET_ALREADY_REGISTERED', { data: carnet })
+                }, req);
+
+                // Actualizar carnet
+                persona.Estudiante && await persona.Estudiante.update({ carnet }, { transaction });
+            }
+
         }
 
         // Registrar en auditoría
@@ -383,7 +397,7 @@ exports.editarDatosUsuarioAdmin = async (req, res) => {
             action: req.t('action.ADMIN_UPDATE_USER'),
             description: req.t('description.ADMIN_UPDATE_USER', {
                 admin: adminId,
-                user: id_usuario
+                user: persona.Usuario.id_usuario
             })
         }, { transaction });
 
@@ -392,7 +406,7 @@ exports.editarDatosUsuarioAdmin = async (req, res) => {
             res,
             statusCode: HttpStatus.OK,
             message: req.t('success.USER_UPDATED'),
-            data: { usuario }
+            data: { user: persona }
         });
 
     } catch (error) {
