@@ -750,11 +750,11 @@ exports.mostrarCasosAsignados = async (req, res) => {
                     telefono_adicional: asignacion.Estudiante.Persona.telefono_adicional,
                     createdAt: asignacion.Estudiante.Persona.createdAt,
                     updatedAt: asignacion.Estudiante.Persona.updatedAt,
-                    direccion_exacta: asignacion.Estudiante.Persona.Direccion.direccion_exacta,
-                    canton: asignacion.Estudiante.Persona.Direccion.canton,
-                    distrito: asignacion.Estudiante.Persona.Direccion.distrito,
-                    localidad: asignacion.Estudiante.Persona.Direccion.localidad,
-                    provincia: asignacion.Estudiante.Persona.Direccion.provincia
+                    direccion_exacta: asignacion.Estudiante.Persona.Direccion?.direccion_exacta,
+                    canton: asignacion.Estudiante.Persona.Direccion?.canton,
+                    distrito: asignacion.Estudiante.Persona.Direccion?.distrito,
+                    localidad: asignacion.Estudiante.Persona.Direccion?.localidad,
+                    provincia: asignacion.Estudiante.Persona.Direccion?.provincia
 
                 }
             }));

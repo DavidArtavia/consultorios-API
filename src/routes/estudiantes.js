@@ -62,7 +62,8 @@ router.get(
     verifySession,
     verifyRole([
         ROL.SUPERADMIN,
-        ROL.PROFESSOR
+        ROL.PROFESSOR,
+        ROL.STUDENT
     ]),
     mostrarEstudiantesActivos
 );
