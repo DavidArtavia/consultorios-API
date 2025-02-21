@@ -8,7 +8,7 @@ This API allows managing the information of legal consultancies, including the c
 
 ### Endpoints
 
-1. The implemented API endpoints are available.
+1. The implemented API endpoints are available:
    [Postman endpoints](https://gold-spaceship-124028.postman.co/workspace/David~634df219-77d1-47fc-9b34-42c00ade5c01/collection/19333935-2eff82c0-3fcc-4490-bd32-11cd07d33e5c?action=share&creator=19333935)
 2. It is recommended to use `Postman` to visualize the endpoints.
 
